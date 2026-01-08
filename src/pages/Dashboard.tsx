@@ -8,10 +8,9 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 
 const allPlans = [
   { name: "FREE", price: "Gratis", priceValue: 0 },
-  { name: "ELITE", price: "$9.99/mes", priceValue: 9.99 },
-  { name: "GROWTH", price: "$99.99", priceValue: 99.99 },
-  { name: "SCALE", price: "$199.99", priceValue: 199.99 },
-  { name: "ENTERPRISE", price: "Contacto", priceValue: 999 },
+  { name: "PREMIUM", price: "$9.99/mes", priceValue: 9.99 },
+  { name: "GROWTH", price: "$99.99/mes", priceValue: 99.99 },
+  { name: "SCALE", price: "$199.99/mes", priceValue: 199.99 },
 ];
 
 const Dashboard = () => {
@@ -21,9 +20,11 @@ const Dashboard = () => {
   const [user, setUser] = useState({
     name: "Usuario Demo",
     email: "demo@legendaryum.com",
-    plan: "ELITE",
-    status: "active",
-    nextBilling: "15 Feb 2024",
+    currentPlan: "PREMIUM",
+    subscriptionStartDate: new Date("2024-01-15"),
+    subscriptionEndDate: new Date("2024-02-14"),
+    scheduledPlan: null as string | null,
+    subscriptionStatus: "active" as "active" | "canceled" | "scheduled_downgrade",
   });
 
   const [showManageModal, setShowManageModal] = useState(false);
@@ -34,10 +35,9 @@ const Dashboard = () => {
   const getPlanColor = (plan: string) => {
     switch (plan) {
       case "FREE": return "bg-plan-free";
-      case "ELITE": return "bg-plan-elite";
+      case "PREMIUM": return "bg-plan-premium";
       case "GROWTH": return "bg-plan-growth";
       case "SCALE": return "bg-plan-scale";
-      case "ENTERPRISE": return "bg-plan-enterprise";
       default: return "bg-primary";
     }
   };
@@ -46,14 +46,12 @@ const Dashboard = () => {
     switch (plan) {
       case "FREE":
         return ["Acceso básico", "Rankings gratuitos", "Misiones básicas"];
-      case "ELITE":
+      case "PREMIUM":
         return ["Campañas premium", "Early access", "Ventajas exclusivas"];
       case "GROWTH":
         return ["1 campaña mensual", "10K participantes", "Métricas macro"];
       case "SCALE":
         return ["3 campañas mensuales", "20K participantes", "Métricas completas"];
-      case "ENTERPRISE":
-        return ["Solución personalizada", "Campañas ilimitadas", "Soporte dedicado"];
       default:
         return [];
     }
@@ -62,14 +60,39 @@ const Dashboard = () => {
   const getPlanIndex = (planName: string) => allPlans.findIndex(p => p.name === planName);
   
   const isUpgrade = (targetPlan: string) => {
-    return getPlanIndex(targetPlan) > getPlanIndex(user.plan);
+    return getPlanIndex(targetPlan) > getPlanIndex(user.currentPlan);
+  };
+
+  const isDowngrade = (targetPlan: string) => {
+    return getPlanIndex(targetPlan) < getPlanIndex(user.currentPlan);
+  };
+
+  const isCancellation = (targetPlan: string) => {
+    return targetPlan === "FREE" && user.currentPlan !== "FREE";
+  };
+
+  const getDaysRemaining = () => {
+    const today = new Date();
+    const endDate = user.subscriptionEndDate;
+    const diffTime = endDate.getTime() - today.getTime();
+    return Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+  };
+
+  const calculateProration = (newPlanPrice: number) => {
+    const currentPlanData = allPlans.find(p => p.name === user.currentPlan);
+    if (!currentPlanData) return newPlanPrice;
+    
+    const daysRemaining = getDaysRemaining();
+    const dailyRate = currentPlanData.priceValue / 30;
+    const credit = dailyRate * daysRemaining;
+    return Math.max(0, newPlanPrice - credit);
+  };
+
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
   };
 
   const handleChangePlan = (planName: string) => {
-    if (planName === "ENTERPRISE") {
-      window.open("https://www.legendaryum.com/contact", "_blank");
-      return;
-    }
     setSelectedNewPlan(planName);
   };
 
@@ -84,7 +107,31 @@ const Dashboard = () => {
       setShowSuccess(true);
       
       setTimeout(() => {
-        setUser(prev => ({ ...prev, plan: selectedNewPlan }));
+        if (isUpgrade(selectedNewPlan)) {
+          // Upgrade: immediate, new 30-day period starts
+          setUser(prev => ({ 
+            ...prev, 
+            currentPlan: selectedNewPlan,
+            subscriptionStartDate: new Date(),
+            subscriptionEndDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+            scheduledPlan: null,
+            subscriptionStatus: "active"
+          }));
+        } else if (isCancellation(selectedNewPlan)) {
+          // Cancellation: stays active until end of period
+          setUser(prev => ({ 
+            ...prev, 
+            scheduledPlan: "FREE",
+            subscriptionStatus: "canceled"
+          }));
+        } else {
+          // Downgrade: scheduled for end of period
+          setUser(prev => ({ 
+            ...prev, 
+            scheduledPlan: selectedNewPlan,
+            subscriptionStatus: "scheduled_downgrade"
+          }));
+        }
         setShowSuccess(false);
         setSelectedNewPlan(null);
         setShowManageModal(false);
@@ -92,8 +139,24 @@ const Dashboard = () => {
     }, 2000);
   };
 
-  const currentPlanData = allPlans.find(p => p.name === user.plan);
+  const currentPlanData = allPlans.find(p => p.name === user.currentPlan);
   const selectedPlanData = allPlans.find(p => p.name === selectedNewPlan);
+
+  const getActionMessage = () => {
+    if (!selectedNewPlan) return "";
+    
+    if (isUpgrade(selectedNewPlan)) {
+      const prorated = calculateProration(selectedPlanData?.priceValue || 0);
+      return `Tu nuevo plan se activará de inmediato. Se descontará el tiempo no utilizado de tu plan actual ($${(currentPlanData?.priceValue || 0) - (prorated - (selectedPlanData?.priceValue || 0))}) y comenzará un nuevo período de 30 días. Pagarás $${prorated.toFixed(2)} ahora.`;
+    }
+    
+    if (isCancellation(selectedNewPlan)) {
+      return `Tu plan permanecerá activo hasta el ${formatDate(user.subscriptionEndDate)} (${getDaysRemaining()} días restantes). Luego pasarás al plan FREE automáticamente.`;
+    }
+    
+    // Downgrade
+    return `El cambio de plan se aplicará al finalizar tu período actual el ${formatDate(user.subscriptionEndDate)} (${getDaysRemaining()} días restantes). Hasta entonces, mantendrás los beneficios de tu plan vigente.`;
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -127,23 +190,41 @@ const Dashboard = () => {
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {/* Current Plan */}
           <Card className="md:col-span-2 lg:col-span-1">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">Tu Plan</CardTitle>
-              <Badge className={getPlanColor(user.plan)}>{user.plan}</Badge>
+              <div className="flex items-center gap-2">
+                <Badge className={getPlanColor(user.currentPlan)}>{user.currentPlan}</Badge>
+                {user.subscriptionStatus === "scheduled_downgrade" && user.scheduledPlan && (
+                  <Badge variant="outline" className="text-xs">→ {user.scheduledPlan}</Badge>
+                )}
+                {user.subscriptionStatus === "canceled" && (
+                  <Badge variant="destructive" className="text-xs">Cancelado</Badge>
+                )}
+              </div>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold mb-1">
                 {currentPlanData?.price}
               </div>
-              <p className="text-xs text-muted-foreground mb-4">
-                {user.plan !== "FREE" ? (
-                  <>Próxima facturación: {user.nextBilling}</>
+              <p className="text-xs text-muted-foreground mb-2">
+                {user.currentPlan !== "FREE" ? (
+                  <>Válido hasta: {formatDate(user.subscriptionEndDate)}</>
                 ) : (
                   "Plan gratuito - sin cargos"
                 )}
               </p>
+              {user.subscriptionStatus === "scheduled_downgrade" && user.scheduledPlan && (
+                <p className="text-xs text-amber-500 mb-2">
+                  Cambio a {user.scheduledPlan} programado para {formatDate(user.subscriptionEndDate)}
+                </p>
+              )}
+              {user.subscriptionStatus === "canceled" && (
+                <p className="text-xs text-red-500 mb-2">
+                  Tu plan se cancelará el {formatDate(user.subscriptionEndDate)}
+                </p>
+              )}
               <Button 
-                variant="outline" 
+                variant="outline"
                 className="w-full"
                 onClick={() => setShowManageModal(true)}
               >
@@ -161,7 +242,7 @@ const Dashboard = () => {
             </CardHeader>
             <CardContent>
               <ul className="space-y-2">
-                {getPlanFeatures(user.plan).map((feature, index) => (
+                {getPlanFeatures(user.currentPlan).map((feature, index) => (
                   <li key={index} className="flex items-center gap-2 text-sm">
                     <Check className="h-4 w-4 text-primary" />
                     <span className="text-muted-foreground">{feature}</span>
@@ -220,7 +301,7 @@ const Dashboard = () => {
           </Card>
 
           {/* Upgrade CTA */}
-          {user.plan !== "ENTERPRISE" && (
+          {user.currentPlan !== "SCALE" && user.subscriptionStatus === "active" && (
             <Card className="md:col-span-2 lg:col-span-3 bg-gradient-to-r from-primary/20 to-accent/20 border-primary/30">
               <CardContent className="flex flex-col sm:flex-row items-center justify-between gap-4 py-6">
                 <div>
@@ -250,8 +331,10 @@ const Dashboard = () => {
 
           <div className="space-y-3 py-4">
             {allPlans.map((plan) => {
-              const isCurrent = plan.name === user.plan;
+              const isCurrent = plan.name === user.currentPlan;
               const isUpgradeOption = isUpgrade(plan.name);
+              const isDowngradeOption = isDowngrade(plan.name);
+              const isScheduled = user.scheduledPlan === plan.name;
               
               return (
                 <div 
@@ -259,9 +342,11 @@ const Dashboard = () => {
                   className={`flex items-center justify-between p-4 rounded-lg border transition-colors ${
                     isCurrent 
                       ? "border-primary bg-primary/5" 
-                      : "border-border hover:border-primary/50 cursor-pointer"
+                      : isScheduled
+                        ? "border-amber-500 bg-amber-500/5"
+                        : "border-border hover:border-primary/50 cursor-pointer"
                   }`}
-                  onClick={() => !isCurrent && handleChangePlan(plan.name)}
+                  onClick={() => !isCurrent && !isScheduled && handleChangePlan(plan.name)}
                 >
                   <div className="flex items-center gap-3">
                     <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${getPlanColor(plan.name)}`}>
@@ -273,24 +358,27 @@ const Dashboard = () => {
                         {isCurrent && (
                           <Badge variant="outline" className="text-xs">Actual</Badge>
                         )}
+                        {isScheduled && (
+                          <Badge variant="outline" className="text-xs text-amber-500 border-amber-500">Programado</Badge>
+                        )}
                       </div>
                       <div className="text-sm text-muted-foreground">{plan.price}</div>
                     </div>
                   </div>
                   
-                  {!isCurrent && (
+                  {!isCurrent && !isScheduled && (
                     <Button size="sm" variant={isUpgradeOption ? "default" : "outline"}>
                       {isUpgradeOption ? (
                         <>
                           <ArrowUp className="mr-1 h-3 w-3" />
                           Upgrade
                         </>
-                      ) : (
+                      ) : isDowngradeOption && plan.name !== "FREE" ? (
                         <>
                           <ArrowDown className="mr-1 h-3 w-3" />
                           Downgrade
                         </>
-                      )}
+                      ) : null}
                     </Button>
                   )}
                 </div>
@@ -298,7 +386,7 @@ const Dashboard = () => {
             })}
           </div>
 
-          {user.plan !== "FREE" && (
+          {user.currentPlan !== "FREE" && user.subscriptionStatus === "active" && (
             <div className="border-t border-border pt-4">
               <Button 
                 variant="ghost" 
@@ -318,12 +406,18 @@ const Dashboard = () => {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <CreditCard className="h-5 w-5" />
-              {isUpgrade(selectedNewPlan || "") ? "Confirmar Upgrade" : "Confirmar Cambio"}
+              {isUpgrade(selectedNewPlan || "") 
+                ? "Confirmar Upgrade" 
+                : isCancellation(selectedNewPlan || "")
+                  ? "Cancelar Suscripción"
+                  : "Confirmar Downgrade"}
             </DialogTitle>
             <DialogDescription>
               {isUpgrade(selectedNewPlan || "") 
                 ? `Estás a punto de mejorar a ${selectedNewPlan}`
-                : `Estás a punto de cambiar a ${selectedNewPlan}`
+                : isCancellation(selectedNewPlan || "")
+                  ? "Estás a punto de cancelar tu suscripción"
+                  : `Estás a punto de cambiar a ${selectedNewPlan}`
               }
             </DialogDescription>
           </DialogHeader>
@@ -332,7 +426,7 @@ const Dashboard = () => {
             <div className="flex items-center justify-between p-4 bg-secondary/50 rounded-lg">
               <div>
                 <div className="text-sm text-muted-foreground">De</div>
-                <div className="font-medium">{user.plan}</div>
+                <div className="font-medium">{user.currentPlan}</div>
               </div>
               <ArrowDown className="h-5 w-5 text-muted-foreground rotate-[-90deg]" />
               <div className="text-right">
@@ -341,7 +435,18 @@ const Dashboard = () => {
               </div>
             </div>
 
-            {selectedNewPlan !== "FREE" && (
+            {/* UX Message based on action type */}
+            <div className={`p-4 rounded-lg border ${
+              isUpgrade(selectedNewPlan || "") 
+                ? "bg-green-500/10 border-green-500/30 text-green-400" 
+                : isCancellation(selectedNewPlan || "")
+                  ? "bg-red-500/10 border-red-500/30 text-red-400"
+                  : "bg-amber-500/10 border-amber-500/30 text-amber-400"
+            }`}>
+              <p className="text-sm">{getActionMessage()}</p>
+            </div>
+
+            {selectedNewPlan !== "FREE" && isUpgrade(selectedNewPlan || "") && (
               <div className="bg-secondary/30 border border-border rounded-lg p-4">
                 <div className="flex items-center gap-3">
                   <div className="flex gap-1">
@@ -375,6 +480,8 @@ const Dashboard = () => {
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Procesando...
                   </>
+                ) : isUpgrade(selectedNewPlan || "") ? (
+                  <>Pagar ${calculateProration(selectedPlanData?.priceValue || 0).toFixed(2)}</>
                 ) : (
                   <>Confirmar</>
                 )}
@@ -391,9 +498,19 @@ const Dashboard = () => {
             <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-4">
               <Check className="h-8 w-8 text-green-500" />
             </div>
-            <h3 className="text-xl font-bold mb-2">¡Cambio Exitoso!</h3>
+            <h3 className="text-xl font-bold mb-2">
+              {isUpgrade(selectedNewPlan || "") 
+                ? "¡Upgrade Exitoso!" 
+                : isCancellation(selectedNewPlan || "")
+                  ? "Cancelación Programada"
+                  : "Downgrade Programado"}
+            </h3>
             <p className="text-muted-foreground">
-              Tu plan ha sido actualizado a {selectedNewPlan}.
+              {isUpgrade(selectedNewPlan || "") 
+                ? `Tu plan ${selectedNewPlan} está activo. Comienza un nuevo período de 30 días.`
+                : isCancellation(selectedNewPlan || "")
+                  ? `Tu plan permanecerá activo hasta el final del período actual.`
+                  : `El cambio a ${selectedNewPlan} se aplicará al final de tu período actual.`}
             </p>
           </div>
         </DialogContent>

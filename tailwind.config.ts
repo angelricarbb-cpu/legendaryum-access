@@ -1,5 +1,7 @@
 import type { Config } from "tailwindcss";
 
+// Note: bg-plan-premium is the same as bg-plan-elite for backwards compatibility
+
 export default {
   darkMode: ["class"],
   content: ["./pages/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}"],
@@ -49,6 +51,7 @@ export default {
         },
         plan: {
           free: "hsl(var(--plan-free))",
+          premium: "hsl(var(--plan-elite))",
           elite: "hsl(var(--plan-elite))",
           growth: "hsl(var(--plan-growth))",
           scale: "hsl(var(--plan-scale))",
