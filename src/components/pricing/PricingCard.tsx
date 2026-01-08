@@ -13,6 +13,7 @@ interface PricingCardProps {
   popular?: boolean;
   colorClass: string;
   onSelect: () => void;
+  disabled?: boolean;
 }
 
 const PricingCard = ({
@@ -25,11 +26,12 @@ const PricingCard = ({
   popular = false,
   colorClass,
   onSelect,
+  disabled = false,
 }: PricingCardProps) => {
   return (
     <Card className={cn(
-      "relative flex flex-col transition-all duration-300 hover:shadow-lg",
-      popular && "border-2 border-primary shadow-lg scale-105"
+      "relative flex flex-col transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-1 bg-card border-border",
+      popular && "border-2 border-primary shadow-lg shadow-primary/10 scale-105"
     )}>
       {popular && (
         <div className="absolute -top-3 left-1/2 -translate-x-1/2">
@@ -44,13 +46,13 @@ const PricingCard = ({
           <span className="text-xl font-bold text-white">{name.charAt(0)}</span>
         </div>
         <CardTitle className="text-xl">{name}</CardTitle>
-        <CardDescription className="text-sm">{description}</CardDescription>
+        <CardDescription className="text-sm min-h-[40px]">{description}</CardDescription>
       </CardHeader>
 
       <CardContent className="flex-1">
         <div className="text-center mb-6">
           <span className="text-4xl font-bold">{price}</span>
-          {price !== "Contacto" && (
+          {price !== "Gratis" && price !== "Contacto" && period && (
             <span className="text-muted-foreground">{period}</span>
           )}
         </div>
@@ -67,9 +69,13 @@ const PricingCard = ({
 
       <CardFooter>
         <Button 
-          className="w-full" 
+          className={cn(
+            "w-full",
+            disabled && "opacity-50 cursor-not-allowed"
+          )}
           variant={popular ? "default" : "outline"}
           onClick={onSelect}
+          disabled={disabled}
         >
           {buttonText}
         </Button>
