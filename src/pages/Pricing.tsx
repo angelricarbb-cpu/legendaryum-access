@@ -23,7 +23,7 @@ const plans = [
     priceValue: 0,
   },
   {
-    name: "ELITE",
+    name: "PREMIUM",
     description: "Ideal para quienes buscan ventaja real y mejores beneficios",
     price: "$9.99",
     period: "/mes",
@@ -37,7 +37,7 @@ const plans = [
     ],
     buttonText: "Suscribirse",
     popular: true,
-    colorClass: "bg-plan-elite",
+    colorClass: "bg-plan-premium",
     priceValue: 9.99,
   },
   {
@@ -46,7 +46,7 @@ const plans = [
     price: "$99.99",
     period: "",
     features: [
-      "Todas las funcionalidades de ELITE",
+      "Todas las funcionalidades de PREMIUM",
       "Creación de campañas gamificadas propias",
       "Hasta 1 campaña mensual",
       "Hasta 10.000 participantes únicos por campaña",
@@ -140,7 +140,7 @@ const Pricing = () => {
 
   const isCurrentPlan = (planName: string) => currentSubscription.plan === planName;
   const isUpgrade = (planName: string) => {
-    const planOrder = ["FREE", "ELITE", "GROWTH", "SCALE", "ENTERPRISE"];
+    const planOrder = ["FREE", "PREMIUM", "GROWTH", "SCALE"];
     return planOrder.indexOf(planName) > planOrder.indexOf(currentSubscription.plan);
   };
 
