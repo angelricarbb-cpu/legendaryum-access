@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { CreditCard, User, LogOut, Settings, BarChart3, Sparkles, ArrowUp, ArrowDown, Check, Loader2, Plus, Rocket } from "lucide-react";
+import { 
+  CreditCard, User, LogOut, Settings, BarChart3, Sparkles, ArrowUp, ArrowDown, 
+  Check, Loader2, Plus, Rocket, Calendar, RefreshCcw, XCircle, AlertTriangle
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -8,7 +11,9 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { ProfileEditModal } from "@/components/profile/ProfileEditModal";
 import { CampaignWizard, CampaignData } from "@/components/campaigns/CampaignWizard";
 import { CampaignStatusCard, CampaignStatus } from "@/components/campaigns/CampaignStatusCard";
+import { CampaignMetricsDashboard } from "@/components/campaigns/CampaignMetricsDashboard";
 
+// Exclude ENTERPRISE from upgrade/downgrade plans
 const allPlans = [
   { name: "FREE", price: "Gratis", priceValue: 0 },
   { name: "PREMIUM", price: "$9.99/mes", priceValue: 9.99 },
@@ -22,9 +27,9 @@ const Dashboard = () => {
   const [user, setUser] = useState({
     name: "Usuario Demo",
     email: "demo@legendaryum.com",
-    currentPlan: "GROWTH" as "FREE" | "PREMIUM" | "GROWTH" | "SCALE",
+    currentPlan: "PREMIUM" as "FREE" | "PREMIUM" | "GROWTH" | "SCALE",
     subscriptionStartDate: new Date("2024-01-15"),
-    subscriptionEndDate: new Date("2024-02-14"),
+    subscriptionEndDate: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000), // 20 days from now
     scheduledPlan: null as string | null,
     subscriptionStatus: "active" as "active" | "canceled" | "scheduled_downgrade",
   });
@@ -51,10 +56,24 @@ const Dashboard = () => {
   const [selectedNewPlan, setSelectedNewPlan] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showCampaignWizard, setShowCampaignWizard] = useState(false);
+  const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
+  const [showMetrics, setShowMetrics] = useState(false);
+  const [selectedCampaignForMetrics, setSelectedCampaignForMetrics] = useState<string | null>(null);
 
   const canCreateCampaigns = user.currentPlan === "GROWTH" || user.currentPlan === "SCALE";
+  
+  // Campaign limits by plan
+  const getCampaignLimit = () => {
+    if (user.currentPlan === "GROWTH") return 1;
+    if (user.currentPlan === "SCALE") return 3;
+    return 0;
+  };
+  
+  const activeCampaignsCount = campaigns.filter(c => c.status === "approved" || c.status === "pending").length;
+  const remainingCampaigns = getCampaignLimit() - activeCampaignsCount;
 
   const getPlanColor = (plan: string) => {
     switch (plan) {
@@ -71,7 +90,7 @@ const Dashboard = () => {
       case "FREE": return ["Acceso básico", "Rankings gratuitos", "Misiones básicas"];
       case "PREMIUM": return ["Campañas premium", "Early access", "Ventajas exclusivas"];
       case "GROWTH": return ["1 campaña mensual", "10K participantes", "Métricas macro"];
-      case "SCALE": return ["3 campañas mensuales", "20K participantes", "Métricas completas"];
+      case "SCALE": return ["3 campañas mensuales", "20K participantes", "Métricas completas", "Exportar leads"];
       default: return [];
     }
   };
@@ -100,22 +119,45 @@ const Dashboard = () => {
   const confirmPlanChange = () => {
     if (!selectedNewPlan) return;
     setIsProcessing(true);
+    
     setTimeout(() => {
       setIsProcessing(false);
+      
+      if (isUpgrade(selectedNewPlan)) {
+        setSuccessMessage("¡Tu nuevo plan se ha activado! Tu período de 30 días comienza ahora.");
+        setUser(prev => ({ 
+          ...prev, 
+          currentPlan: selectedNewPlan as any, 
+          subscriptionStartDate: new Date(), 
+          subscriptionEndDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), 
+          scheduledPlan: null, 
+          subscriptionStatus: "active" 
+        }));
+      } else if (isCancellation(selectedNewPlan)) {
+        setSuccessMessage(`Tu suscripción ha sido cancelada. Mantendrás los beneficios hasta el ${formatDate(user.subscriptionEndDate)}.`);
+        setUser(prev => ({ ...prev, scheduledPlan: "FREE", subscriptionStatus: "canceled" }));
+      } else {
+        setSuccessMessage(`El cambio a ${selectedNewPlan} se aplicará el ${formatDate(user.subscriptionEndDate)}. Hasta entonces mantienes tu plan actual.`);
+        setUser(prev => ({ ...prev, scheduledPlan: selectedNewPlan, subscriptionStatus: "scheduled_downgrade" }));
+      }
+      
       setShowSuccess(true);
       setTimeout(() => {
-        if (isUpgrade(selectedNewPlan)) {
-          setUser(prev => ({ ...prev, currentPlan: selectedNewPlan as any, subscriptionStartDate: new Date(), subscriptionEndDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), scheduledPlan: null, subscriptionStatus: "active" }));
-        } else if (isCancellation(selectedNewPlan)) {
-          setUser(prev => ({ ...prev, scheduledPlan: "FREE", subscriptionStatus: "canceled" }));
-        } else {
-          setUser(prev => ({ ...prev, scheduledPlan: selectedNewPlan, subscriptionStatus: "scheduled_downgrade" }));
-        }
         setShowSuccess(false);
         setSelectedNewPlan(null);
         setShowManageModal(false);
-      }, 2000);
+      }, 3000);
     }, 2000);
+  };
+
+  const handleCreateCampaign = () => {
+    if (!canCreateCampaigns) {
+      setShowUpgradePrompt(true);
+    } else if (remainingCampaigns <= 0) {
+      setShowUpgradePrompt(true);
+    } else {
+      setShowCampaignWizard(true);
+    }
   };
 
   const handleCampaignComplete = (data: CampaignData) => {
@@ -125,19 +167,25 @@ const Dashboard = () => {
     }]);
   };
 
+  const handleViewMetrics = (campaignId: string) => {
+    setSelectedCampaignForMetrics(campaignId);
+    setShowMetrics(true);
+  };
+
   const currentPlanData = allPlans.find(p => p.name === user.currentPlan);
   const selectedPlanData = allPlans.find(p => p.name === selectedNewPlan);
+  const selectedCampaign = campaigns.find(c => c.id === selectedCampaignForMetrics);
 
   const getActionMessage = () => {
     if (!selectedNewPlan) return "";
     if (isUpgrade(selectedNewPlan)) {
       const prorated = calculateProration(selectedPlanData?.priceValue || 0);
-      return `Tu nuevo plan se activará de inmediato. Se descontará el tiempo no utilizado y comenzará un nuevo período de 30 días. Pagarás $${prorated.toFixed(2)} ahora.`;
+      return `Tu nuevo plan se activará de inmediato. Se descontará el tiempo no utilizado de tu plan actual ($${((currentPlanData?.priceValue || 0) / 30 * getDaysRemaining()).toFixed(2)} de crédito) y comenzará un nuevo período de 30 días. Pagarás $${prorated.toFixed(2)} ahora.`;
     }
     if (isCancellation(selectedNewPlan)) {
-      return `Tu plan permanecerá activo hasta el ${formatDate(user.subscriptionEndDate)} (${getDaysRemaining()} días restantes). Luego pasarás al plan FREE automáticamente.`;
+      return `Tu plan permanecerá activo hasta el ${formatDate(user.subscriptionEndDate)} (${getDaysRemaining()} días restantes). Luego pasarás al plan FREE automáticamente. No se generan reembolsos.`;
     }
-    return `El cambio de plan se aplicará al finalizar tu período actual el ${formatDate(user.subscriptionEndDate)} (${getDaysRemaining()} días restantes). Hasta entonces, mantendrás los beneficios de tu plan vigente.`;
+    return `El cambio de plan se aplicará al finalizar tu período actual el ${formatDate(user.subscriptionEndDate)} (${getDaysRemaining()} días restantes). Hasta entonces, mantendrás todos los beneficios de tu plan vigente. No se generan reembolsos parciales.`;
   };
 
   return (
@@ -163,6 +211,33 @@ const Dashboard = () => {
           <p className="text-muted-foreground">Gestiona tu suscripción, perfil y campañas desde aquí.</p>
         </div>
 
+        {/* Status alerts */}
+        {user.subscriptionStatus === "canceled" && (
+          <div className="mb-6 p-4 rounded-lg bg-red-500/10 border border-red-500/30 flex items-center gap-3">
+            <XCircle className="h-5 w-5 text-red-500" />
+            <div>
+              <p className="font-medium text-red-500">Suscripción cancelada</p>
+              <p className="text-sm text-muted-foreground">
+                Tu plan actual permanecerá activo hasta el {formatDate(user.subscriptionEndDate)}. 
+                Después pasarás automáticamente al plan FREE.
+              </p>
+            </div>
+          </div>
+        )}
+        
+        {user.subscriptionStatus === "scheduled_downgrade" && user.scheduledPlan && (
+          <div className="mb-6 p-4 rounded-lg bg-yellow-500/10 border border-yellow-500/30 flex items-center gap-3">
+            <AlertTriangle className="h-5 w-5 text-yellow-500" />
+            <div>
+              <p className="font-medium text-yellow-500">Cambio de plan programado</p>
+              <p className="text-sm text-muted-foreground">
+                Tu plan cambiará a {user.scheduledPlan} el {formatDate(user.subscriptionEndDate)}. 
+                Hasta entonces mantienes todos los beneficios de {user.currentPlan}.
+              </p>
+            </div>
+          </div>
+        )}
+
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {/* Current Plan */}
           <Card className="md:col-span-2 lg:col-span-1">
@@ -172,11 +247,23 @@ const Dashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold mb-1">{currentPlanData?.price}</div>
-              <p className="text-xs text-muted-foreground mb-2">
-                {user.currentPlan !== "FREE" ? <>Válido hasta: {formatDate(user.subscriptionEndDate)}</> : "Plan gratuito - sin cargos"}
-              </p>
+              {user.currentPlan !== "FREE" && (
+                <div className="space-y-1 mb-3">
+                  <p className="text-xs text-muted-foreground flex items-center gap-1">
+                    <Calendar className="h-3 w-3" />
+                    Renovación: {formatDate(user.subscriptionEndDate)}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {getDaysRemaining()} días restantes del período actual
+                  </p>
+                </div>
+              )}
+              {user.currentPlan === "FREE" && (
+                <p className="text-xs text-muted-foreground mb-3">Plan gratuito - sin cargos</p>
+              )}
               <Button variant="outline" className="w-full" onClick={() => setShowManageModal(true)}>
-                <CreditCard className="mr-2 h-4 w-4" />Gestionar Suscripción
+                <CreditCard className="mr-2 h-4 w-4" />
+                Gestionar Suscripción
               </Button>
             </CardContent>
           </Card>
@@ -227,42 +314,105 @@ const Dashboard = () => {
             </CardContent>
           </Card>
 
-          {/* Campaign Creator Section - Only for GROWTH/SCALE */}
-          {canCreateCampaigns && (
-            <Card className="md:col-span-2 lg:col-span-3">
-              <CardHeader className="flex flex-row items-center justify-between">
-                <div>
-                  <CardTitle className="flex items-center gap-2"><Rocket className="h-5 w-5 text-primary" />Crear Campañas</CardTitle>
-                  <CardDescription>Lanza tus propias campañas gamificadas</CardDescription>
+          {/* Campaign Creator Section */}
+          <Card className="md:col-span-2 lg:col-span-3">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <Rocket className="h-5 w-5 text-primary" />
+                  Crear Campañas
+                </CardTitle>
+                <CardDescription>
+                  {canCreateCampaigns 
+                    ? `${remainingCampaigns} de ${getCampaignLimit()} campañas disponibles este mes`
+                    : "Necesitas plan GROWTH o SCALE para crear campañas"
+                  }
+                </CardDescription>
+              </div>
+              <Button onClick={handleCreateCampaign}>
+                <Plus className="mr-2 h-4 w-4" />
+                Nueva Campaña
+              </Button>
+            </CardHeader>
+            <CardContent>
+              {!canCreateCampaigns ? (
+                <div className="text-center py-8 bg-muted/30 rounded-lg border border-dashed border-border">
+                  <Rocket className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                  <h3 className="font-semibold mb-2">Desbloquea la creación de campañas</h3>
+                  <p className="text-muted-foreground mb-4 max-w-md mx-auto">
+                    Mejora tu plan a GROWTH o SCALE para lanzar tus propias campañas gamificadas y acceder a métricas.
+                  </p>
+                  <Button onClick={() => setShowManageModal(true)}>
+                    <ArrowUp className="mr-2 h-4 w-4" />
+                    Ver planes disponibles
+                  </Button>
                 </div>
-                <Button onClick={() => setShowCampaignWizard(true)}><Plus className="mr-2 h-4 w-4" />Nueva Campaña</Button>
-              </CardHeader>
-              <CardContent>
-                {campaigns.length > 0 ? (
-                  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    {campaigns.map((campaign) => (
-                      <CampaignStatusCard key={campaign.id} campaign={campaign} onViewMetrics={() => {}} />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <Rocket className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                    <p>Aún no has creado ninguna campaña</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          )}
+              ) : campaigns.length > 0 ? (
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  {campaigns.map((campaign) => (
+                    <CampaignStatusCard 
+                      key={campaign.id} 
+                      campaign={campaign} 
+                      onViewMetrics={handleViewMetrics} 
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  <Rocket className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p>Aún no has creado ninguna campaña</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
 
-          {/* Upgrade CTA for non-campaign plans */}
-          {!canCreateCampaigns && (
-            <Card className="md:col-span-2 lg:col-span-3 bg-gradient-to-r from-plan-growth/20 to-plan-scale/20 border-plan-growth/30">
-              <CardContent className="flex flex-col sm:flex-row items-center justify-between gap-4 py-6">
-                <div>
-                  <h3 className="text-lg font-semibold flex items-center gap-2"><Rocket className="h-5 w-5" />¿Quieres crear tus propias campañas?</h3>
-                  <p className="text-muted-foreground">Mejora a GROWTH o SCALE para lanzar campañas gamificadas.</p>
+          {/* Re-engagement Section */}
+          {canCreateCampaigns && (
+            <Card className="md:col-span-2 lg:col-span-3 bg-gradient-to-r from-primary/5 to-accent/5 border-primary/20">
+              <CardContent className="py-6">
+                <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                  <div className="flex items-center gap-4">
+                    <div className="h-12 w-12 rounded-full bg-primary/20 flex items-center justify-center">
+                      <RefreshCcw className="h-6 w-6 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold">¿Listo para tu próxima campaña?</h3>
+                      <p className="text-sm text-muted-foreground">
+                        {remainingCampaigns > 0 
+                          ? `Tienes ${remainingCampaigns} campaña${remainingCampaigns > 1 ? 's' : ''} disponible${remainingCampaigns > 1 ? 's' : ''} este mes`
+                          : "Has alcanzado el límite de campañas de tu plan"
+                        }
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex gap-3">
+                    {remainingCampaigns > 0 ? (
+                      <Button onClick={handleCreateCampaign}>
+                        <Plus className="mr-2 h-4 w-4" />
+                        Lanzar nueva campaña
+                      </Button>
+                    ) : (
+                      <>
+                        <Button variant="outline" onClick={() => setShowManageModal(true)}>
+                          <ArrowUp className="mr-2 h-4 w-4" />
+                          Upgrade de plan
+                        </Button>
+                        <Button>Comprar campaña extra</Button>
+                      </>
+                    )}
+                  </div>
                 </div>
-                <Button onClick={() => setShowManageModal(true)}>Ver Planes</Button>
+                
+                <div className="mt-4 pt-4 border-t border-border/50 flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">
+                    Tu plan se renueva el {formatDate(user.subscriptionEndDate)}
+                  </span>
+                  {user.subscriptionStatus === "active" && user.currentPlan !== "FREE" && (
+                    <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-destructive" onClick={() => handleChangePlan("FREE")}>
+                      Cancelar suscripción
+                    </Button>
+                  )}
+                </div>
               </CardContent>
             </Card>
           )}
@@ -273,30 +423,160 @@ const Dashboard = () => {
       <ProfileEditModal open={showProfileModal} onOpenChange={setShowProfileModal} profileData={profileData} onSave={setProfileData} />
       
       {canCreateCampaigns && (
-        <CampaignWizard open={showCampaignWizard} onOpenChange={setShowCampaignWizard} userPlan={user.currentPlan as "GROWTH" | "SCALE"} onComplete={handleCampaignComplete} />
+        <CampaignWizard 
+          open={showCampaignWizard} 
+          onOpenChange={setShowCampaignWizard} 
+          userPlan={user.currentPlan as "GROWTH" | "SCALE"} 
+          onComplete={handleCampaignComplete} 
+        />
       )}
 
-      {/* Manage Subscription Modal */}
+      {/* Metrics Dashboard */}
+      {selectedCampaign && (
+        <CampaignMetricsDashboard
+          open={showMetrics}
+          onOpenChange={setShowMetrics}
+          userPlan={user.currentPlan as "GROWTH" | "SCALE"}
+          campaign={{
+            id: selectedCampaign.id,
+            title: selectedCampaign.title,
+            status: selectedCampaign.status === "approved" ? "active" : "completed",
+            startDate: selectedCampaign.startDate || new Date(),
+            endDate: selectedCampaign.endDate || new Date(),
+            participants: selectedCampaign.participants,
+          }}
+        />
+      )}
+
+      {/* Upgrade Prompt Modal - for users without campaign access */}
+      <Dialog open={showUpgradePrompt} onOpenChange={setShowUpgradePrompt}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Rocket className="h-5 w-5 text-primary" />
+              Upgrade requerido
+            </DialogTitle>
+            <DialogDescription>
+              {!canCreateCampaigns 
+                ? "Necesitas un plan GROWTH o SCALE para crear campañas gamificadas."
+                : "Has alcanzado el límite de campañas de tu plan actual."
+              }
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="grid gap-3">
+              <div 
+                className="p-4 rounded-lg border border-plan-growth/50 bg-plan-growth/5 cursor-pointer hover:bg-plan-growth/10 transition-colors"
+                onClick={() => {
+                  setShowUpgradePrompt(false);
+                  handleChangePlan("GROWTH");
+                  setShowManageModal(true);
+                }}
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="font-semibold text-plan-growth">GROWTH</h4>
+                    <p className="text-sm text-muted-foreground">1 campaña/mes • 10K participantes • Métricas macro</p>
+                  </div>
+                  <span className="font-bold">$99.99</span>
+                </div>
+              </div>
+              <div 
+                className="p-4 rounded-lg border border-plan-scale/50 bg-plan-scale/5 cursor-pointer hover:bg-plan-scale/10 transition-colors"
+                onClick={() => {
+                  setShowUpgradePrompt(false);
+                  handleChangePlan("SCALE");
+                  setShowManageModal(true);
+                }}
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="font-semibold text-plan-scale">SCALE</h4>
+                    <p className="text-sm text-muted-foreground">3 campañas/mes • 20K participantes • Métricas completas</p>
+                  </div>
+                  <span className="font-bold">$199.99</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Manage Subscription Modal - ENTERPRISE excluded */}
       <Dialog open={showManageModal && !selectedNewPlan} onOpenChange={setShowManageModal}>
         <DialogContent className="sm:max-w-lg">
-          <DialogHeader><DialogTitle>Gestionar Suscripción</DialogTitle><DialogDescription>Cambia tu plan o cancela tu suscripción.</DialogDescription></DialogHeader>
+          <DialogHeader>
+            <DialogTitle>Gestionar Suscripción</DialogTitle>
+            <DialogDescription>Cambia tu plan o cancela tu suscripción.</DialogDescription>
+          </DialogHeader>
           <div className="space-y-3 py-4">
             {allPlans.map((plan) => {
               const isCurrent = plan.name === user.currentPlan;
               const isUpgradeOption = isUpgrade(plan.name);
+              const isScheduled = user.scheduledPlan === plan.name;
+              
               return (
-                <div key={plan.name} className={`flex items-center justify-between p-4 rounded-lg border transition-colors ${isCurrent ? "border-primary bg-primary/5" : "border-border hover:border-primary/50 cursor-pointer"}`} onClick={() => !isCurrent && handleChangePlan(plan.name)}>
+                <div 
+                  key={plan.name} 
+                  className={`flex items-center justify-between p-4 rounded-lg border transition-colors ${
+                    isCurrent ? "border-primary bg-primary/5" : 
+                    isScheduled ? "border-yellow-500 bg-yellow-500/5" :
+                    "border-border hover:border-primary/50 cursor-pointer"
+                  }`} 
+                  onClick={() => !isCurrent && !isScheduled && handleChangePlan(plan.name)}
+                >
                   <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${getPlanColor(plan.name)}`}><span className="text-white font-bold">{plan.name.charAt(0)}</span></div>
-                    <div><div className="font-medium flex items-center gap-2">{plan.name}{isCurrent && <Badge variant="outline" className="text-xs">Actual</Badge>}</div><div className="text-sm text-muted-foreground">{plan.price}</div></div>
+                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${getPlanColor(plan.name)}`}>
+                      <span className="text-white font-bold">{plan.name.charAt(0)}</span>
+                    </div>
+                    <div>
+                      <div className="font-medium flex items-center gap-2">
+                        {plan.name}
+                        {isCurrent && <Badge variant="outline" className="text-xs">Actual</Badge>}
+                        {isScheduled && <Badge variant="outline" className="text-xs text-yellow-500 border-yellow-500">Programado</Badge>}
+                      </div>
+                      <div className="text-sm text-muted-foreground">{plan.price}</div>
+                    </div>
                   </div>
-                  {!isCurrent && <Button size="sm" variant={isUpgradeOption ? "default" : "outline"}>{isUpgradeOption ? <><ArrowUp className="mr-1 h-3 w-3" />Upgrade</> : <><ArrowDown className="mr-1 h-3 w-3" />Downgrade</>}</Button>}
+                  {!isCurrent && !isScheduled && (
+                    <Button size="sm" variant={isUpgradeOption ? "default" : "outline"}>
+                      {isUpgradeOption 
+                        ? <><ArrowUp className="mr-1 h-3 w-3" />Upgrade</> 
+                        : <><ArrowDown className="mr-1 h-3 w-3" />Downgrade</>
+                      }
+                    </Button>
+                  )}
                 </div>
               );
             })}
+            
+            {/* Enterprise contact option - not for upgrade/downgrade */}
+            <div className="p-4 rounded-lg border border-dashed border-border">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-plan-enterprise">
+                    <span className="text-white font-bold">E</span>
+                  </div>
+                  <div>
+                    <div className="font-medium">ENTERPRISE</div>
+                    <div className="text-sm text-muted-foreground">Solución personalizada</div>
+                  </div>
+                </div>
+                <Button size="sm" variant="outline">Contactar</Button>
+              </div>
+            </div>
           </div>
+          
           {user.currentPlan !== "FREE" && user.subscriptionStatus === "active" && (
-            <div className="border-t border-border pt-4"><Button variant="ghost" className="w-full text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => handleChangePlan("FREE")}>Cancelar Suscripción</Button></div>
+            <div className="border-t border-border pt-4">
+              <Button 
+                variant="ghost" 
+                className="w-full text-destructive hover:text-destructive hover:bg-destructive/10" 
+                onClick={() => handleChangePlan("FREE")}
+              >
+                Cancelar Suscripción
+              </Button>
+            </div>
           )}
         </DialogContent>
       </Dialog>
@@ -305,19 +585,59 @@ const Dashboard = () => {
       <Dialog open={!!selectedNewPlan && !showSuccess} onOpenChange={() => setSelectedNewPlan(null)}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2"><CreditCard className="h-5 w-5" />{isUpgrade(selectedNewPlan || "") ? "Confirmar Upgrade" : isCancellation(selectedNewPlan || "") ? "Cancelar Suscripción" : "Confirmar Downgrade"}</DialogTitle>
-            <DialogDescription>{isUpgrade(selectedNewPlan || "") ? `Estás a punto de mejorar a ${selectedNewPlan}` : isCancellation(selectedNewPlan || "") ? "Estás a punto de cancelar tu suscripción" : `Estás a punto de cambiar a ${selectedNewPlan}`}</DialogDescription>
+            <DialogTitle className="flex items-center gap-2">
+              <CreditCard className="h-5 w-5" />
+              {isUpgrade(selectedNewPlan || "") 
+                ? "Confirmar Upgrade" 
+                : isCancellation(selectedNewPlan || "") 
+                  ? "Cancelar Suscripción" 
+                  : "Confirmar Downgrade"
+              }
+            </DialogTitle>
+            <DialogDescription>
+              {isUpgrade(selectedNewPlan || "") 
+                ? `Estás a punto de mejorar a ${selectedNewPlan}` 
+                : isCancellation(selectedNewPlan || "") 
+                  ? "Estás a punto de cancelar tu suscripción" 
+                  : `Estás a punto de cambiar a ${selectedNewPlan}`
+              }
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-6 py-4">
-            <div className="p-4 rounded-lg bg-muted/50 border border-border"><p className="text-sm">{getActionMessage()}</p></div>
-            <div className="flex gap-3"><Button variant="outline" className="flex-1" onClick={() => setSelectedNewPlan(null)} disabled={isProcessing}>Cancelar</Button><Button className="flex-1" onClick={confirmPlanChange} disabled={isProcessing}>{isProcessing ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Procesando...</> : "Confirmar"}</Button></div>
+            <div className={`p-4 rounded-lg border ${
+              isUpgrade(selectedNewPlan || "") 
+                ? "bg-green-500/10 border-green-500/30" 
+                : isCancellation(selectedNewPlan || "") 
+                  ? "bg-red-500/10 border-red-500/30" 
+                  : "bg-yellow-500/10 border-yellow-500/30"
+            }`}>
+              <p className="text-sm">{getActionMessage()}</p>
+            </div>
+            
+            <div className="flex gap-3">
+              <Button variant="outline" className="flex-1" onClick={() => setSelectedNewPlan(null)} disabled={isProcessing}>
+                Cancelar
+              </Button>
+              <Button className="flex-1" onClick={confirmPlanChange} disabled={isProcessing}>
+                {isProcessing 
+                  ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Procesando...</> 
+                  : "Confirmar"
+                }
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
 
       {/* Success Modal */}
       <Dialog open={showSuccess}>
-        <DialogContent className="sm:max-w-sm text-center"><div className="w-16 h-16 mx-auto mb-4 rounded-full bg-green-500/20 flex items-center justify-center"><Check className="h-8 w-8 text-green-500" /></div><DialogTitle>¡Operación exitosa!</DialogTitle><DialogDescription>Tu cambio de plan ha sido procesado correctamente.</DialogDescription></DialogContent>
+        <DialogContent className="sm:max-w-sm text-center">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-green-500/20 flex items-center justify-center">
+            <Check className="h-8 w-8 text-green-500" />
+          </div>
+          <DialogTitle>¡Operación exitosa!</DialogTitle>
+          <DialogDescription>{successMessage}</DialogDescription>
+        </DialogContent>
       </Dialog>
     </div>
   );
