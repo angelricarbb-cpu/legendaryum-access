@@ -21,6 +21,7 @@ interface CampaignMetricsDashboardProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   userPlan: "GROWTH" | "SCALE";
+  onUpgrade?: () => void;
   campaign: {
     id: string;
     title: string;
@@ -72,6 +73,7 @@ export const CampaignMetricsDashboard = ({
   open, 
   onOpenChange, 
   userPlan, 
+  onUpgrade,
   campaign 
 }: CampaignMetricsDashboardProps) => {
   const [activeTab, setActiveTab] = useState("realtime");
@@ -109,7 +111,7 @@ export const CampaignMetricsDashboard = ({
               <BarChart3 className="h-4 w-4 mr-2" />
               Tiempo Real
             </TabsTrigger>
-            <TabsTrigger value="micro" disabled={!isScale}>
+            <TabsTrigger value="micro">
               {!isScale && <Lock className="h-3 w-3 mr-1" />}
               <Users className="h-4 w-4 mr-2" />
               Datos Micro
@@ -263,7 +265,11 @@ export const CampaignMetricsDashboard = ({
                         </p>
                       </div>
                     </div>
-                    <Button variant="outline" className="border-plan-scale text-plan-scale hover:bg-plan-scale/10">
+                    <Button 
+                      variant="outline" 
+                      className="border-plan-scale text-plan-scale hover:bg-plan-scale/10"
+                      onClick={onUpgrade}
+                    >
                       <ArrowUp className="mr-2 h-4 w-4" />
                       Upgrade a SCALE
                     </Button>
@@ -342,7 +348,7 @@ export const CampaignMetricsDashboard = ({
                     <p className="text-muted-foreground mb-4">
                       Esta funcionalidad está disponible solo para el plan SCALE
                     </p>
-                    <Button>
+                    <Button onClick={onUpgrade}>
                       <ArrowUp className="mr-2 h-4 w-4" />
                       Upgrade a SCALE
                     </Button>

@@ -437,6 +437,11 @@ const Dashboard = () => {
           open={showMetrics}
           onOpenChange={setShowMetrics}
           userPlan={user.currentPlan as "GROWTH" | "SCALE"}
+          onUpgrade={() => {
+            setShowMetrics(false);
+            handleChangePlan("SCALE");
+            setShowManageModal(true);
+          }}
           campaign={{
             id: selectedCampaign.id,
             title: selectedCampaign.title,
