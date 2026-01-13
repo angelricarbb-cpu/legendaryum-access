@@ -12,6 +12,8 @@ import { ProfileEditModal } from "@/components/profile/ProfileEditModal";
 import { CampaignWizard, CampaignData } from "@/components/campaigns/CampaignWizard";
 import { CampaignStatusCard, CampaignStatus } from "@/components/campaigns/CampaignStatusCard";
 import { CampaignMetricsDashboard } from "@/components/campaigns/CampaignMetricsDashboard";
+import { FinishedCampaignsModal } from "@/components/campaigns/FinishedCampaignsModal";
+import { CampaignEditModal } from "@/components/campaigns/CampaignEditModal";
 
 // Exclude ENTERPRISE from upgrade/downgrade plans
 const allPlans = [
@@ -48,8 +50,10 @@ const Dashboard = () => {
     id: string; title: string; author: string; status: CampaignStatus;
     startDate: Date | null; endDate: Date | null; participants: number; game: string; rejectionReason?: string; rejectionDetails?: string;
   }>>([
-    { id: "1", title: "Summer Challenge", author: "Demo Brand", status: "approved", startDate: new Date(), endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), participants: 1250, game: "memory" },
+    { id: "1", title: "Summer Challenge", author: "Demo Brand", status: "active", startDate: new Date(), endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), participants: 1250, game: "memory" },
     { id: "2", title: "Winter Quest", author: "Demo Brand", status: "pending", startDate: null, endDate: null, participants: 0, game: "puzzle" },
+    { id: "3", title: "Spring Promo", author: "Demo Brand", status: "rejected", startDate: null, endDate: null, participants: 0, game: "runner", rejectionReason: "inappropriate_content", rejectionDetails: "El contenido visual no cumple con nuestras políticas de marca." },
+    { id: "4", title: "Holiday Special", author: "Demo Brand", status: "completed", startDate: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000), endDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), participants: 3420, game: "memory" },
   ]);
 
   const [showManageModal, setShowManageModal] = useState(false);
@@ -74,7 +78,7 @@ const Dashboard = () => {
     return 0;
   };
   
-  const activeCampaignsCount = campaigns.filter(c => c.status === "approved" || c.status === "pending").length;
+  const activeCampaignsCount = campaigns.filter(c => c.status === "active" || c.status === "pending").length;
   const remainingCampaigns = getCampaignLimit() - activeCampaignsCount;
 
   const getPlanColor = (plan: string) => {
@@ -173,6 +177,35 @@ const Dashboard = () => {
     setSelectedCampaignForMetrics(campaignId);
     setShowMetrics(true);
   };
+
+  const handleEditCampaign = (campaignId: string) => {
+    setShowEditCampaign(campaignId);
+  };
+
+  const handleSaveCampaignEdit = (campaignId: string, updates: { title: string; description: string }) => {
+    setCampaigns(prev => prev.map(c => 
+      c.id === campaignId 
+        ? { ...c, title: updates.title, status: "pending" as CampaignStatus, rejectionReason: undefined, rejectionDetails: undefined }
+        : c
+    ));
+  };
+
+  const finishedCampaigns = campaigns
+    .filter(c => c.status === "completed")
+    .map(c => ({
+      id: c.id,
+      title: c.title,
+      author: c.author,
+      startDate: c.startDate || new Date(),
+      endDate: c.endDate || new Date(),
+      participants: c.participants,
+      totalMatches: Math.floor(c.participants * 5.4),
+      totalMinutes: Math.floor(c.participants * 3.2),
+      bonusAchievement: 78,
+      game: c.game,
+    }));
+
+  const campaignToEdit = campaigns.find(c => c.id === showEditCampaign);
 
   const currentPlanData = allPlans.find(p => p.name === user.currentPlan);
   const selectedPlanData = allPlans.find(p => p.name === selectedNewPlan);
@@ -353,11 +386,12 @@ const Dashboard = () => {
                 </div>
               ) : campaigns.length > 0 ? (
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                  {campaigns.map((campaign) => (
+                  {campaigns.filter(c => c.status !== "completed").map((campaign) => (
                     <CampaignStatusCard 
                       key={campaign.id} 
                       campaign={campaign} 
-                      onViewMetrics={handleViewMetrics} 
+                      onViewMetrics={handleViewMetrics}
+                      onEdit={handleEditCampaign}
                     />
                   ))}
                 </div>
@@ -449,13 +483,41 @@ const Dashboard = () => {
           campaign={{
             id: selectedCampaign.id,
             title: selectedCampaign.title,
-            status: selectedCampaign.status === "approved" ? "active" : "completed",
+            status: selectedCampaign.status === "active" ? "active" : "completed",
             startDate: selectedCampaign.startDate || new Date(),
             endDate: selectedCampaign.endDate || new Date(),
             participants: selectedCampaign.participants,
           }}
         />
       )}
+
+      {/* Finished Campaigns Modal */}
+      <FinishedCampaignsModal
+        open={showFinishedCampaigns}
+        onOpenChange={setShowFinishedCampaigns}
+        campaigns={finishedCampaigns}
+        onViewReport={(campaignId) => {
+          setShowFinishedCampaigns(false);
+          setSelectedCampaignForMetrics(campaignId);
+          setShowMetrics(true);
+        }}
+      />
+
+      {/* Edit Rejected Campaign Modal */}
+      <CampaignEditModal
+        open={!!showEditCampaign}
+        onOpenChange={(open) => !open && setShowEditCampaign(null)}
+        campaign={campaignToEdit ? {
+          id: campaignToEdit.id,
+          title: campaignToEdit.title,
+          author: campaignToEdit.author,
+          authorEmail: "demo@legendaryum.com",
+          description: "",
+          rejectionReason: campaignToEdit.rejectionReason || "",
+          rejectionDetails: campaignToEdit.rejectionDetails,
+        } : null}
+        onSave={handleSaveCampaignEdit}
+      />
 
       {/* Upgrade Prompt Modal - for users without campaign access */}
       <Dialog open={showUpgradePrompt} onOpenChange={setShowUpgradePrompt}>
