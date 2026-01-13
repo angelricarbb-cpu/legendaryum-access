@@ -9,7 +9,7 @@ import {
   Users, TrendingUp, Clock, Trophy, Target, BarChart3, 
   Download, FileText, FileSpreadsheet, UserCheck, Eye, 
   Gamepad2, Award, Calendar, ArrowUp, Lock, Timer, Activity,
-  Smartphone, Monitor, Tablet, MapPin
+  Smartphone, Monitor, Tablet, MapPin, UserCircle, Users2
 } from "lucide-react";
 import {
   ChartContainer,
@@ -69,6 +69,22 @@ const topLocations = [
   { city: "Valencia", users: 1520, percentage: 12 },
   { city: "Sevilla", users: 980, percentage: 8 },
   { city: "Bilbao", users: 720, percentage: 6 },
+];
+
+// Audience Profile data
+const audienceProfile = [
+  { label: "Masculino", percentage: 52, color: "#6366f1" },
+  { label: "Femenino", percentage: 45, color: "#c084fc" },
+  { label: "Otro", percentage: 3, color: "#a855f7" },
+];
+
+// Age Distribution data
+const ageDistribution = [
+  { range: "18-24", percentage: 22, color: "#8b5cf6" },
+  { range: "25-34", percentage: 38, color: "#a855f7" },
+  { range: "35-44", percentage: 24, color: "#c084fc" },
+  { range: "45-54", percentage: 11, color: "#d8b4fe" },
+  { range: "55+", percentage: 5, color: "#ede9fe" },
 ];
 
 const rewardsData = [
@@ -483,6 +499,117 @@ export const CampaignMetricsDashboard = ({
                               style={{ 
                                 width: animateBars ? `${percentage}%` : '0%',
                                 transitionDelay: `${index * 100 + 200}ms`
+                              }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Audience Profile & Age Distribution */}
+              <div className="grid md:grid-cols-2 gap-4">
+                {/* Audience Profile */}
+                <Card className="bg-card border-border group transition-all duration-300 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-base text-foreground flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-full bg-indigo-500/20 flex items-center justify-center">
+                        <Users2 className="h-3 w-3 text-indigo-400" />
+                      </div>
+                      Audience Profile
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {audienceProfile.map((item, index) => (
+                      <div 
+                        key={index} 
+                        className={cn(
+                          "space-y-1 transition-all duration-500 group/bar cursor-pointer",
+                          animateBars ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4"
+                        )}
+                        style={{ transitionDelay: `${index * 80 + 400}ms` }}
+                      >
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground group-hover/bar:text-foreground transition-colors">{item.label}</span>
+                          <span className="font-medium text-foreground group-hover/bar:text-primary transition-colors">{item.percentage}%</span>
+                        </div>
+                        <div className="h-2.5 bg-secondary rounded-full overflow-hidden group-hover/bar:h-3 transition-all duration-200">
+                          <div 
+                            className="h-full rounded-full transition-all duration-700 ease-out group-hover/bar:brightness-110"
+                            style={{ 
+                              width: animateBars ? `${item.percentage}%` : '0%',
+                              backgroundColor: item.color,
+                              transitionDelay: `${index * 80 + 600}ms`
+                            }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                    {/* Visual pie representation */}
+                    <div className="flex items-center justify-center pt-2">
+                      <div className="flex items-center gap-4 text-xs">
+                        {audienceProfile.map((item, index) => (
+                          <div key={index} className="flex items-center gap-1.5">
+                            <div 
+                              className="w-2.5 h-2.5 rounded-full" 
+                              style={{ backgroundColor: item.color }}
+                            />
+                            <span className="text-muted-foreground">{item.label}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Age Distribution */}
+                <Card className="bg-card border-border group transition-all duration-300 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-base text-foreground flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-full bg-purple-500/20 flex items-center justify-center">
+                        <UserCircle className="h-3 w-3 text-purple-400" />
+                      </div>
+                      Age Distribution
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {ageDistribution.map((item, index) => {
+                      const isTopGroup = index === 1; // 25-34 is the largest group
+                      return (
+                        <div 
+                          key={index} 
+                          className={cn(
+                            "space-y-1 transition-all duration-500 group/bar cursor-pointer",
+                            animateBars ? "opacity-100 translate-x-0" : "opacity-0 translate-x-4"
+                          )}
+                          style={{ transitionDelay: `${index * 80 + 400}ms` }}
+                        >
+                          <div className="flex justify-between text-sm">
+                            <div className="flex items-center gap-2">
+                              <span className="text-muted-foreground group-hover/bar:text-foreground transition-colors">{item.range}</span>
+                              {isTopGroup && (
+                                <span className="text-[9px] font-medium text-primary bg-primary/10 px-1.5 py-0.5 rounded">
+                                  TOP
+                                </span>
+                              )}
+                            </div>
+                            <span className={cn(
+                              "font-medium transition-colors",
+                              isTopGroup ? "text-primary" : "text-foreground group-hover/bar:text-primary"
+                            )}>{item.percentage}%</span>
+                          </div>
+                          <div className="h-2.5 bg-secondary rounded-full overflow-hidden group-hover/bar:h-3 transition-all duration-200">
+                            <div 
+                              className={cn(
+                                "h-full rounded-full transition-all duration-700 ease-out group-hover/bar:brightness-110",
+                                isTopGroup && "ring-1 ring-primary/50"
+                              )}
+                              style={{ 
+                                width: animateBars ? `${item.percentage}%` : '0%',
+                                backgroundColor: item.color,
+                                transitionDelay: `${index * 80 + 600}ms`
                               }}
                             />
                           </div>
