@@ -100,8 +100,8 @@ export const FinishedCampaignsModal = ({
                       </div>
                       <div className="p-3 rounded-lg bg-muted/30 text-center">
                         <Gift className="h-4 w-4 mx-auto mb-1 text-amber-500" />
-                        <p className="text-lg font-bold">{campaign.rewardsDelivered}/{campaign.totalRewards}</p>
-                        <p className="text-xs text-muted-foreground">Rewards Entregados</p>
+                        <p className="text-lg font-bold">{campaign.rewardsDelivered + campaign.totalRewards}</p>
+                        <p className="text-xs text-muted-foreground">Rewards</p>
                       </div>
                     </div>
 

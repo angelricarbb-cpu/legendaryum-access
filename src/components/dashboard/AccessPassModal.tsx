@@ -193,9 +193,11 @@ export const AccessPassModal = ({ open, onOpenChange }: AccessPassModalProps) =>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
-                <Button size="sm" variant="ghost" className="text-xs text-muted-foreground">
-                  Añadir al calendario
-                </Button>
+                {!isActive && (
+                  <Button size="sm" variant="ghost" className="text-xs text-muted-foreground">
+                    Añadir al calendario
+                  </Button>
+                )}
               </div>
             )}
           </div>
