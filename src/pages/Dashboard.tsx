@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { 
   CreditCard, User, LogOut, Settings, BarChart3, Sparkles, ArrowUp, ArrowDown, 
-  Check, Loader2, Plus, Rocket, Calendar, RefreshCcw, XCircle, AlertTriangle
+  Check, Loader2, Plus, Rocket, Calendar, XCircle, AlertTriangle, Trophy
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,6 +14,8 @@ import { CampaignStatusCard, CampaignStatus } from "@/components/campaigns/Campa
 import { CampaignMetricsDashboard } from "@/components/campaigns/CampaignMetricsDashboard";
 import { FinishedCampaignsModal } from "@/components/campaigns/FinishedCampaignsModal";
 import { CampaignEditModal } from "@/components/campaigns/CampaignEditModal";
+import { AccessPassModal } from "@/components/dashboard/AccessPassModal";
+import { AchievementsModal } from "@/components/dashboard/AchievementsModal";
 
 // Exclude ENTERPRISE from upgrade/downgrade plans
 const allPlans = [
@@ -54,6 +56,9 @@ const Dashboard = () => {
     { id: "2", title: "Winter Quest", author: "Demo Brand", status: "pending", startDate: null, endDate: null, participants: 0, game: "puzzle" },
     { id: "3", title: "Spring Promo", author: "Demo Brand", status: "rejected", startDate: null, endDate: null, participants: 0, game: "runner", rejectionReason: "inappropriate_content", rejectionDetails: "El contenido visual no cumple con nuestras políticas de marca." },
     { id: "4", title: "Holiday Special", author: "Demo Brand", status: "completed", startDate: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000), endDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), participants: 3420, game: "memory" },
+    { id: "5", title: "Black Friday Rush", author: "Demo Brand", status: "completed", startDate: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000), endDate: new Date(Date.now() - 65 * 24 * 60 * 60 * 1000), participants: 5680, game: "puzzle" },
+    { id: "6", title: "Summer Vibes 2025", author: "Demo Brand", status: "completed", startDate: new Date(Date.now() - 180 * 24 * 60 * 60 * 1000), endDate: new Date(Date.now() - 150 * 24 * 60 * 60 * 1000), participants: 8920, game: "runner" },
+    { id: "7", title: "Easter Egg Hunt", author: "Demo Brand", status: "completed", startDate: new Date(Date.now() - 270 * 24 * 60 * 60 * 1000), endDate: new Date(Date.now() - 255 * 24 * 60 * 60 * 1000), participants: 2340, game: "memory" },
   ]);
 
   const [showManageModal, setShowManageModal] = useState(false);
@@ -68,6 +73,8 @@ const Dashboard = () => {
   const [selectedCampaignForMetrics, setSelectedCampaignForMetrics] = useState<string | null>(null);
   const [showFinishedCampaigns, setShowFinishedCampaigns] = useState(false);
   const [showEditCampaign, setShowEditCampaign] = useState<string | null>(null);
+  const [showAccessPass, setShowAccessPass] = useState(false);
+  const [showAchievements, setShowAchievements] = useState(false);
 
   const canCreateCampaigns = user.currentPlan === "GROWTH" || user.currentPlan === "SCALE";
   
@@ -345,8 +352,12 @@ const Dashboard = () => {
                 <Button variant="outline" className="h-auto py-4 flex-col gap-2" onClick={() => setShowFinishedCampaigns(true)}>
                   <BarChart3 className="h-5 w-5" /><span>Campañas Finalizadas</span>
                 </Button>
-                <Button variant="outline" className="h-auto py-4 flex-col gap-2"><Sparkles className="h-5 w-5" /><span>Access Pass</span></Button>
-                <Button variant="outline" className="h-auto py-4 flex-col gap-2"><Settings className="h-5 w-5" /><span>Logros</span></Button>
+                <Button variant="outline" className="h-auto py-4 flex-col gap-2" onClick={() => setShowAccessPass(true)}>
+                  <Sparkles className="h-5 w-5" /><span>Access Pass</span>
+                </Button>
+                <Button variant="outline" className="h-auto py-4 flex-col gap-2" onClick={() => setShowAchievements(true)}>
+                  <Trophy className="h-5 w-5" /><span>Logros</span>
+                </Button>
               </div>
             </CardContent>
           </Card>
@@ -404,61 +415,14 @@ const Dashboard = () => {
             </CardContent>
           </Card>
 
-          {/* Re-engagement Section */}
-          {canCreateCampaigns && (
-            <Card className="md:col-span-2 lg:col-span-3 bg-gradient-to-r from-primary/5 to-accent/5 border-primary/20">
-              <CardContent className="py-6">
-                <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-                  <div className="flex items-center gap-4">
-                    <div className="h-12 w-12 rounded-full bg-primary/20 flex items-center justify-center">
-                      <RefreshCcw className="h-6 w-6 text-primary" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold">¿Listo para tu próxima campaña?</h3>
-                      <p className="text-sm text-muted-foreground">
-                        {remainingCampaigns > 0 
-                          ? `Tienes ${remainingCampaigns} campaña${remainingCampaigns > 1 ? 's' : ''} disponible${remainingCampaigns > 1 ? 's' : ''} este mes`
-                          : "Has alcanzado el límite de campañas de tu plan"
-                        }
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex gap-3">
-                    {remainingCampaigns > 0 ? (
-                      <Button onClick={handleCreateCampaign}>
-                        <Plus className="mr-2 h-4 w-4" />
-                        Lanzar nueva campaña
-                      </Button>
-                    ) : (
-                      <>
-                        <Button variant="outline" onClick={() => setShowManageModal(true)}>
-                          <ArrowUp className="mr-2 h-4 w-4" />
-                          Upgrade de plan
-                        </Button>
-                        <Button>Comprar campaña extra</Button>
-                      </>
-                    )}
-                  </div>
-                </div>
-                
-                <div className="mt-4 pt-4 border-t border-border/50 flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">
-                    Tu plan se renueva el {formatDate(user.subscriptionEndDate)}
-                  </span>
-                  {user.subscriptionStatus === "active" && user.currentPlan !== "FREE" && (
-                    <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-destructive" onClick={() => handleChangePlan("FREE")}>
-                      Cancelar suscripción
-                    </Button>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          )}
         </div>
       </main>
 
       {/* Modals */}
       <ProfileEditModal open={showProfileModal} onOpenChange={setShowProfileModal} profileData={profileData} onSave={setProfileData} />
+      
+      <AccessPassModal open={showAccessPass} onOpenChange={setShowAccessPass} />
+      <AchievementsModal open={showAchievements} onOpenChange={setShowAchievements} />
       
       {canCreateCampaigns && (
         <CampaignWizard 
