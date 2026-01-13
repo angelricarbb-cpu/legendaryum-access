@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
   BarChart3, Users, Calendar, Trophy, Download, 
-  CheckCircle2, Gamepad2, Clock, Gift
+  CheckCircle2, Gamepad2, Clock, Gift, Rocket
 } from "lucide-react";
 
 interface FinishedCampaign {
@@ -27,17 +27,26 @@ interface FinishedCampaignsModalProps {
   onOpenChange: (open: boolean) => void;
   campaigns: FinishedCampaign[];
   onViewReport: (campaignId: string) => void;
+  userPlan: "FREE" | "PREMIUM" | "GROWTH" | "SCALE";
+  onUpgrade: () => void;
 }
 
 export const FinishedCampaignsModal = ({ 
   open, 
   onOpenChange, 
   campaigns,
-  onViewReport 
+  onViewReport,
+  userPlan,
+  onUpgrade
 }: FinishedCampaignsModalProps) => {
   const formatDate = (date: Date) => {
     return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
   };
+
+  // Users with FREE or PREMIUM plan can only see campaigns if they have them (from a previous GROWTH/SCALE subscription)
+  const isBasicPlan = userPlan === "FREE" || userPlan === "PREMIUM";
+  const hasCampaignsFromPreviousPlan = campaigns.length > 0;
+  const showUpgradePrompt = isBasicPlan && !hasCampaignsFromPreviousPlan;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -53,7 +62,23 @@ export const FinishedCampaignsModal = ({
         </DialogHeader>
 
         <ScrollArea className="flex-1 pr-4">
-          {campaigns.length === 0 ? (
+          {showUpgradePrompt ? (
+            <div className="text-center py-12 space-y-4">
+              <div className="w-16 h-16 mx-auto rounded-full bg-primary/10 flex items-center justify-center">
+                <Trophy className="h-8 w-8 text-primary" />
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-lg font-semibold">Desbloquea campañas gamificadas</h3>
+                <p className="text-muted-foreground max-w-md mx-auto">
+                  Con los planes GROWTH o SCALE puedes crear tus propias campañas gamificadas y ver aquí el historial completo de tus campañas finalizadas.
+                </p>
+              </div>
+              <Button onClick={onUpgrade} className="mt-4">
+                <Rocket className="mr-2 h-4 w-4" />
+                Hacer Upgrade
+              </Button>
+            </div>
+          ) : campaigns.length === 0 ? (
             <div className="text-center py-12">
               <Trophy className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
               <p className="text-muted-foreground">Aún no tienes campañas finalizadas</p>
