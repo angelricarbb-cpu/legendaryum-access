@@ -248,8 +248,12 @@ export const AchievementsModal = ({ open, onOpenChange }: AchievementsModalProps
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-hidden flex flex-col">
-        <DialogHeader className="flex-shrink-0">
+      {/*
+        Scroll robusto: hacemos que el propio DialogContent sea el contenedor scrollable.
+        Esto evita problemas de altura/min-h-0 con Tabs/ScrollArea en algunos navegadores.
+      */}
+      <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto overscroll-contain">
+        <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Award className="h-5 w-5 text-primary" />
             Logros y Beneficios
@@ -259,8 +263,8 @@ export const AchievementsModal = ({ open, onOpenChange }: AchievementsModalProps
           </DialogDescription>
         </DialogHeader>
 
-        <Tabs defaultValue="achievements" className="flex-1 flex flex-col min-h-0 overflow-hidden">
-          <TabsList className="grid w-full grid-cols-2 bg-secondary/50 flex-shrink-0">
+        <Tabs defaultValue="achievements" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 bg-secondary/50">
             <TabsTrigger value="achievements" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <Trophy className="h-4 w-4 mr-2" />
               Reconocimientos ({mockAchievements.length})
@@ -271,206 +275,197 @@ export const AchievementsModal = ({ open, onOpenChange }: AchievementsModalProps
             </TabsTrigger>
           </TabsList>
 
+
           {/* Achievements Tab - Renamed to Reconocimientos */}
-          <TabsContent value="achievements" className="flex-1 mt-4 overflow-hidden data-[state=inactive]:hidden">
-            <ScrollArea className="h-full pr-4">
-              <div className="space-y-3 pb-4">
-                {mockAchievements.length === 0 ? (
-                  <div className="text-center py-12">
-                    <Trophy className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
-                    <p className="text-muted-foreground">Aún no tienes reconocimientos de ranking</p>
-                    <p className="text-sm text-muted-foreground mt-1">¡Participa en campañas para ganar!</p>
-                  </div>
-                ) : (
-                  mockAchievements.map((achievement) => {
-                    const IconComponent = getPositionIcon(achievement.icon);
-                    const isOutsideTop10 = achievement.position && achievement.position > 10;
-                    return (
-                      <Card key={achievement.id} className="border-border hover:border-primary/50 transition-all">
-                        <CardContent className="p-4">
-                          <div className="flex gap-4 items-center">
-                            {/* Position badge */}
-                            <div className={`w-14 h-14 rounded-full flex items-center justify-center ${getPositionColor(achievement.position)}`}>
-                              <IconComponent className="h-7 w-7 text-white" />
-                            </div>
-                            
-                            {/* Achievement info */}
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2">
-                                <h4 className="font-semibold text-foreground">{achievement.title}</h4>
-                                {achievement.position && achievement.position <= 3 && (
-                                  <Badge className="bg-gradient-to-r from-yellow-500 to-amber-500 text-white border-0">
-                                    #{achievement.position}
-                                  </Badge>
-                                )}
-                                {achievement.position && achievement.position > 3 && achievement.position <= 10 && (
-                                  <Badge className="bg-primary/20 text-primary border-primary/30">
-                                    #{achievement.position}
-                                  </Badge>
-                                )}
-                                {isOutsideTop10 && (
-                                  <Badge className="bg-violet-500/20 text-violet-400 border-violet-500/30">
-                                    #{achievement.position}
-                                  </Badge>
-                                )}
-                              </div>
-                              <p className="text-sm text-muted-foreground">{achievement.description}</p>
-                              <div className="flex gap-3 mt-1 text-xs text-muted-foreground">
-                                <span className="flex items-center gap-1">
-                                  <Target className="h-3 w-3" />
-                                  {achievement.campaign}
-                                </span>
-                                <span>{formatDate(achievement.date)}</span>
-                              </div>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    );
-                  })
-                )}
+          <TabsContent value="achievements" className="mt-4 space-y-3">
+            {mockAchievements.length === 0 ? (
+              <div className="text-center py-12">
+                <Trophy className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
+                <p className="text-muted-foreground">Aún no tienes reconocimientos de ranking</p>
+                <p className="text-sm text-muted-foreground mt-1">¡Participa en campañas para ganar!</p>
               </div>
-            </ScrollArea>
+            ) : (
+              mockAchievements.map((achievement) => {
+                const IconComponent = getPositionIcon(achievement.icon);
+                const isOutsideTop10 = achievement.position && achievement.position > 10;
+                return (
+                  <Card key={achievement.id} className="border-border hover:border-primary/50 transition-all">
+                    <CardContent className="p-4">
+                      <div className="flex gap-4 items-center">
+                        <div className={`w-14 h-14 rounded-full flex items-center justify-center ${getPositionColor(achievement.position)}`}>
+                          <IconComponent className="h-7 w-7 text-white" />
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <h4 className="font-semibold text-foreground">{achievement.title}</h4>
+                            {achievement.position && achievement.position <= 3 && (
+                              <Badge className="bg-gradient-to-r from-yellow-500 to-amber-500 text-white border-0">
+                                #{achievement.position}
+                              </Badge>
+                            )}
+                            {achievement.position && achievement.position > 3 && achievement.position <= 10 && (
+                              <Badge className="bg-primary/20 text-primary border-primary/30">
+                                #{achievement.position}
+                              </Badge>
+                            )}
+                            {isOutsideTop10 && (
+                              <Badge className="bg-violet-500/20 text-violet-400 border-violet-500/30">
+                                #{achievement.position}
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-sm text-muted-foreground">{achievement.description}</p>
+                          <div className="flex gap-3 mt-1 text-xs text-muted-foreground">
+                            <span className="flex items-center gap-1">
+                              <Target className="h-3 w-3" />
+                              {achievement.campaign}
+                            </span>
+                            <span>{formatDate(achievement.date)}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })
+            )}
           </TabsContent>
 
           {/* Benefits Tab */}
-          <TabsContent value="benefits" className="flex-1 mt-4 overflow-hidden data-[state=inactive]:hidden">
-            <ScrollArea className="h-full pr-4">
-              <div className="space-y-4 pb-4">
-                {/* Active Benefits */}
-                {activeBenefits.length > 0 && (
-                  <div className="space-y-3">
-                    <h3 className="text-sm font-medium text-foreground flex items-center gap-2">
-                      <Zap className="h-4 w-4 text-green-500" />
-                      Beneficios Activos ({activeBenefits.length})
-                    </h3>
-                    {activeBenefits.map((benefit) => {
-                      const IconComponent = getBenefitIcon(benefit.icon);
-                      const sourceInfo = getSourceLabel(benefit.source);
-                      return (
-                        <Card key={benefit.id} className="border-green-500/30 bg-green-500/5 hover:border-green-500/50 transition-all">
-                          <CardContent className="p-4">
-                            <div className="flex gap-4">
-                              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center flex-shrink-0">
-                                <IconComponent className="h-6 w-6 text-white" />
-                              </div>
-                              
-                              <div className="flex-1 space-y-2">
-                                <div className="flex items-start justify-between">
-                                  <div>
-                                    <h4 className="font-semibold text-foreground">{benefit.title}</h4>
-                                    <p className="text-sm text-muted-foreground">{benefit.brand}</p>
-                                  </div>
-                                  <Badge className="bg-green-500/20 text-green-400 border-green-500/50 text-lg px-3">
-                                    {benefit.discount}
-                                  </Badge>
-                                </div>
-                                
-                                {/* Source badge */}
-                                <Badge variant="outline" className={sourceInfo.color}>
-                                  {sourceInfo.label}
-                                </Badge>
-                                
-                                {/* Code and redeem section */}
-                                <div className="flex items-center gap-2 pt-1">
-                                  <div className="flex-1 flex items-center gap-2">
-                                    <code className="text-xs bg-secondary px-2 py-1.5 rounded font-mono text-primary flex-1">
-                                      {benefit.code}
-                                    </code>
-                                    <Button 
-                                      size="sm" 
-                                      variant="ghost" 
-                                      className="h-8 w-8 p-0"
-                                      onClick={() => benefit.code && handleCopyCode(benefit.code)}
-                                    >
-                                      {copiedCode === benefit.code ? (
-                                        <Check className="h-4 w-4 text-green-500" />
-                                      ) : (
-                                        <Copy className="h-4 w-4" />
-                                      )}
-                                    </Button>
-                                  </div>
-                                  {benefit.redeemUrl && (
-                                    <Button 
-                                      size="sm" 
-                                      variant="outline"
-                                      className="text-xs"
-                                      onClick={() => handleOpenRedeemUrl(benefit.redeemUrl!)}
-                                    >
-                                      <ExternalLink className="h-3 w-3 mr-1" />
-                                      Canjear
-                                    </Button>
-                                  )}
-                                </div>
-                                
-                                <span className="text-xs text-muted-foreground">
-                                  Válido hasta {formatDate(benefit.validUntil)}
-                                </span>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      );
-                    })}
-                  </div>
-                )}
+          <TabsContent value="benefits" className="mt-4 space-y-4">
+            {/* Active Benefits */}
+            {activeBenefits.length > 0 && (
+              <div className="space-y-3">
+                <h3 className="text-sm font-medium text-foreground flex items-center gap-2">
+                  <Zap className="h-4 w-4 text-green-500" />
+                  Beneficios Activos ({activeBenefits.length})
+                </h3>
+                {activeBenefits.map((benefit) => {
+                  const IconComponent = getBenefitIcon(benefit.icon);
+                  const sourceInfo = getSourceLabel(benefit.source);
+                  return (
+                    <Card key={benefit.id} className="border-green-500/30 bg-green-500/5 hover:border-green-500/50 transition-all">
+                      <CardContent className="p-4">
+                        <div className="flex gap-4">
+                          <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center flex-shrink-0">
+                            <IconComponent className="h-6 w-6 text-white" />
+                          </div>
 
-                {/* Finished Benefits */}
-                {finishedBenefits.length > 0 && (
-                  <div className="space-y-3">
-                    <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                      Beneficios Finalizados ({finishedBenefits.length})
-                    </h3>
-                    {finishedBenefits.map((benefit) => {
-                      const IconComponent = getBenefitIcon(benefit.icon);
-                      const sourceInfo = getSourceLabel(benefit.source);
-                      const isExpired = benefit.validUntil <= now && !benefit.used;
-                      return (
-                        <Card key={benefit.id} className="border-border opacity-60">
-                          <CardContent className="p-4">
-                            <div className="flex gap-4 items-center">
-                              <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center">
-                                <IconComponent className="h-6 w-6 text-muted-foreground" />
+                          <div className="flex-1 space-y-2">
+                            <div className="flex items-start justify-between">
+                              <div>
+                                <h4 className="font-semibold text-foreground">{benefit.title}</h4>
+                                <p className="text-sm text-muted-foreground">{benefit.brand}</p>
                               </div>
-                              
-                              <div className="flex-1">
-                                <div className="flex items-center justify-between">
-                                  <div>
-                                    <h4 className="font-semibold text-muted-foreground">{benefit.title}</h4>
-                                    <p className="text-sm text-muted-foreground">{benefit.brand}</p>
-                                  </div>
-                                  <Badge variant="outline" className={isExpired ? "text-red-400 border-red-500/30" : "text-muted-foreground"}>
-                                    {isExpired ? "Expirado" : "Canjeado"}
-                                  </Badge>
-                                </div>
-                                <div className="flex items-center gap-2 mt-1">
-                                  <Badge variant="outline" className="text-muted-foreground border-muted">
-                                    {sourceInfo.label}
-                                  </Badge>
-                                  {isExpired && (
-                                    <span className="text-xs text-red-400">
-                                      Expiró el {formatDate(benefit.validUntil)}
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
+                              <Badge className="bg-green-500/20 text-green-400 border-green-500/50 text-lg px-3">
+                                {benefit.discount}
+                              </Badge>
                             </div>
-                          </CardContent>
-                        </Card>
-                      );
-                    })}
-                  </div>
-                )}
 
-                {activeBenefits.length === 0 && finishedBenefits.length === 0 && (
-                  <div className="text-center py-12">
-                    <Gift className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
-                    <p className="text-muted-foreground">Aún no tienes beneficios</p>
-                    <p className="text-sm text-muted-foreground mt-1">¡Gana posiciones en los rankings!</p>
-                  </div>
-                )}
+                            <Badge variant="outline" className={sourceInfo.color}>
+                              {sourceInfo.label}
+                            </Badge>
+
+                            <div className="flex items-center gap-2 pt-1">
+                              <div className="flex-1 flex items-center gap-2">
+                                <code className="text-xs bg-secondary px-2 py-1.5 rounded font-mono text-primary flex-1">
+                                  {benefit.code}
+                                </code>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  className="h-8 w-8 p-0"
+                                  onClick={() => benefit.code && handleCopyCode(benefit.code)}
+                                >
+                                  {copiedCode === benefit.code ? (
+                                    <Check className="h-4 w-4 text-green-500" />
+                                  ) : (
+                                    <Copy className="h-4 w-4" />
+                                  )}
+                                </Button>
+                              </div>
+                              {benefit.redeemUrl && (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="text-xs"
+                                  onClick={() => handleOpenRedeemUrl(benefit.redeemUrl!)}
+                                >
+                                  <ExternalLink className="h-3 w-3 mr-1" />
+                                  Canjear
+                                </Button>
+                              )}
+                            </div>
+
+                            <span className="text-xs text-muted-foreground">
+                              Válido hasta {formatDate(benefit.validUntil)}
+                            </span>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
               </div>
-            </ScrollArea>
+            )}
+
+            {/* Finalizados: expirados (aunque no usados) o canjeados */}
+            {finishedBenefits.length > 0 && (
+              <div className="space-y-3">
+                <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                  Beneficios Finalizados ({finishedBenefits.length})
+                </h3>
+                {finishedBenefits.map((benefit) => {
+                  const IconComponent = getBenefitIcon(benefit.icon);
+                  const sourceInfo = getSourceLabel(benefit.source);
+                  const isExpired = benefit.validUntil <= now && !benefit.used;
+                  return (
+                    <Card key={benefit.id} className="border-border opacity-60">
+                      <CardContent className="p-4">
+                        <div className="flex gap-4 items-center">
+                          <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center">
+                            <IconComponent className="h-6 w-6 text-muted-foreground" />
+                          </div>
+
+                          <div className="flex-1">
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <h4 className="font-semibold text-muted-foreground">{benefit.title}</h4>
+                                <p className="text-sm text-muted-foreground">{benefit.brand}</p>
+                              </div>
+                              <Badge
+                                variant="outline"
+                                className={isExpired ? "text-red-400 border-red-500/30" : "text-muted-foreground"}
+                              >
+                                {isExpired ? "Expirado" : "Canjeado"}
+                              </Badge>
+                            </div>
+                            <div className="flex items-center gap-2 mt-1">
+                              <Badge variant="outline" className="text-muted-foreground border-muted">
+                                {sourceInfo.label}
+                              </Badge>
+                              {isExpired && (
+                                <span className="text-xs text-red-400">
+                                  Expiró el {formatDate(benefit.validUntil)}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            )}
+
+            {activeBenefits.length === 0 && finishedBenefits.length === 0 && (
+              <div className="text-center py-12">
+                <Gift className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
+                <p className="text-muted-foreground">Aún no tienes beneficios</p>
+                <p className="text-sm text-muted-foreground mt-1">¡Gana posiciones en los rankings!</p>
+              </div>
+            )}
           </TabsContent>
         </Tabs>
       </DialogContent>
