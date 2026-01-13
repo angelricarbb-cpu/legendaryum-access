@@ -9,7 +9,7 @@ import {
   Users, TrendingUp, Clock, Trophy, Target, BarChart3, 
   Download, FileText, FileSpreadsheet, UserCheck, Eye, 
   Gamepad2, Award, Calendar, ArrowUp, Lock, Timer, Activity,
-  Smartphone, Monitor, Tablet, MapPin, UserCircle, Users2
+  Smartphone, Monitor, Tablet, MapPin, UserCircle, Users2, Gift
 } from "lucide-react";
 import {
   ChartContainer,
@@ -48,18 +48,18 @@ const participationData = [
 
 // Engagement distribution data for horizontal bar chart
 const engagementDistribution = [
-  { label: "1 partida", percentage: 15, color: "#6366f1" },
-  { label: "2-5 partidas", percentage: 35, color: "#8b5cf6" },
-  { label: "6-10 partidas", percentage: 28, color: "#a855f7" },
-  { label: "11-20 partidas", percentage: 15, color: "#c084fc" },
-  { label: "20+ partidas", percentage: 7, color: "#d8b4fe" },
+  { label: "1 partida", percentage: 15, count: 188, color: "#6366f1" },
+  { label: "2-5 partidas", percentage: 35, count: 438, color: "#8b5cf6" },
+  { label: "6-10 partidas", percentage: 28, count: 350, color: "#a855f7" },
+  { label: "11-20 partidas", percentage: 15, count: 188, color: "#c084fc" },
+  { label: "20+ partidas", percentage: 7, count: 86, color: "#d8b4fe" },
 ];
 
 // Device distribution data
 const deviceDistribution = [
-  { device: "Mobile", percentage: 58, color: "#8b5cf6" },
-  { device: "Desktop", percentage: 32, color: "#a855f7" },
-  { device: "Tablet", percentage: 10, color: "#c084fc" },
+  { device: "Mobile", percentage: 58, count: 725, color: "#8b5cf6" },
+  { device: "Desktop", percentage: 32, count: 400, color: "#a855f7" },
+  { device: "Tablet", percentage: 10, count: 125, color: "#c084fc" },
 ];
 
 // Top locations data
@@ -73,18 +73,18 @@ const topLocations = [
 
 // Audience Profile data
 const audienceProfile = [
-  { label: "Masculino", percentage: 52, color: "#6366f1" },
-  { label: "Femenino", percentage: 45, color: "#c084fc" },
-  { label: "Otro", percentage: 3, color: "#a855f7" },
+  { label: "Masculino", percentage: 52, count: 650, color: "#6366f1" },
+  { label: "Femenino", percentage: 45, count: 563, color: "#c084fc" },
+  { label: "Otro", percentage: 3, count: 37, color: "#a855f7" },
 ];
 
 // Age Distribution data
 const ageDistribution = [
-  { range: "18-24", percentage: 22, color: "#8b5cf6" },
-  { range: "25-34", percentage: 38, color: "#a855f7" },
-  { range: "35-44", percentage: 24, color: "#c084fc" },
-  { range: "45-54", percentage: 11, color: "#d8b4fe" },
-  { range: "55+", percentage: 5, color: "#ede9fe" },
+  { range: "18-24", percentage: 22, count: 275, color: "#8b5cf6" },
+  { range: "25-34", percentage: 38, count: 475, color: "#a855f7" },
+  { range: "35-44", percentage: 24, count: 300, color: "#c084fc" },
+  { range: "45-54", percentage: 11, count: 138, color: "#d8b4fe" },
+  { range: "55+", percentage: 5, count: 62, color: "#ede9fe" },
 ];
 
 const rewardsData = [
@@ -147,7 +147,13 @@ export const CampaignMetricsDashboard = ({
     totalMinutes: 28620,
     avgMinutesPerUser: 4.2,
     avgPlaysPerUser: 3.8,
+    rewardsDelivered: 344,
   };
+
+  // Calculate total rewards delivered
+  const totalRewardsDelivered = rewardsData.reduce((acc, r) => acc + r.claimed, 0);
+  const totalRewardsAvailable = rewardsData.reduce((acc, r) => acc + r.total, 0);
+  const rewardsPercentage = Math.round((totalRewardsDelivered / totalRewardsAvailable) * 100);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -173,7 +179,7 @@ export const CampaignMetricsDashboard = ({
         </DialogHeader>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 overflow-hidden flex flex-col">
-          <TabsList className={`grid w-full ${isCompleted ? 'grid-cols-3' : 'grid-cols-2'} bg-secondary/50 p-1`}>
+          <TabsList className="grid w-full grid-cols-2 bg-secondary/50 p-1">
             <TabsTrigger 
               value="macro" 
               className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
@@ -189,27 +195,19 @@ export const CampaignMetricsDashboard = ({
               <Users className="h-4 w-4 mr-2" />
               MICRO
             </TabsTrigger>
-            {isCompleted && (
-              <TabsTrigger 
-                value="reports" 
-                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-              >
-                <FileText className="h-4 w-4 mr-2" />
-                REPORTING
-              </TabsTrigger>
-            )}
           </TabsList>
 
           <div className="flex-1 overflow-y-auto py-4">
             <TabsContent value="macro" className="space-y-6 mt-0">
               {/* KPI Cards - Purple themed with circular icons and animations */}
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+              <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
                 {[
                   { icon: Users, value: kpiData.participants, label: "Participantes", iconBg: "bg-primary/20", iconColor: "text-primary", trend: "+12%", isDecimal: false },
                   { icon: Gamepad2, value: kpiData.totalPlays, label: "Partidas totales", iconBg: "bg-accent/20", iconColor: "text-accent", trend: "+8%", isDecimal: false },
                   { icon: Target, value: kpiData.avgPlaysPerUser, label: "Avg partidas/User", iconBg: "bg-emerald-500/20", iconColor: "text-emerald-400", trend: "+5%", isDecimal: true },
                   { icon: Timer, value: kpiData.totalMinutes, label: "Total minutos", iconBg: "bg-purple-500/20", iconColor: "text-purple-400", trend: "+15%", isDecimal: false },
                   { icon: Activity, value: kpiData.avgMinutesPerUser, label: "Avg min/user", iconBg: "bg-violet-500/20", iconColor: "text-violet-400", trend: "+3%", isDecimal: true, suffix: " min" },
+                  { icon: Gift, value: totalRewardsDelivered, label: "Rewards entregados", iconBg: "bg-amber-500/20", iconColor: "text-amber-400", trend: `${rewardsPercentage}%`, isDecimal: false },
                 ].map((kpi, index) => (
                   <Card 
                     key={index}
@@ -339,7 +337,10 @@ export const CampaignMetricsDashboard = ({
                       >
                         <div className="flex justify-between text-sm">
                           <span className="text-muted-foreground group-hover/bar:text-foreground transition-colors">{item.label}</span>
-                          <span className="font-medium text-foreground group-hover/bar:text-primary transition-colors">{item.percentage}%</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-muted-foreground">({item.count})</span>
+                            <span className="font-medium text-foreground group-hover/bar:text-primary transition-colors">{item.percentage}%</span>
+                          </div>
                         </div>
                         <div className="h-2.5 bg-secondary rounded-full overflow-hidden group-hover/bar:h-3 transition-all duration-200">
                           <div 
@@ -385,7 +386,10 @@ export const CampaignMetricsDashboard = ({
                               </div>
                               <span className="text-sm text-foreground group-hover/device:text-primary transition-colors">{item.device}</span>
                             </div>
-                            <span className="font-bold text-foreground group-hover/device:text-primary transition-colors">{item.percentage}%</span>
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs text-muted-foreground">({item.count})</span>
+                              <span className="font-bold text-foreground group-hover/device:text-primary transition-colors">{item.percentage}%</span>
+                            </div>
                           </div>
                           <div className="h-2.5 bg-secondary rounded-full overflow-hidden group-hover/device:h-3 transition-all duration-200">
                             <div 
@@ -447,14 +451,14 @@ export const CampaignMetricsDashboard = ({
                   </CardContent>
                 </Card>
 
-                {/* Rewards Effectiveness with animations */}
+                {/* Rewards Delivered */}
                 <Card className="bg-card border-border group transition-all duration-300 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-base text-foreground flex items-center gap-2">
                       <div className="w-6 h-6 rounded-full bg-violet-500/20 flex items-center justify-center">
-                        <Award className="h-3 w-3 text-violet-400" />
+                        <Gift className="h-3 w-3 text-violet-400" />
                       </div>
-                      Efectividad de Rewards
+                      Rewards Entregados
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
@@ -476,18 +480,21 @@ export const CampaignMetricsDashboard = ({
                                 "w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 group-hover/reward:scale-110 group-hover/reward:rotate-6",
                                 isComplete ? "bg-emerald-500/20" : "bg-primary/20"
                               )}>
-                                <Award className={cn("h-4 w-4", isComplete ? "text-emerald-400" : "text-primary")} />
+                                <Gift className={cn("h-4 w-4", isComplete ? "text-emerald-400" : "text-primary")} />
                               </div>
                               <span className="text-sm text-foreground group-hover/reward:text-primary transition-colors">{reward.type}</span>
                             </div>
                             <div className="text-sm flex items-center gap-2">
                               <span className="font-bold text-foreground">{reward.claimed}</span>
                               <span className="text-muted-foreground">/{reward.total}</span>
-                              {isComplete && (
-                                <span className="text-[10px] font-medium text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded animate-pulse">
-                                  100%
-                                </span>
-                              )}
+                              <span className={cn(
+                                "text-[10px] font-medium px-1.5 py-0.5 rounded",
+                                isComplete 
+                                  ? "text-emerald-400 bg-emerald-500/10 animate-pulse" 
+                                  : "text-muted-foreground bg-muted"
+                              )}>
+                                {percentage}%
+                              </span>
                             </div>
                           </div>
                           <div className="h-2.5 bg-secondary rounded-full overflow-hidden group-hover/reward:h-3 transition-all duration-200">
@@ -533,7 +540,10 @@ export const CampaignMetricsDashboard = ({
                       >
                         <div className="flex justify-between text-sm">
                           <span className="text-muted-foreground group-hover/bar:text-foreground transition-colors">{item.label}</span>
-                          <span className="font-medium text-foreground group-hover/bar:text-primary transition-colors">{item.percentage}%</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-muted-foreground">({item.count})</span>
+                            <span className="font-medium text-foreground group-hover/bar:text-primary transition-colors">{item.percentage}%</span>
+                          </div>
                         </div>
                         <div className="h-2.5 bg-secondary rounded-full overflow-hidden group-hover/bar:h-3 transition-all duration-200">
                           <div 
@@ -595,10 +605,13 @@ export const CampaignMetricsDashboard = ({
                                 </span>
                               )}
                             </div>
-                            <span className={cn(
-                              "font-medium transition-colors",
-                              isTopGroup ? "text-primary" : "text-foreground group-hover/bar:text-primary"
-                            )}>{item.percentage}%</span>
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs text-muted-foreground">({item.count})</span>
+                              <span className={cn(
+                                "font-medium transition-colors",
+                                isTopGroup ? "text-primary" : "text-foreground group-hover/bar:text-primary"
+                              )}>{item.percentage}%</span>
+                            </div>
                           </div>
                           <div className="h-2.5 bg-secondary rounded-full overflow-hidden group-hover/bar:h-3 transition-all duration-200">
                             <div 
@@ -619,6 +632,29 @@ export const CampaignMetricsDashboard = ({
                   </CardContent>
                 </Card>
               </div>
+
+              {/* Export button for MACRO */}
+              <Card className="bg-card border-border">
+                <CardContent className="py-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                        <FileText className="h-5 w-5 text-primary" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-foreground">Exportar Métricas MACRO</p>
+                        <p className="text-sm text-muted-foreground">
+                          Descarga un reporte con todas las métricas agregadas
+                        </p>
+                      </div>
+                    </div>
+                    <Button variant="outline" className="border-primary/50 text-primary hover:bg-primary/10">
+                      <Download className="mr-2 h-4 w-4" />
+                      Exportar PDF
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
 
               {/* Upgrade prompt for GROWTH users */}
               {!isScale && (
@@ -692,19 +728,31 @@ export const CampaignMetricsDashboard = ({
                     </CardContent>
                   </Card>
 
+                  {/* Export button for MICRO */}
                   <Card className="bg-card border-border">
                     <CardContent className="py-4">
                       <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-medium text-foreground">Exportar para CRM</p>
-                          <p className="text-sm text-muted-foreground">
-                            Descarga los datos de usuarios para tus acciones comerciales
-                          </p>
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center">
+                            <FileSpreadsheet className="h-5 w-5 text-accent" />
+                          </div>
+                          <div>
+                            <p className="font-medium text-foreground">Exportar Métricas MICRO</p>
+                            <p className="text-sm text-muted-foreground">
+                              Descarga los datos individuales de usuarios
+                            </p>
+                          </div>
                         </div>
-                        <Button className="bg-primary hover:bg-primary/90">
-                          <Download className="mr-2 h-4 w-4" />
-                          Exportar CSV
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button variant="outline" className="border-accent/50 text-accent hover:bg-accent/10">
+                            <Download className="mr-2 h-4 w-4" />
+                            PDF
+                          </Button>
+                          <Button variant="outline" className="border-accent/50 text-accent hover:bg-accent/10">
+                            <Download className="mr-2 h-4 w-4" />
+                            CSV
+                          </Button>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
@@ -723,166 +771,6 @@ export const CampaignMetricsDashboard = ({
                       <ArrowUp className="mr-2 h-4 w-4" />
                       Upgrade a SCALE
                     </Button>
-                  </CardContent>
-                </Card>
-              )}
-            </TabsContent>
-
-            {/* REPORTS - Only when campaign is completed */}
-            <TabsContent value="reports" className="space-y-6 mt-0">
-              {isCompleted ? (
-                <>
-                  {/* Executive Summary */}
-                  <Card className="bg-card border-border">
-                    <CardHeader>
-                      <CardTitle className="text-base text-foreground">Resumen Ejecutivo</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div className="text-center p-4 bg-primary/10 rounded-lg border border-primary/20">
-                          <p className="text-2xl font-bold text-primary">{campaign.participants.toLocaleString()}</p>
-                          <p className="text-xs text-muted-foreground">Total participantes</p>
-                        </div>
-                        <div className="text-center p-4 bg-green-500/10 rounded-lg border border-green-500/20">
-                          <p className="text-2xl font-bold text-green-400">68%</p>
-                          <p className="text-xs text-muted-foreground">Tasa de conversión</p>
-                        </div>
-                        <div className="text-center p-4 bg-accent/10 rounded-lg border border-accent/20">
-                          <p className="text-2xl font-bold text-accent">6,810</p>
-                          <p className="text-xs text-muted-foreground">Interacciones totales</p>
-                        </div>
-                        <div className="text-center p-4 bg-violet-500/10 rounded-lg border border-violet-500/20">
-                          <p className="text-2xl font-bold text-violet-400">344</p>
-                          <p className="text-xs text-muted-foreground">Rewards entregados</p>
-                        </div>
-                      </div>
-
-                      <div className="grid md:grid-cols-2 gap-4">
-                        <div className="p-4 border border-border rounded-lg bg-secondary/30">
-                          <h4 className="font-medium mb-2 text-foreground">Comparativa Inicio vs Fin</h4>
-                          <div className="space-y-2 text-sm">
-                            <div className="flex justify-between">
-                              <span className="text-muted-foreground">Engagement inicial</span>
-                              <span className="font-medium text-foreground">23%</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-muted-foreground">Engagement final</span>
-                              <span className="font-medium text-green-400">68%</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-muted-foreground">Incremento</span>
-                              <span className="font-bold text-primary">+196%</span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="p-4 border border-border rounded-lg bg-secondary/30">
-                          <h4 className="font-medium mb-2 text-foreground">Métricas de Tiempo</h4>
-                          <div className="space-y-2 text-sm">
-                            <div className="flex justify-between">
-                              <span className="text-muted-foreground">Total minutos</span>
-                              <span className="font-medium text-foreground">{kpiData.totalMinutes.toLocaleString()}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-muted-foreground">Avg min/user</span>
-                              <span className="font-medium text-foreground">{kpiData.avgMinutesPerUser} min</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-muted-foreground">Sesión más larga</span>
-                              <span className="font-bold text-primary">45 min</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* Download Reports */}
-                  <Card className="bg-card border-border">
-                    <CardHeader>
-                      <CardTitle className="text-base text-foreground">Descargar Reportes</CardTitle>
-                      <CardDescription>
-                        Obtén un análisis completo de tu campaña
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      <div className="flex items-center justify-between p-3 border border-border rounded-lg hover:border-primary/50 transition-colors bg-secondary/30">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-                            <FileText className="h-5 w-5 text-primary" />
-                          </div>
-                          <div>
-                            <p className="font-medium text-foreground">Reporte MACRO</p>
-                            <p className="text-xs text-muted-foreground">Métricas agregadas y tendencias</p>
-                          </div>
-                        </div>
-                        <Button variant="outline" size="sm" className="border-primary/50 text-primary hover:bg-primary/10">
-                          <Download className="h-4 w-4 mr-2" />
-                          PDF
-                        </Button>
-                      </div>
-                      
-                      {isScale && (
-                        <div className="flex items-center justify-between p-3 border border-border rounded-lg hover:border-accent/50 transition-colors bg-secondary/30">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center">
-                              <FileSpreadsheet className="h-5 w-5 text-accent" />
-                            </div>
-                            <div>
-                              <p className="font-medium text-foreground">Reporte MICRO</p>
-                              <p className="text-xs text-muted-foreground">Datos individuales de usuarios</p>
-                            </div>
-                          </div>
-                          <div className="flex gap-2">
-                            <Button variant="outline" size="sm" className="border-accent/50 text-accent hover:bg-accent/10">
-                              <Download className="h-4 w-4 mr-2" />
-                              PDF
-                            </Button>
-                            <Button variant="outline" size="sm" className="border-accent/50 text-accent hover:bg-accent/10">
-                              <Download className="h-4 w-4 mr-2" />
-                              CSV
-                            </Button>
-                          </div>
-                        </div>
-                      )}
-                      
-                      {!isScale && (
-                        <div className="flex items-center justify-between p-3 border border-border rounded-lg bg-secondary/20 opacity-60">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
-                              <Lock className="h-5 w-5 text-muted-foreground" />
-                            </div>
-                            <div>
-                              <p className="font-medium text-muted-foreground">Reporte MICRO</p>
-                              <p className="text-xs text-muted-foreground">Disponible en plan SCALE</p>
-                            </div>
-                          </div>
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={onUpgrade}
-                            className="border-primary/50 text-primary hover:bg-primary/10"
-                          >
-                            <ArrowUp className="h-4 w-4 mr-2" />
-                            Upgrade
-                          </Button>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                </>
-              ) : (
-                <Card className="text-center py-12 bg-card border-border">
-                  <CardContent>
-                    <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
-                      <Calendar className="h-8 w-8 text-muted-foreground" />
-                    </div>
-                    <h3 className="text-lg font-semibold mb-2 text-foreground">Reportes no disponibles</h3>
-                    <p className="text-muted-foreground mb-2">
-                      Los reportes estarán disponibles cuando la campaña finalice
-                    </p>
-                    <p className="text-sm text-primary">
-                      {getDaysRemaining()} días restantes
-                    </p>
                   </CardContent>
                 </Card>
               )}
