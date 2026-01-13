@@ -241,7 +241,7 @@ export const CampaignMetricsDashboard = ({
                                 }
                               />
                             </p>
-                            <span className="text-[10px] font-medium text-emerald-400 bg-emerald-500/10 px-1 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300">{kpi.trend}</span>
+                            {!isCompleted && <span className="text-[10px] font-medium text-emerald-400 bg-emerald-500/10 px-1 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300">{kpi.trend}</span>}
                           </div>
                           <p className="text-[10px] text-muted-foreground truncate">{kpi.label}</p>
                         </div>
