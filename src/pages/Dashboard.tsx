@@ -36,6 +36,8 @@ const Dashboard = () => {
     subscriptionEndDate: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000), // 20 days from now
     scheduledPlan: null as string | null,
     subscriptionStatus: "active" as "active" | "canceled" | "scheduled_downgrade",
+    // Track if user previously had GROWTH/SCALE - allows seeing finished campaigns after downgrade
+    hadCampaignPlan: false,
   });
 
   const [profileData, setProfileData] = useState({
@@ -138,13 +140,15 @@ const Dashboard = () => {
       
       if (isUpgrade(selectedNewPlan)) {
         setSuccessMessage("¡Tu nuevo plan se ha activado! Tu período de 30 días comienza ahora.");
+        const isUpgradingToCampaignPlan = selectedNewPlan === "GROWTH" || selectedNewPlan === "SCALE";
         setUser(prev => ({ 
           ...prev, 
           currentPlan: selectedNewPlan as any, 
           subscriptionStartDate: new Date(), 
           subscriptionEndDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), 
           scheduledPlan: null, 
-          subscriptionStatus: "active" 
+          subscriptionStatus: "active",
+          hadCampaignPlan: isUpgradingToCampaignPlan ? true : prev.hadCampaignPlan
         }));
       } else if (isCancellation(selectedNewPlan)) {
         setSuccessMessage(`Tu suscripción ha sido cancelada. Mantendrás los beneficios hasta el ${formatDate(user.subscriptionEndDate)}.`);
@@ -197,21 +201,26 @@ const Dashboard = () => {
     ));
   };
 
-  const finishedCampaigns = campaigns
-    .filter(c => c.status === "completed")
-    .map(c => ({
-      id: c.id,
-      title: c.title,
-      author: c.author,
-      startDate: c.startDate || new Date(),
-      endDate: c.endDate || new Date(),
-      participants: c.participants,
-      totalMatches: Math.floor(c.participants * 5.4),
-      totalMinutes: Math.floor(c.participants * 3.2),
-      rewardsDelivered: Math.floor(c.participants * 0.28),
-      totalRewards: Math.floor(c.participants * 0.35),
-      game: c.game,
-    }));
+  // For FREE/PREMIUM users, only show finished campaigns if they previously had GROWTH/SCALE
+  const canViewFinishedCampaigns = user.currentPlan === "GROWTH" || user.currentPlan === "SCALE" || user.hadCampaignPlan;
+  
+  const finishedCampaigns = canViewFinishedCampaigns 
+    ? campaigns
+        .filter(c => c.status === "completed")
+        .map(c => ({
+          id: c.id,
+          title: c.title,
+          author: c.author,
+          startDate: c.startDate || new Date(),
+          endDate: c.endDate || new Date(),
+          participants: c.participants,
+          totalMatches: Math.floor(c.participants * 5.4),
+          totalMinutes: Math.floor(c.participants * 3.2),
+          rewardsDelivered: Math.floor(c.participants * 0.28),
+          totalRewards: Math.floor(c.participants * 0.35),
+          game: c.game,
+        }))
+    : [];
 
   const campaignToEdit = campaigns.find(c => c.id === showEditCampaign);
 
