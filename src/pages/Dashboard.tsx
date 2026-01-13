@@ -489,6 +489,11 @@ const Dashboard = () => {
           setSelectedCampaignForMetrics(campaignId);
           setShowMetrics(true);
         }}
+        userPlan={user.currentPlan}
+        onUpgrade={() => {
+          setShowFinishedCampaigns(false);
+          setShowManageModal(true);
+        }}
       />
 
       {/* Edit Rejected Campaign Modal */}
