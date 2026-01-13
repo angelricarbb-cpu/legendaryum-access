@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -16,6 +16,7 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from "recharts";
+import { cn } from "@/lib/utils";
 
 interface CampaignMetricsDashboardProps {
   open: boolean;
@@ -80,8 +81,25 @@ export const CampaignMetricsDashboard = ({
   campaign 
 }: CampaignMetricsDashboardProps) => {
   const [activeTab, setActiveTab] = useState("macro");
+  const [animateKPIs, setAnimateKPIs] = useState(false);
+  const [animateBars, setAnimateBars] = useState(false);
   const isScale = userPlan === "SCALE";
   const isCompleted = campaign.status === "completed";
+
+  // Trigger animations when modal opens
+  useEffect(() => {
+    if (open) {
+      setAnimateKPIs(false);
+      setAnimateBars(false);
+      // Stagger the animations
+      const kpiTimer = setTimeout(() => setAnimateKPIs(true), 100);
+      const barsTimer = setTimeout(() => setAnimateBars(true), 400);
+      return () => {
+        clearTimeout(kpiTimer);
+        clearTimeout(barsTimer);
+      };
+    }
+  }, [open]);
 
   const getDaysRemaining = () => {
     const diffTime = campaign.endDate.getTime() - new Date().getTime();
@@ -147,65 +165,41 @@ export const CampaignMetricsDashboard = ({
           </TabsList>
 
           <div className="flex-1 overflow-y-auto py-4">
-            {/* MACRO METRICS */}
             <TabsContent value="macro" className="space-y-6 mt-0">
-              {/* KPI Cards - Purple themed with circular icons */}
+              {/* KPI Cards - Purple themed with circular icons and animations */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <Card className="bg-card border-border hover:border-primary/50 transition-colors">
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-                        <Users className="h-5 w-5 text-primary" />
+                {[
+                  { icon: Users, value: kpiData.participants.toLocaleString(), label: "Participantes", iconBg: "bg-primary/20", iconColor: "text-primary" },
+                  { icon: Gamepad2, value: kpiData.totalPlays.toLocaleString(), label: "Partidas totales", iconBg: "bg-accent/20", iconColor: "text-accent" },
+                  { icon: Timer, value: kpiData.totalMinutes.toLocaleString(), label: "Total minutos", iconBg: "bg-purple-500/20", iconColor: "text-purple-400" },
+                  { icon: Activity, value: `${kpiData.avgMinutesPerUser} min`, label: "Avg min/user", iconBg: "bg-violet-500/20", iconColor: "text-violet-400" },
+                ].map((kpi, index) => (
+                  <Card 
+                    key={index}
+                    className={cn(
+                      "bg-card border-border hover:border-primary/50 transition-all duration-500",
+                      animateKPIs 
+                        ? "opacity-100 translate-y-0" 
+                        : "opacity-0 translate-y-4"
+                    )}
+                    style={{ transitionDelay: `${index * 100}ms` }}
+                  >
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-3">
+                        <div className={cn(
+                          "w-10 h-10 rounded-full flex items-center justify-center transition-transform duration-300 hover:scale-110",
+                          kpi.iconBg
+                        )}>
+                          <kpi.icon className={cn("h-5 w-5", kpi.iconColor)} />
+                        </div>
+                        <div>
+                          <p className="text-2xl font-bold text-foreground">{kpi.value}</p>
+                          <p className="text-xs text-muted-foreground">{kpi.label}</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-2xl font-bold text-foreground">{kpiData.participants.toLocaleString()}</p>
-                        <p className="text-xs text-muted-foreground">Participantes</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-                
-                <Card className="bg-card border-border hover:border-primary/50 transition-colors">
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center">
-                        <Gamepad2 className="h-5 w-5 text-accent" />
-                      </div>
-                      <div>
-                        <p className="text-2xl font-bold text-foreground">{kpiData.totalPlays.toLocaleString()}</p>
-                        <p className="text-xs text-muted-foreground">Partidas totales</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-                
-                <Card className="bg-card border-border hover:border-primary/50 transition-colors">
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center">
-                        <Timer className="h-5 w-5 text-purple-400" />
-                      </div>
-                      <div>
-                        <p className="text-2xl font-bold text-foreground">{kpiData.totalMinutes.toLocaleString()}</p>
-                        <p className="text-xs text-muted-foreground">Total minutos</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-                
-                <Card className="bg-card border-border hover:border-primary/50 transition-colors">
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-violet-500/20 flex items-center justify-center">
-                        <Activity className="h-5 w-5 text-violet-400" />
-                      </div>
-                      <div>
-                        <p className="text-2xl font-bold text-foreground">{kpiData.avgMinutesPerUser} min</p>
-                        <p className="text-xs text-muted-foreground">Avg min/user</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
 
               {/* Participation Chart - Purple gradient */}
@@ -259,24 +253,32 @@ export const CampaignMetricsDashboard = ({
 
               {/* Engagement Distribution & Rewards */}
               <div className="grid md:grid-cols-2 gap-4">
-                {/* Engagement Distribution - Horizontal bars */}
+                {/* Engagement Distribution - Horizontal bars with animations */}
                 <Card className="bg-card border-border">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-base text-foreground">Engagement Distribution</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
                     {engagementDistribution.map((item, index) => (
-                      <div key={index} className="space-y-1">
+                      <div 
+                        key={index} 
+                        className={cn(
+                          "space-y-1 transition-all duration-500",
+                          animateBars ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4"
+                        )}
+                        style={{ transitionDelay: `${index * 80}ms` }}
+                      >
                         <div className="flex justify-between text-sm">
                           <span className="text-muted-foreground">{item.label}</span>
                           <span className="font-medium text-foreground">{item.percentage}%</span>
                         </div>
                         <div className="h-2 bg-secondary rounded-full overflow-hidden">
                           <div 
-                            className="h-full rounded-full transition-all duration-500"
+                            className="h-full rounded-full transition-all duration-700 ease-out"
                             style={{ 
-                              width: `${item.percentage}%`,
-                              backgroundColor: item.color 
+                              width: animateBars ? `${item.percentage}%` : '0%',
+                              backgroundColor: item.color,
+                              transitionDelay: `${index * 80 + 200}ms`
                             }}
                           />
                         </div>
@@ -285,19 +287,26 @@ export const CampaignMetricsDashboard = ({
                   </CardContent>
                 </Card>
 
-                {/* Rewards Effectiveness */}
+                {/* Rewards Effectiveness with animations */}
                 <Card className="bg-card border-border">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-base text-foreground">Efectividad de Rewards</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    {rewardsData.map((reward) => {
+                    {rewardsData.map((reward, index) => {
                       const percentage = Math.round((reward.claimed / reward.total) * 100);
                       return (
-                        <div key={reward.type} className="space-y-2">
+                        <div 
+                          key={reward.type} 
+                          className={cn(
+                            "space-y-2 transition-all duration-500",
+                            animateBars ? "opacity-100 translate-x-0" : "opacity-0 translate-x-4"
+                          )}
+                          style={{ transitionDelay: `${index * 100}ms` }}
+                        >
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                              <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                              <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center transition-transform duration-300 hover:scale-110">
                                 <Award className="h-4 w-4 text-primary" />
                               </div>
                               <span className="text-sm text-foreground">{reward.type}</span>
@@ -309,8 +318,11 @@ export const CampaignMetricsDashboard = ({
                           </div>
                           <div className="h-2 bg-secondary rounded-full overflow-hidden">
                             <div 
-                              className="h-full bg-gradient-to-r from-primary to-accent rounded-full transition-all duration-500"
-                              style={{ width: `${percentage}%` }}
+                              className="h-full bg-gradient-to-r from-primary to-accent rounded-full transition-all duration-700 ease-out"
+                              style={{ 
+                                width: animateBars ? `${percentage}%` : '0%',
+                                transitionDelay: `${index * 100 + 200}ms`
+                              }}
                             />
                           </div>
                         </div>
