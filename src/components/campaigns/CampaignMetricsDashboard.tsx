@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/chart";
 import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from "recharts";
 import { cn } from "@/lib/utils";
+import { AnimatedNumber } from "@/hooks/useAnimatedCounter";
 
 interface CampaignMetricsDashboardProps {
   open: boolean;
@@ -188,11 +189,11 @@ export const CampaignMetricsDashboard = ({
               {/* KPI Cards - Purple themed with circular icons and animations */}
               <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                 {[
-                  { icon: Users, value: kpiData.participants.toLocaleString(), label: "Participantes", iconBg: "bg-primary/20", iconColor: "text-primary", trend: "+12%" },
-                  { icon: Gamepad2, value: kpiData.totalPlays.toLocaleString(), label: "Partidas totales", iconBg: "bg-accent/20", iconColor: "text-accent", trend: "+8%" },
-                  { icon: Target, value: kpiData.avgPlaysPerUser.toString(), label: "Avg partidas/User", iconBg: "bg-emerald-500/20", iconColor: "text-emerald-400", trend: "+5%" },
-                  { icon: Timer, value: kpiData.totalMinutes.toLocaleString(), label: "Total minutos", iconBg: "bg-purple-500/20", iconColor: "text-purple-400", trend: "+15%" },
-                  { icon: Activity, value: `${kpiData.avgMinutesPerUser} min`, label: "Avg min/user", iconBg: "bg-violet-500/20", iconColor: "text-violet-400", trend: "+3%" },
+                  { icon: Users, value: kpiData.participants, label: "Participantes", iconBg: "bg-primary/20", iconColor: "text-primary", trend: "+12%", isDecimal: false },
+                  { icon: Gamepad2, value: kpiData.totalPlays, label: "Partidas totales", iconBg: "bg-accent/20", iconColor: "text-accent", trend: "+8%", isDecimal: false },
+                  { icon: Target, value: kpiData.avgPlaysPerUser, label: "Avg partidas/User", iconBg: "bg-emerald-500/20", iconColor: "text-emerald-400", trend: "+5%", isDecimal: true },
+                  { icon: Timer, value: kpiData.totalMinutes, label: "Total minutos", iconBg: "bg-purple-500/20", iconColor: "text-purple-400", trend: "+15%", isDecimal: false },
+                  { icon: Activity, value: kpiData.avgMinutesPerUser, label: "Avg min/user", iconBg: "bg-violet-500/20", iconColor: "text-violet-400", trend: "+3%", isDecimal: true, suffix: " min" },
                 ].map((kpi, index) => (
                   <Card 
                     key={index}
@@ -214,7 +215,19 @@ export const CampaignMetricsDashboard = ({
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-1.5">
-                            <p className="text-lg font-bold text-foreground truncate">{kpi.value}</p>
+                            <p className="text-lg font-bold text-foreground truncate">
+                              <AnimatedNumber 
+                                value={kpi.isDecimal ? Math.round(kpi.value * 10) : kpi.value}
+                                duration={1200}
+                                delay={index * 100 + 300}
+                                enabled={animateKPIs}
+                                suffix={kpi.suffix || ''}
+                                formatFn={kpi.isDecimal 
+                                  ? (n) => (n / 10).toFixed(1)
+                                  : (n) => n.toLocaleString()
+                                }
+                              />
+                            </p>
                             <span className="text-[10px] font-medium text-emerald-400 bg-emerald-500/10 px-1 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300">{kpi.trend}</span>
                           </div>
                           <p className="text-[10px] text-muted-foreground truncate">{kpi.label}</p>
