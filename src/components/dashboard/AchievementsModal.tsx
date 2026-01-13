@@ -32,7 +32,6 @@ interface Benefit {
   code?: string;
   redeemUrl?: string;
   source: "bonus_level" | "special_reward" | "final_prize";
-  used: boolean;
 }
 
 interface AchievementsModalProps {
@@ -109,7 +108,6 @@ const mockBenefits: Benefit[] = [
     code: "LEGEND25TV",
     redeemUrl: "https://samsung.com/redeem",
     source: "final_prize",
-    used: false,
   },
   {
     id: "2",
@@ -121,7 +119,6 @@ const mockBenefits: Benefit[] = [
     code: "RAZER15PRO",
     redeemUrl: "https://razer.com/redeem",
     source: "special_reward",
-    used: false,
   },
   {
     id: "3",
@@ -133,7 +130,6 @@ const mockBenefits: Benefit[] = [
     code: "SPOTIFYLEG",
     redeemUrl: "https://spotify.com/redeem",
     source: "bonus_level",
-    used: false,
   },
   {
     id: "4",
@@ -145,7 +141,6 @@ const mockBenefits: Benefit[] = [
     code: "AMAZLEG10",
     redeemUrl: "https://amazon.com/redeem",
     source: "bonus_level",
-    used: true,
   },
   {
     id: "5",
@@ -157,7 +152,6 @@ const mockBenefits: Benefit[] = [
     code: "LOGI20LEG",
     redeemUrl: "https://logitech.com/redeem",
     source: "special_reward",
-    used: true,
   },
   {
     id: "6",
@@ -169,7 +163,6 @@ const mockBenefits: Benefit[] = [
     code: "SONY30HEAD",
     redeemUrl: "https://sony.com/redeem",
     source: "bonus_level",
-    used: false,
   },
   {
     id: "7",
@@ -181,7 +174,6 @@ const mockBenefits: Benefit[] = [
     code: "GARMIN20W",
     redeemUrl: "https://garmin.com/redeem",
     source: "special_reward",
-    used: false,
   },
 ];
 
@@ -189,10 +181,10 @@ export const AchievementsModal = ({ open, onOpenChange }: AchievementsModalProps
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const now = new Date();
   
-  // Beneficios activos: no usados Y no expirados
-  const activeBenefits = mockBenefits.filter(b => !b.used && b.validUntil > now);
-  // Beneficios finalizados: usados O expirados
-  const finishedBenefits = mockBenefits.filter(b => b.used || b.validUntil <= now);
+  // Beneficios activos: no expirados
+  const activeBenefits = mockBenefits.filter(b => b.validUntil > now);
+  // Beneficios finalizados: expirados (ya pasó la fecha de validación)
+  const expiredBenefits = mockBenefits.filter(b => b.validUntil <= now);
 
   const formatDate = (date: Date) => {
     return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -409,16 +401,15 @@ export const AchievementsModal = ({ open, onOpenChange }: AchievementsModalProps
               </div>
             )}
 
-            {/* Finalizados: expirados (aunque no usados) o canjeados */}
-            {finishedBenefits.length > 0 && (
+            {/* Beneficios Finalizados: expirados */}
+            {expiredBenefits.length > 0 && (
               <div className="space-y-3">
                 <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                  Beneficios Finalizados ({finishedBenefits.length})
+                  Beneficios Finalizados ({expiredBenefits.length})
                 </h3>
-                {finishedBenefits.map((benefit) => {
+                {expiredBenefits.map((benefit) => {
                   const IconComponent = getBenefitIcon(benefit.icon);
                   const sourceInfo = getSourceLabel(benefit.source);
-                  const isExpired = benefit.validUntil <= now && !benefit.used;
                   return (
                     <Card key={benefit.id} className="border-border opacity-60">
                       <CardContent className="p-4">
@@ -435,20 +426,18 @@ export const AchievementsModal = ({ open, onOpenChange }: AchievementsModalProps
                               </div>
                               <Badge
                                 variant="outline"
-                                className={isExpired ? "text-red-400 border-red-500/30" : "text-muted-foreground"}
+                                className="text-red-400 border-red-500/30"
                               >
-                                {isExpired ? "Expirado" : "Canjeado"}
+                                Expirado
                               </Badge>
                             </div>
                             <div className="flex items-center gap-2 mt-1">
                               <Badge variant="outline" className="text-muted-foreground border-muted">
                                 {sourceInfo.label}
                               </Badge>
-                              {isExpired && (
-                                <span className="text-xs text-red-400">
-                                  Expiró el {formatDate(benefit.validUntil)}
-                                </span>
-                              )}
+                              <span className="text-xs text-red-400">
+                                Expiró el {formatDate(benefit.validUntil)}
+                              </span>
                             </div>
                           </div>
                         </div>
@@ -459,7 +448,7 @@ export const AchievementsModal = ({ open, onOpenChange }: AchievementsModalProps
               </div>
             )}
 
-            {activeBenefits.length === 0 && finishedBenefits.length === 0 && (
+            {activeBenefits.length === 0 && expiredBenefits.length === 0 && (
               <div className="text-center py-12">
                 <Gift className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
                 <p className="text-muted-foreground">Aún no tienes beneficios</p>
