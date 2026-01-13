@@ -25,7 +25,7 @@ export const Step5BonusLevel = ({ data, onUpdate }: Step5Props) => {
         bonusLevel: {
           requiredPlays: 5,
           prizeType: "code",
-          emailMessage: "",
+          notificationTitle: "",
           prizeDescription: "",
           redeemUrl: "",
           code: "",
@@ -98,14 +98,13 @@ export const Step5BonusLevel = ({ data, onUpdate }: Step5Props) => {
           {/* Common Fields */}
           <div className="grid gap-4">
             <div className="space-y-2">
-              <Label htmlFor="emailMessage">Mensaje del email</Label>
-              <Textarea
-                id="emailMessage"
-                value={data.bonusLevel.emailMessage}
-                onChange={(e) => updateBonusLevel({ emailMessage: e.target.value })}
-                placeholder="Mensaje que recibirá el usuario por email..."
-                className="bg-background/50 resize-none"
-                rows={3}
+              <Label htmlFor="notificationTitle">Notification Title</Label>
+              <Input
+                id="notificationTitle"
+                value={data.bonusLevel.notificationTitle || ""}
+                onChange={(e) => updateBonusLevel({ notificationTitle: e.target.value })}
+                placeholder="Título de la notificación que recibirá el usuario..."
+                className="bg-background/50"
               />
             </div>
 

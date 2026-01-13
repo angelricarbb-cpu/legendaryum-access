@@ -46,7 +46,7 @@ const Dashboard = () => {
 
   const [campaigns, setCampaigns] = useState<Array<{
     id: string; title: string; author: string; status: CampaignStatus;
-    startDate: Date | null; endDate: Date | null; participants: number; game: string; rejectionReason?: string;
+    startDate: Date | null; endDate: Date | null; participants: number; game: string; rejectionReason?: string; rejectionDetails?: string;
   }>>([
     { id: "1", title: "Summer Challenge", author: "Demo Brand", status: "approved", startDate: new Date(), endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), participants: 1250, game: "memory" },
     { id: "2", title: "Winter Quest", author: "Demo Brand", status: "pending", startDate: null, endDate: null, participants: 0, game: "puzzle" },
@@ -62,6 +62,8 @@ const Dashboard = () => {
   const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
   const [showMetrics, setShowMetrics] = useState(false);
   const [selectedCampaignForMetrics, setSelectedCampaignForMetrics] = useState<string | null>(null);
+  const [showFinishedCampaigns, setShowFinishedCampaigns] = useState(false);
+  const [showEditCampaign, setShowEditCampaign] = useState<string | null>(null);
 
   const canCreateCampaigns = user.currentPlan === "GROWTH" || user.currentPlan === "SCALE";
   
@@ -285,16 +287,16 @@ const Dashboard = () => {
             </CardContent>
           </Card>
 
-          {/* Stats */}
+          {/* Social */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Estadísticas</CardTitle>
-              <BarChart3 className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium">Social</CardTitle>
+              <User className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                <div><div className="text-2xl font-bold">12</div><p className="text-xs text-muted-foreground">Campañas participadas</p></div>
-                <div><div className="text-2xl font-bold">#45</div><p className="text-xs text-muted-foreground">Posición en ranking global</p></div>
+                <div><div className="text-2xl font-bold">128</div><p className="text-xs text-muted-foreground">Seguidores</p></div>
+                <div><div className="text-2xl font-bold">45</div><p className="text-xs text-muted-foreground">Seguidos</p></div>
               </div>
             </CardContent>
           </Card>
@@ -307,9 +309,11 @@ const Dashboard = () => {
                 <Button variant="outline" className="h-auto py-4 flex-col gap-2" onClick={() => setShowProfileModal(true)}>
                   <User className="h-5 w-5" /><span>Editar Perfil</span>
                 </Button>
-                <Button variant="outline" className="h-auto py-4 flex-col gap-2"><Sparkles className="h-5 w-5" /><span>Ver Campañas</span></Button>
-                <Button variant="outline" className="h-auto py-4 flex-col gap-2"><BarChart3 className="h-5 w-5" /><span>Rankings</span></Button>
-                <Button variant="outline" className="h-auto py-4 flex-col gap-2"><Settings className="h-5 w-5" /><span>Configuración</span></Button>
+                <Button variant="outline" className="h-auto py-4 flex-col gap-2" onClick={() => setShowFinishedCampaigns(true)}>
+                  <BarChart3 className="h-5 w-5" /><span>Campañas Finalizadas</span>
+                </Button>
+                <Button variant="outline" className="h-auto py-4 flex-col gap-2"><Sparkles className="h-5 w-5" /><span>Access Pass</span></Button>
+                <Button variant="outline" className="h-auto py-4 flex-col gap-2"><Settings className="h-5 w-5" /><span>Logros</span></Button>
               </div>
             </CardContent>
           </Card>

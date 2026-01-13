@@ -16,6 +16,7 @@ import { Step9Checkout } from "./steps/Step9Checkout";
 export interface CampaignData {
   // Step 1
   authorName: string;
+  authorEmail: string;
   campaignTitle: string;
   description: string;
   rankingType: "cumulative" | "top_score";
@@ -36,7 +37,7 @@ export interface CampaignData {
   bonusLevel: {
     requiredPlays: number;
     prizeType: "code" | "giftcard";
-    emailMessage: string;
+    notificationTitle: string;
     prizeDescription: string;
     redeemUrl: string;
     code?: string;
@@ -47,7 +48,7 @@ export interface CampaignData {
   specialReward: {
     requiredPlays: number;
     prizeType: "code" | "giftcard";
-    emailMessage: string;
+    notificationTitle: string;
     prizeDescription: string;
     redeemUrl: string;
     code?: string;
@@ -88,6 +89,7 @@ export const CampaignWizard = ({ open, onOpenChange, userPlan, onComplete }: Cam
   const [currentStep, setCurrentStep] = useState(1);
   const [campaignData, setCampaignData] = useState<CampaignData>({
     authorName: "",
+    authorEmail: "",
     campaignTitle: "",
     description: "",
     rankingType: "cumulative",

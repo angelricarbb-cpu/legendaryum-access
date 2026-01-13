@@ -30,6 +30,19 @@ export const Step1GeneralData = ({ data, onUpdate }: Step1Props) => {
         />
       </div>
 
+      {/* Author Email */}
+      <div className="space-y-2">
+        <Label htmlFor="authorEmail">Email del autor</Label>
+        <Input
+          id="authorEmail"
+          type="email"
+          value={data.authorEmail || ""}
+          onChange={(e) => onUpdate({ authorEmail: e.target.value })}
+          placeholder="contacto@empresa.com"
+          className="bg-background/50"
+        />
+      </div>
+
       {/* Campaign Title */}
       <div className="space-y-2">
         <Label htmlFor="campaignTitle">Título de la campaña</Label>
@@ -84,10 +97,10 @@ export const Step1GeneralData = ({ data, onUpdate }: Step1Props) => {
         </RadioGroup>
       </div>
 
-      {/* Dates */}
+      {/* Dates (only dates, no time) */}
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label>Fecha y hora de inicio</Label>
+          <Label>Fecha de inicio</Label>
           <Popover>
             <PopoverTrigger asChild>
               <Button variant="outline" className="w-full justify-start text-left font-normal">
@@ -107,7 +120,7 @@ export const Step1GeneralData = ({ data, onUpdate }: Step1Props) => {
         </div>
 
         <div className="space-y-2">
-          <Label>Fecha y hora de finalización</Label>
+          <Label>Fecha de finalización</Label>
           <Popover>
             <PopoverTrigger asChild>
               <Button variant="outline" className="w-full justify-start text-left font-normal">
