@@ -129,6 +129,7 @@ export const CampaignMetricsDashboard = ({
     totalPlays: 6810,
     totalMinutes: 28620,
     avgMinutesPerUser: 4.2,
+    avgPlaysPerUser: 3.8,
   };
 
   return (
@@ -185,34 +186,38 @@ export const CampaignMetricsDashboard = ({
           <div className="flex-1 overflow-y-auto py-4">
             <TabsContent value="macro" className="space-y-6 mt-0">
               {/* KPI Cards - Purple themed with circular icons and animations */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                 {[
-                  { icon: Users, value: kpiData.participants.toLocaleString(), label: "Participantes", iconBg: "bg-primary/20", iconColor: "text-primary" },
-                  { icon: Gamepad2, value: kpiData.totalPlays.toLocaleString(), label: "Partidas totales", iconBg: "bg-accent/20", iconColor: "text-accent" },
-                  { icon: Timer, value: kpiData.totalMinutes.toLocaleString(), label: "Total minutos", iconBg: "bg-purple-500/20", iconColor: "text-purple-400" },
-                  { icon: Activity, value: `${kpiData.avgMinutesPerUser} min`, label: "Avg min/user", iconBg: "bg-violet-500/20", iconColor: "text-violet-400" },
+                  { icon: Users, value: kpiData.participants.toLocaleString(), label: "Participantes", iconBg: "bg-primary/20", iconColor: "text-primary", trend: "+12%" },
+                  { icon: Gamepad2, value: kpiData.totalPlays.toLocaleString(), label: "Partidas totales", iconBg: "bg-accent/20", iconColor: "text-accent", trend: "+8%" },
+                  { icon: Target, value: kpiData.avgPlaysPerUser.toString(), label: "Avg partidas/User", iconBg: "bg-emerald-500/20", iconColor: "text-emerald-400", trend: "+5%" },
+                  { icon: Timer, value: kpiData.totalMinutes.toLocaleString(), label: "Total minutos", iconBg: "bg-purple-500/20", iconColor: "text-purple-400", trend: "+15%" },
+                  { icon: Activity, value: `${kpiData.avgMinutesPerUser} min`, label: "Avg min/user", iconBg: "bg-violet-500/20", iconColor: "text-violet-400", trend: "+3%" },
                 ].map((kpi, index) => (
                   <Card 
                     key={index}
                     className={cn(
-                      "bg-card border-border hover:border-primary/50 transition-all duration-500",
+                      "bg-card border-border group cursor-pointer transition-all duration-500 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-1",
                       animateKPIs 
                         ? "opacity-100 translate-y-0" 
                         : "opacity-0 translate-y-4"
                     )}
-                    style={{ transitionDelay: `${index * 100}ms` }}
+                    style={{ transitionDelay: `${index * 80}ms` }}
                   >
-                    <CardContent className="p-4">
-                      <div className="flex items-center gap-3">
+                    <CardContent className="p-3">
+                      <div className="flex items-center gap-2">
                         <div className={cn(
-                          "w-10 h-10 rounded-full flex items-center justify-center transition-transform duration-300 hover:scale-110",
+                          "w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:rotate-3",
                           kpi.iconBg
                         )}>
-                          <kpi.icon className={cn("h-5 w-5", kpi.iconColor)} />
+                          <kpi.icon className={cn("h-4 w-4 transition-transform duration-300 group-hover:scale-110", kpi.iconColor)} />
                         </div>
-                        <div>
-                          <p className="text-2xl font-bold text-foreground">{kpi.value}</p>
-                          <p className="text-xs text-muted-foreground">{kpi.label}</p>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1.5">
+                            <p className="text-lg font-bold text-foreground truncate">{kpi.value}</p>
+                            <span className="text-[10px] font-medium text-emerald-400 bg-emerald-500/10 px-1 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300">{kpi.trend}</span>
+                          </div>
+                          <p className="text-[10px] text-muted-foreground truncate">{kpi.label}</p>
                         </div>
                       </div>
                     </CardContent>
@@ -221,12 +226,24 @@ export const CampaignMetricsDashboard = ({
               </div>
 
               {/* Participation Chart - Purple gradient */}
-              <Card className="bg-card border-border">
+              <Card className="bg-card border-border group transition-all duration-300 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-base text-foreground">Participación diaria</CardTitle>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-base text-foreground">Participación diaria</CardTitle>
+                    <div className="flex items-center gap-4 text-xs">
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-2.5 h-2.5 rounded-full bg-primary animate-pulse" />
+                        <span className="text-muted-foreground">Participantes</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-2.5 h-2.5 rounded-full bg-accent animate-pulse" style={{ animationDelay: '0.5s' }} />
+                        <span className="text-muted-foreground">Partidas</span>
+                      </div>
+                    </div>
+                  </div>
                 </CardHeader>
                 <CardContent>
-                  <ChartContainer config={chartConfig} className="h-[250px] w-full">
+                  <ChartContainer config={chartConfig} className="h-[200px] w-full">
                     <AreaChart data={participationData}>
                       <defs>
                         <linearGradient id="participantsGradient" x1="0" y1="0" x2="0" y2="1">
@@ -272,27 +289,32 @@ export const CampaignMetricsDashboard = ({
               {/* Engagement Distribution & Device Distribution */}
               <div className="grid md:grid-cols-2 gap-4">
                 {/* Engagement Distribution - Horizontal bars with animations */}
-                <Card className="bg-card border-border">
+                <Card className="bg-card border-border group transition-all duration-300 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5">
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-base text-foreground">Engagement Distribution</CardTitle>
+                    <CardTitle className="text-base text-foreground flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center">
+                        <BarChart3 className="h-3 w-3 text-primary" />
+                      </div>
+                      Engagement Distribution
+                    </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
                     {engagementDistribution.map((item, index) => (
                       <div 
                         key={index} 
                         className={cn(
-                          "space-y-1 transition-all duration-500",
+                          "space-y-1 transition-all duration-500 group/bar cursor-pointer",
                           animateBars ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4"
                         )}
                         style={{ transitionDelay: `${index * 80}ms` }}
                       >
                         <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">{item.label}</span>
-                          <span className="font-medium text-foreground">{item.percentage}%</span>
+                          <span className="text-muted-foreground group-hover/bar:text-foreground transition-colors">{item.label}</span>
+                          <span className="font-medium text-foreground group-hover/bar:text-primary transition-colors">{item.percentage}%</span>
                         </div>
-                        <div className="h-2 bg-secondary rounded-full overflow-hidden">
+                        <div className="h-2.5 bg-secondary rounded-full overflow-hidden group-hover/bar:h-3 transition-all duration-200">
                           <div 
-                            className="h-full rounded-full transition-all duration-700 ease-out"
+                            className="h-full rounded-full transition-all duration-700 ease-out group-hover/bar:brightness-110"
                             style={{ 
                               width: animateBars ? `${item.percentage}%` : '0%',
                               backgroundColor: item.color,
@@ -306,9 +328,14 @@ export const CampaignMetricsDashboard = ({
                 </Card>
 
                 {/* Device Distribution */}
-                <Card className="bg-card border-border">
+                <Card className="bg-card border-border group transition-all duration-300 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5">
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-base text-foreground">Device Distribution</CardTitle>
+                    <CardTitle className="text-base text-foreground flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-full bg-accent/20 flex items-center justify-center">
+                        <Smartphone className="h-3 w-3 text-accent" />
+                      </div>
+                      Device Distribution
+                    </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     {deviceDistribution.map((item, index) => {
@@ -317,23 +344,23 @@ export const CampaignMetricsDashboard = ({
                         <div 
                           key={item.device} 
                           className={cn(
-                            "space-y-2 transition-all duration-500",
+                            "space-y-2 transition-all duration-500 group/device cursor-pointer",
                             animateBars ? "opacity-100 translate-x-0" : "opacity-0 translate-x-4"
                           )}
                           style={{ transitionDelay: `${index * 100}ms` }}
                         >
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                              <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center transition-transform duration-300 hover:scale-110">
+                              <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center transition-all duration-300 group-hover/device:scale-110 group-hover/device:bg-primary/30 group-hover/device:rotate-6">
                                 <DeviceIcon className="h-4 w-4 text-primary" />
                               </div>
-                              <span className="text-sm text-foreground">{item.device}</span>
+                              <span className="text-sm text-foreground group-hover/device:text-primary transition-colors">{item.device}</span>
                             </div>
-                            <span className="font-bold text-foreground">{item.percentage}%</span>
+                            <span className="font-bold text-foreground group-hover/device:text-primary transition-colors">{item.percentage}%</span>
                           </div>
-                          <div className="h-2 bg-secondary rounded-full overflow-hidden">
+                          <div className="h-2.5 bg-secondary rounded-full overflow-hidden group-hover/device:h-3 transition-all duration-200">
                             <div 
-                              className="h-full rounded-full transition-all duration-700 ease-out"
+                              className="h-full rounded-full transition-all duration-700 ease-out group-hover/device:brightness-110"
                               style={{ 
                                 width: animateBars ? `${item.percentage}%` : '0%',
                                 backgroundColor: item.color,
@@ -351,26 +378,36 @@ export const CampaignMetricsDashboard = ({
               {/* Top Locations & Rewards Effectiveness */}
               <div className="grid md:grid-cols-2 gap-4">
                 {/* Top Locations */}
-                <Card className="bg-card border-border">
+                <Card className="bg-card border-border group transition-all duration-300 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-base text-foreground flex items-center gap-2">
-                      <MapPin className="h-4 w-4 text-primary" />
+                      <div className="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                        <MapPin className="h-3 w-3 text-emerald-400" />
+                      </div>
                       Top Locations
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-3">
+                  <CardContent className="space-y-2">
                     {topLocations.map((location, index) => (
                       <div 
                         key={location.city} 
                         className={cn(
-                          "flex items-center justify-between p-2 rounded-lg bg-secondary/30 transition-all duration-500",
+                          "flex items-center justify-between p-2.5 rounded-lg bg-secondary/30 transition-all duration-500 cursor-pointer hover:bg-secondary/50 hover:translate-x-1 group/loc",
                           animateBars ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
                         )}
                         style={{ transitionDelay: `${index * 80}ms` }}
                       >
                         <div className="flex items-center gap-3">
-                          <span className="text-xs font-bold text-muted-foreground w-5">#{index + 1}</span>
-                          <span className="text-sm font-medium text-foreground">{location.city}</span>
+                          <span className={cn(
+                            "text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center transition-all duration-300",
+                            index === 0 ? "bg-yellow-500/20 text-yellow-400" : 
+                            index === 1 ? "bg-gray-400/20 text-gray-400" : 
+                            index === 2 ? "bg-orange-500/20 text-orange-400" : 
+                            "bg-muted text-muted-foreground"
+                          )}>
+                            {index + 1}
+                          </span>
+                          <span className="text-sm font-medium text-foreground group-hover/loc:text-primary transition-colors">{location.city}</span>
                         </div>
                         <div className="flex items-center gap-3">
                           <span className="text-xs text-muted-foreground">{location.users.toLocaleString()} usuarios</span>
@@ -382,37 +419,54 @@ export const CampaignMetricsDashboard = ({
                 </Card>
 
                 {/* Rewards Effectiveness with animations */}
-                <Card className="bg-card border-border">
+                <Card className="bg-card border-border group transition-all duration-300 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5">
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-base text-foreground">Efectividad de Rewards</CardTitle>
+                    <CardTitle className="text-base text-foreground flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-full bg-violet-500/20 flex items-center justify-center">
+                        <Award className="h-3 w-3 text-violet-400" />
+                      </div>
+                      Efectividad de Rewards
+                    </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     {rewardsData.map((reward, index) => {
                       const percentage = Math.round((reward.claimed / reward.total) * 100);
+                      const isComplete = percentage === 100;
                       return (
                         <div 
                           key={reward.type} 
                           className={cn(
-                            "space-y-2 transition-all duration-500",
+                            "space-y-2 transition-all duration-500 group/reward cursor-pointer",
                             animateBars ? "opacity-100 translate-x-0" : "opacity-0 translate-x-4"
                           )}
                           style={{ transitionDelay: `${index * 100}ms` }}
                         >
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                              <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center transition-transform duration-300 hover:scale-110">
-                                <Award className="h-4 w-4 text-primary" />
+                              <div className={cn(
+                                "w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 group-hover/reward:scale-110 group-hover/reward:rotate-6",
+                                isComplete ? "bg-emerald-500/20" : "bg-primary/20"
+                              )}>
+                                <Award className={cn("h-4 w-4", isComplete ? "text-emerald-400" : "text-primary")} />
                               </div>
-                              <span className="text-sm text-foreground">{reward.type}</span>
+                              <span className="text-sm text-foreground group-hover/reward:text-primary transition-colors">{reward.type}</span>
                             </div>
-                            <div className="text-sm">
+                            <div className="text-sm flex items-center gap-2">
                               <span className="font-bold text-foreground">{reward.claimed}</span>
                               <span className="text-muted-foreground">/{reward.total}</span>
+                              {isComplete && (
+                                <span className="text-[10px] font-medium text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded animate-pulse">
+                                  100%
+                                </span>
+                              )}
                             </div>
                           </div>
-                          <div className="h-2 bg-secondary rounded-full overflow-hidden">
+                          <div className="h-2.5 bg-secondary rounded-full overflow-hidden group-hover/reward:h-3 transition-all duration-200">
                             <div 
-                              className="h-full bg-gradient-to-r from-primary to-accent rounded-full transition-all duration-700 ease-out"
+                              className={cn(
+                                "h-full rounded-full transition-all duration-700 ease-out group-hover/reward:brightness-110",
+                                isComplete ? "bg-gradient-to-r from-emerald-500 to-emerald-400" : "bg-gradient-to-r from-primary to-accent"
+                              )}
                               style={{ 
                                 width: animateBars ? `${percentage}%` : '0%',
                                 transitionDelay: `${index * 100 + 200}ms`
