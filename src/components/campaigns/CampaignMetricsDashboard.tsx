@@ -8,7 +8,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { 
   Users, TrendingUp, Clock, Trophy, Target, BarChart3, 
   Download, FileText, FileSpreadsheet, UserCheck, Eye, 
-  Gamepad2, Award, Calendar, ArrowUp, Lock, Timer, Activity
+  Gamepad2, Award, Calendar, ArrowUp, Lock, Timer, Activity,
+  Smartphone, Monitor, Tablet, MapPin
 } from "lucide-react";
 import {
   ChartContainer,
@@ -51,6 +52,22 @@ const engagementDistribution = [
   { label: "6-10 partidas", percentage: 28, color: "#a855f7" },
   { label: "11-20 partidas", percentage: 15, color: "#c084fc" },
   { label: "20+ partidas", percentage: 7, color: "#d8b4fe" },
+];
+
+// Device distribution data
+const deviceDistribution = [
+  { device: "Mobile", percentage: 58, color: "#8b5cf6" },
+  { device: "Desktop", percentage: 32, color: "#a855f7" },
+  { device: "Tablet", percentage: 10, color: "#c084fc" },
+];
+
+// Top locations data
+const topLocations = [
+  { city: "Madrid", users: 3420, percentage: 28 },
+  { city: "Barcelona", users: 2180, percentage: 18 },
+  { city: "Valencia", users: 1520, percentage: 12 },
+  { city: "Sevilla", users: 980, percentage: 8 },
+  { city: "Bilbao", users: 720, percentage: 6 },
 ];
 
 const rewardsData = [
@@ -138,7 +155,7 @@ export const CampaignMetricsDashboard = ({
         </DialogHeader>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 overflow-hidden flex flex-col">
-          <TabsList className="grid w-full grid-cols-3 bg-secondary/50 p-1">
+          <TabsList className={`grid w-full ${isCompleted ? 'grid-cols-3' : 'grid-cols-2'} bg-secondary/50 p-1`}>
             <TabsTrigger 
               value="macro" 
               className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
@@ -154,14 +171,15 @@ export const CampaignMetricsDashboard = ({
               <Users className="h-4 w-4 mr-2" />
               MICRO
             </TabsTrigger>
-            <TabsTrigger 
-              value="reports" 
-              disabled={!isCompleted}
-              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground disabled:opacity-50"
-            >
-              <FileText className="h-4 w-4 mr-2" />
-              REPORTING
-            </TabsTrigger>
+            {isCompleted && (
+              <TabsTrigger 
+                value="reports" 
+                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              >
+                <FileText className="h-4 w-4 mr-2" />
+                REPORTING
+              </TabsTrigger>
+            )}
           </TabsList>
 
           <div className="flex-1 overflow-y-auto py-4">
@@ -251,7 +269,7 @@ export const CampaignMetricsDashboard = ({
                 </CardContent>
               </Card>
 
-              {/* Engagement Distribution & Rewards */}
+              {/* Engagement Distribution & Device Distribution */}
               <div className="grid md:grid-cols-2 gap-4">
                 {/* Engagement Distribution - Horizontal bars with animations */}
                 <Card className="bg-card border-border">
@@ -281,6 +299,82 @@ export const CampaignMetricsDashboard = ({
                               transitionDelay: `${index * 80 + 200}ms`
                             }}
                           />
+                        </div>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+
+                {/* Device Distribution */}
+                <Card className="bg-card border-border">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-base text-foreground">Device Distribution</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {deviceDistribution.map((item, index) => {
+                      const DeviceIcon = item.device === "Mobile" ? Smartphone : item.device === "Desktop" ? Monitor : Tablet;
+                      return (
+                        <div 
+                          key={item.device} 
+                          className={cn(
+                            "space-y-2 transition-all duration-500",
+                            animateBars ? "opacity-100 translate-x-0" : "opacity-0 translate-x-4"
+                          )}
+                          style={{ transitionDelay: `${index * 100}ms` }}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center transition-transform duration-300 hover:scale-110">
+                                <DeviceIcon className="h-4 w-4 text-primary" />
+                              </div>
+                              <span className="text-sm text-foreground">{item.device}</span>
+                            </div>
+                            <span className="font-bold text-foreground">{item.percentage}%</span>
+                          </div>
+                          <div className="h-2 bg-secondary rounded-full overflow-hidden">
+                            <div 
+                              className="h-full rounded-full transition-all duration-700 ease-out"
+                              style={{ 
+                                width: animateBars ? `${item.percentage}%` : '0%',
+                                backgroundColor: item.color,
+                                transitionDelay: `${index * 100 + 200}ms`
+                              }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Top Locations & Rewards Effectiveness */}
+              <div className="grid md:grid-cols-2 gap-4">
+                {/* Top Locations */}
+                <Card className="bg-card border-border">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-base text-foreground flex items-center gap-2">
+                      <MapPin className="h-4 w-4 text-primary" />
+                      Top Locations
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {topLocations.map((location, index) => (
+                      <div 
+                        key={location.city} 
+                        className={cn(
+                          "flex items-center justify-between p-2 rounded-lg bg-secondary/30 transition-all duration-500",
+                          animateBars ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+                        )}
+                        style={{ transitionDelay: `${index * 80}ms` }}
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="text-xs font-bold text-muted-foreground w-5">#{index + 1}</span>
+                          <span className="text-sm font-medium text-foreground">{location.city}</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span className="text-xs text-muted-foreground">{location.users.toLocaleString()} usuarios</span>
+                          <span className="text-sm font-bold text-primary">{location.percentage}%</span>
                         </div>
                       </div>
                     ))}
