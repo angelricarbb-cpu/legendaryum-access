@@ -200,14 +200,13 @@ export const CampaignMetricsDashboard = ({
           <div className="flex-1 overflow-y-auto py-4">
             <TabsContent value="macro" className="space-y-6 mt-0">
               {/* KPI Cards - Purple themed with circular icons and animations */}
-              <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                 {[
                   { icon: Users, value: kpiData.participants, label: "Participantes", iconBg: "bg-primary/20", iconColor: "text-primary", trend: "+12%", isDecimal: false },
                   { icon: Gamepad2, value: kpiData.totalPlays, label: "Partidas totales", iconBg: "bg-accent/20", iconColor: "text-accent", trend: "+8%", isDecimal: false },
                   { icon: Target, value: kpiData.avgPlaysPerUser, label: "Avg partidas/User", iconBg: "bg-emerald-500/20", iconColor: "text-emerald-400", trend: "+5%", isDecimal: true },
                   { icon: Timer, value: kpiData.totalMinutes, label: "Total minutos", iconBg: "bg-purple-500/20", iconColor: "text-purple-400", trend: "+15%", isDecimal: false },
                   { icon: Activity, value: kpiData.avgMinutesPerUser, label: "Avg min/user", iconBg: "bg-violet-500/20", iconColor: "text-violet-400", trend: "+3%", isDecimal: true, suffix: " min" },
-                  { icon: Gift, value: totalRewardsDelivered, label: "Rewards entregados", iconBg: "bg-amber-500/20", iconColor: "text-amber-400", trend: `${rewardsPercentage}%`, isDecimal: false },
                 ].map((kpi, index) => (
                   <Card 
                     key={index}

@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
   BarChart3, Users, Calendar, Trophy, Download, 
-  CheckCircle2, Gamepad2, Clock, Target
+  CheckCircle2, Gamepad2, Clock, Gift
 } from "lucide-react";
 
 interface FinishedCampaign {
@@ -17,7 +17,8 @@ interface FinishedCampaign {
   participants: number;
   totalMatches: number;
   totalMinutes: number;
-  bonusAchievement: number;
+  rewardsDelivered: number;
+  totalRewards: number;
   game: string;
 }
 
@@ -98,9 +99,9 @@ export const FinishedCampaignsModal = ({
                         <p className="text-xs text-muted-foreground">Total Minutos</p>
                       </div>
                       <div className="p-3 rounded-lg bg-muted/30 text-center">
-                        <Target className="h-4 w-4 mx-auto mb-1 text-green-500" />
-                        <p className="text-lg font-bold">{campaign.bonusAchievement}%</p>
-                        <p className="text-xs text-muted-foreground">Bonus Alcanzado</p>
+                        <Gift className="h-4 w-4 mx-auto mb-1 text-amber-500" />
+                        <p className="text-lg font-bold">{campaign.rewardsDelivered}/{campaign.totalRewards}</p>
+                        <p className="text-xs text-muted-foreground">Rewards Entregados</p>
                       </div>
                     </div>
 

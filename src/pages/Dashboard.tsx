@@ -208,7 +208,8 @@ const Dashboard = () => {
       participants: c.participants,
       totalMatches: Math.floor(c.participants * 5.4),
       totalMinutes: Math.floor(c.participants * 3.2),
-      bonusAchievement: 78,
+      rewardsDelivered: Math.floor(c.participants * 0.28),
+      totalRewards: Math.floor(c.participants * 0.35),
       game: c.game,
     }));
 

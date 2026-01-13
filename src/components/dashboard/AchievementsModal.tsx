@@ -159,12 +159,40 @@ const mockBenefits: Benefit[] = [
     source: "special_reward",
     used: true,
   },
+  {
+    id: "6",
+    title: "Auriculares Premium",
+    discount: "30% OFF",
+    brand: "Sony",
+    icon: "zap",
+    validUntil: new Date("2025-10-15"),
+    code: "SONY30HEAD",
+    redeemUrl: "https://sony.com/redeem",
+    source: "bonus_level",
+    used: false,
+  },
+  {
+    id: "7",
+    title: "Smart Watch",
+    discount: "20% OFF",
+    brand: "Garmin",
+    icon: "zap",
+    validUntil: new Date("2025-09-30"),
+    code: "GARMIN20W",
+    redeemUrl: "https://garmin.com/redeem",
+    source: "special_reward",
+    used: false,
+  },
 ];
 
 export const AchievementsModal = ({ open, onOpenChange }: AchievementsModalProps) => {
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
-  const activeBenefits = mockBenefits.filter(b => !b.used);
-  const finishedBenefits = mockBenefits.filter(b => b.used);
+  const now = new Date();
+  
+  // Beneficios activos: no usados Y no expirados
+  const activeBenefits = mockBenefits.filter(b => !b.used && b.validUntil > now);
+  // Beneficios finalizados: usados O expirados
+  const finishedBenefits = mockBenefits.filter(b => b.used || b.validUntil <= now);
 
   const formatDate = (date: Date) => {
     return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -231,8 +259,8 @@ export const AchievementsModal = ({ open, onOpenChange }: AchievementsModalProps
           </DialogDescription>
         </DialogHeader>
 
-        <Tabs defaultValue="achievements" className="flex-1 overflow-hidden flex flex-col">
-          <TabsList className="grid w-full grid-cols-2 bg-secondary/50">
+        <Tabs defaultValue="achievements" className="flex-1 overflow-hidden flex flex-col min-h-0">
+          <TabsList className="grid w-full grid-cols-2 bg-secondary/50 flex-shrink-0">
             <TabsTrigger value="achievements" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <Trophy className="h-4 w-4 mr-2" />
               Reconocimientos ({mockAchievements.length})
@@ -243,7 +271,7 @@ export const AchievementsModal = ({ open, onOpenChange }: AchievementsModalProps
             </TabsTrigger>
           </TabsList>
 
-          <ScrollArea className="flex-1 pr-4 mt-4">
+          <ScrollArea className="flex-1 mt-4 min-h-0">
             {/* Achievements Tab - Renamed to Reconocimientos */}
             <TabsContent value="achievements" className="mt-0 space-y-3">
               {mockAchievements.length === 0 ? (
@@ -386,11 +414,12 @@ export const AchievementsModal = ({ open, onOpenChange }: AchievementsModalProps
               {finishedBenefits.length > 0 && (
                 <div className="space-y-3">
                   <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                    Beneficios Finalizados
+                    Beneficios Finalizados ({finishedBenefits.length})
                   </h3>
                   {finishedBenefits.map((benefit) => {
                     const IconComponent = getBenefitIcon(benefit.icon);
                     const sourceInfo = getSourceLabel(benefit.source);
+                    const isExpired = benefit.validUntil <= now && !benefit.used;
                     return (
                       <Card key={benefit.id} className="border-border opacity-60">
                         <CardContent className="p-4">
@@ -405,13 +434,20 @@ export const AchievementsModal = ({ open, onOpenChange }: AchievementsModalProps
                                   <h4 className="font-semibold text-muted-foreground">{benefit.title}</h4>
                                   <p className="text-sm text-muted-foreground">{benefit.brand}</p>
                                 </div>
-                                <Badge variant="outline" className="text-muted-foreground">
-                                  Canjeado
+                                <Badge variant="outline" className={isExpired ? "text-red-400 border-red-500/30" : "text-muted-foreground"}>
+                                  {isExpired ? "Expirado" : "Canjeado"}
                                 </Badge>
                               </div>
-                              <Badge variant="outline" className="mt-1 text-muted-foreground border-muted">
-                                {sourceInfo.label}
-                              </Badge>
+                              <div className="flex items-center gap-2 mt-1">
+                                <Badge variant="outline" className="text-muted-foreground border-muted">
+                                  {sourceInfo.label}
+                                </Badge>
+                                {isExpired && (
+                                  <span className="text-xs text-red-400">
+                                    Expiró el {formatDate(benefit.validUntil)}
+                                  </span>
+                                )}
+                              </div>
                             </div>
                           </div>
                         </CardContent>
