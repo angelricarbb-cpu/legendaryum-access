@@ -361,13 +361,6 @@ const Dashboard = () => {
                 </div>
                 {/* Visual connection line */}
                 <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
-                <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <span className="flex items-center gap-1">
-                    <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                    Conexiones activas
-                  </span>
-                  <span className="font-medium text-foreground">83</span>
-                </div>
               </div>
             </CardContent>
           </Card>

@@ -442,7 +442,7 @@ export const CampaignMetricsDashboard = ({
                           <span className="text-sm font-medium text-foreground group-hover/loc:text-primary transition-colors">{location.city}</span>
                         </div>
                         <div className="flex items-center gap-3">
-                          <span className="text-xs text-muted-foreground">{location.users.toLocaleString()} usuarios</span>
+                          <span className="text-xs text-muted-foreground">({location.users.toLocaleString()})</span>
                           <span className="text-sm font-bold text-primary">{location.percentage}%</span>
                         </div>
                       </div>
