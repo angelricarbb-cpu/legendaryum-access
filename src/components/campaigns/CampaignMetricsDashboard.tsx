@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { 
   Users, TrendingUp, Clock, Trophy, Target, BarChart3, 
   Download, FileText, FileSpreadsheet, UserCheck, Eye, 
-  Gamepad2, Award, Calendar, ArrowUp, Lock
+  Gamepad2, Award, Calendar, ArrowUp, Lock, Timer, Activity
 } from "lucide-react";
 import {
   ChartContainer,
@@ -43,10 +43,13 @@ const participationData = [
   { day: "Dom", participants: 290, plays: 980 },
 ];
 
-const engagementData = [
-  { name: "Completaron", value: 68, color: "hsl(var(--primary))" },
-  { name: "Abandonaron", value: 22, color: "hsl(var(--muted))" },
-  { name: "En progreso", value: 10, color: "hsl(var(--accent))" },
+// Engagement distribution data for horizontal bar chart
+const engagementDistribution = [
+  { label: "1 partida", percentage: 15, color: "#6366f1" },
+  { label: "2-5 partidas", percentage: 35, color: "#8b5cf6" },
+  { label: "6-10 partidas", percentage: 28, color: "#a855f7" },
+  { label: "11-20 partidas", percentage: 15, color: "#c084fc" },
+  { label: "20+ partidas", percentage: 7, color: "#d8b4fe" },
 ];
 
 const rewardsData = [
@@ -65,8 +68,8 @@ const microUserData = [
 ];
 
 const chartConfig = {
-  participants: { label: "Participantes", color: "hsl(var(--primary))" },
-  plays: { label: "Partidas", color: "hsl(var(--accent))" },
+  participants: { label: "Participantes", color: "#8b5cf6" },
+  plays: { label: "Partidas", color: "#c084fc" },
 };
 
 export const CampaignMetricsDashboard = ({ 
@@ -76,7 +79,7 @@ export const CampaignMetricsDashboard = ({
   onUpgrade,
   campaign 
 }: CampaignMetricsDashboardProps) => {
-  const [activeTab, setActiveTab] = useState("realtime");
+  const [activeTab, setActiveTab] = useState("macro");
   const isScale = userPlan === "SCALE";
   const isCompleted = campaign.status === "completed";
 
@@ -85,189 +88,255 @@ export const CampaignMetricsDashboard = ({
     return Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
   };
 
+  // KPI data
+  const kpiData = {
+    participants: campaign.participants,
+    totalPlays: 6810,
+    totalMinutes: 28620,
+    avgMinutesPerUser: 4.2,
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-5xl max-h-[90vh] overflow-hidden flex flex-col">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-5xl max-h-[90vh] overflow-hidden flex flex-col bg-background border-border">
+        <DialogHeader className="pb-4 border-b border-border">
           <div className="flex items-center justify-between">
             <div>
-              <DialogTitle className="text-xl">{campaign.title}</DialogTitle>
+              <DialogTitle className="text-xl font-bold text-foreground">{campaign.title}</DialogTitle>
               <DialogDescription className="flex items-center gap-2 mt-1">
-                <Badge variant={isCompleted ? "secondary" : "default"} className={isCompleted ? "" : "bg-green-500"}>
+                <Badge 
+                  variant={isCompleted ? "secondary" : "default"} 
+                  className={isCompleted ? "bg-muted" : "bg-green-500/20 text-green-400 border-green-500/30"}
+                >
                   {isCompleted ? "Finalizada" : "En curso"}
                 </Badge>
-                {!isCompleted && <span className="text-sm">{getDaysRemaining()} días restantes</span>}
+                {!isCompleted && <span className="text-sm text-muted-foreground">{getDaysRemaining()} días restantes</span>}
               </DialogDescription>
             </div>
-            <Badge className={userPlan === "SCALE" ? "bg-plan-scale" : "bg-plan-growth"}>
+            <Badge className={`${userPlan === "SCALE" ? "bg-plan-scale/20 text-red-400 border-plan-scale/30" : "bg-plan-growth/20 text-orange-400 border-plan-growth/30"} border`}>
               Plan {userPlan}
             </Badge>
           </div>
         </DialogHeader>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 overflow-hidden flex flex-col">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="realtime">
+          <TabsList className="grid w-full grid-cols-3 bg-secondary/50 p-1">
+            <TabsTrigger 
+              value="macro" 
+              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+            >
               <BarChart3 className="h-4 w-4 mr-2" />
-              Tiempo Real
+              MACRO
             </TabsTrigger>
-            <TabsTrigger value="micro">
+            <TabsTrigger 
+              value="micro"
+              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+            >
               {!isScale && <Lock className="h-3 w-3 mr-1" />}
               <Users className="h-4 w-4 mr-2" />
-              Datos Micro
+              MICRO
             </TabsTrigger>
-            <TabsTrigger value="reports" disabled={!isCompleted}>
+            <TabsTrigger 
+              value="reports" 
+              disabled={!isCompleted}
+              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground disabled:opacity-50"
+            >
               <FileText className="h-4 w-4 mr-2" />
-              Reportes
+              REPORTING
             </TabsTrigger>
           </TabsList>
 
           <div className="flex-1 overflow-y-auto py-4">
-            {/* MACRO METRICS - Available for both GROWTH and SCALE */}
-            <TabsContent value="realtime" className="space-y-6 mt-0">
-              {/* KPI Cards */}
+            {/* MACRO METRICS */}
+            <TabsContent value="macro" className="space-y-6 mt-0">
+              {/* KPI Cards - Purple themed with circular icons */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <Card>
+                <Card className="bg-card border-border hover:border-primary/50 transition-colors">
                   <CardContent className="p-4">
-                    <div className="flex items-center gap-2">
-                      <Users className="h-5 w-5 text-primary" />
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                        <Users className="h-5 w-5 text-primary" />
+                      </div>
                       <div>
-                        <p className="text-2xl font-bold">{campaign.participants.toLocaleString()}</p>
+                        <p className="text-2xl font-bold text-foreground">{kpiData.participants.toLocaleString()}</p>
                         <p className="text-xs text-muted-foreground">Participantes</p>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
-                <Card>
+                
+                <Card className="bg-card border-border hover:border-primary/50 transition-colors">
                   <CardContent className="p-4">
-                    <div className="flex items-center gap-2">
-                      <Gamepad2 className="h-5 w-5 text-accent" />
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center">
+                        <Gamepad2 className="h-5 w-5 text-accent" />
+                      </div>
                       <div>
-                        <p className="text-2xl font-bold">6,810</p>
+                        <p className="text-2xl font-bold text-foreground">{kpiData.totalPlays.toLocaleString()}</p>
                         <p className="text-xs text-muted-foreground">Partidas totales</p>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
-                <Card>
+                
+                <Card className="bg-card border-border hover:border-primary/50 transition-colors">
                   <CardContent className="p-4">
-                    <div className="flex items-center gap-2">
-                      <Clock className="h-5 w-5 text-yellow-500" />
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center">
+                        <Timer className="h-5 w-5 text-purple-400" />
+                      </div>
                       <div>
-                        <p className="text-2xl font-bold">4.2 min</p>
-                        <p className="text-xs text-muted-foreground">Tiempo promedio</p>
+                        <p className="text-2xl font-bold text-foreground">{kpiData.totalMinutes.toLocaleString()}</p>
+                        <p className="text-xs text-muted-foreground">Total minutos</p>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
-                <Card>
+                
+                <Card className="bg-card border-border hover:border-primary/50 transition-colors">
                   <CardContent className="p-4">
-                    <div className="flex items-center gap-2">
-                      <TrendingUp className="h-5 w-5 text-green-500" />
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-violet-500/20 flex items-center justify-center">
+                        <Activity className="h-5 w-5 text-violet-400" />
+                      </div>
                       <div>
-                        <p className="text-2xl font-bold">68%</p>
-                        <p className="text-xs text-muted-foreground">Tasa de retención</p>
+                        <p className="text-2xl font-bold text-foreground">{kpiData.avgMinutesPerUser} min</p>
+                        <p className="text-xs text-muted-foreground">Avg min/user</p>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
               </div>
 
-              {/* Participation Chart */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base">Participación diaria</CardTitle>
+              {/* Participation Chart - Purple gradient */}
+              <Card className="bg-card border-border">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-base text-foreground">Participación diaria</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ChartContainer config={chartConfig} className="h-[250px] w-full">
                     <AreaChart data={participationData}>
-                      <XAxis dataKey="day" />
-                      <YAxis />
+                      <defs>
+                        <linearGradient id="participantsGradient" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.4}/>
+                          <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0.05}/>
+                        </linearGradient>
+                        <linearGradient id="playsGradient" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#c084fc" stopOpacity={0.4}/>
+                          <stop offset="95%" stopColor="#c084fc" stopOpacity={0.05}/>
+                        </linearGradient>
+                      </defs>
+                      <XAxis 
+                        dataKey="day" 
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
+                      />
+                      <YAxis 
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
+                      />
                       <ChartTooltip content={<ChartTooltipContent />} />
                       <Area 
                         type="monotone" 
                         dataKey="participants" 
-                        stroke="hsl(var(--primary))" 
-                        fill="hsl(var(--primary))" 
-                        fillOpacity={0.3}
+                        stroke="#8b5cf6" 
+                        strokeWidth={2}
+                        fill="url(#participantsGradient)"
                       />
                       <Area 
                         type="monotone" 
                         dataKey="plays" 
-                        stroke="hsl(var(--accent))" 
-                        fill="hsl(var(--accent))" 
-                        fillOpacity={0.3}
+                        stroke="#c084fc" 
+                        strokeWidth={2}
+                        fill="url(#playsGradient)"
                       />
                     </AreaChart>
                   </ChartContainer>
                 </CardContent>
               </Card>
 
-              {/* Engagement & Rewards */}
+              {/* Engagement Distribution & Rewards */}
               <div className="grid md:grid-cols-2 gap-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-base">Engagement</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <ChartContainer config={chartConfig} className="h-[180px] w-full">
-                      <PieChart>
-                        <Pie
-                          data={engagementData}
-                          cx="50%"
-                          cy="50%"
-                          innerRadius={40}
-                          outerRadius={70}
-                          dataKey="value"
-                          label={({ name, value }) => `${name}: ${value}%`}
-                        >
-                          {engagementData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.color} />
-                          ))}
-                        </Pie>
-                        <ChartTooltip content={<ChartTooltipContent />} />
-                      </PieChart>
-                    </ChartContainer>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-base">Efectividad de Rewards</CardTitle>
+                {/* Engagement Distribution - Horizontal bars */}
+                <Card className="bg-card border-border">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-base text-foreground">Engagement Distribution</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
-                    {rewardsData.map((reward) => (
-                      <div key={reward.type} className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Award className="h-4 w-4 text-primary" />
-                          <span className="text-sm">{reward.type}</span>
+                    {engagementDistribution.map((item, index) => (
+                      <div key={index} className="space-y-1">
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">{item.label}</span>
+                          <span className="font-medium text-foreground">{item.percentage}%</span>
                         </div>
-                        <div className="text-sm">
-                          <span className="font-bold">{reward.claimed}</span>
-                          <span className="text-muted-foreground">/{reward.total}</span>
+                        <div className="h-2 bg-secondary rounded-full overflow-hidden">
+                          <div 
+                            className="h-full rounded-full transition-all duration-500"
+                            style={{ 
+                              width: `${item.percentage}%`,
+                              backgroundColor: item.color 
+                            }}
+                          />
                         </div>
                       </div>
                     ))}
+                  </CardContent>
+                </Card>
+
+                {/* Rewards Effectiveness */}
+                <Card className="bg-card border-border">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-base text-foreground">Efectividad de Rewards</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {rewardsData.map((reward) => {
+                      const percentage = Math.round((reward.claimed / reward.total) * 100);
+                      return (
+                        <div key={reward.type} className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                                <Award className="h-4 w-4 text-primary" />
+                              </div>
+                              <span className="text-sm text-foreground">{reward.type}</span>
+                            </div>
+                            <div className="text-sm">
+                              <span className="font-bold text-foreground">{reward.claimed}</span>
+                              <span className="text-muted-foreground">/{reward.total}</span>
+                            </div>
+                          </div>
+                          <div className="h-2 bg-secondary rounded-full overflow-hidden">
+                            <div 
+                              className="h-full bg-gradient-to-r from-primary to-accent rounded-full transition-all duration-500"
+                              style={{ width: `${percentage}%` }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
                   </CardContent>
                 </Card>
               </div>
 
               {/* Upgrade prompt for GROWTH users */}
               {!isScale && (
-                <Card className="border-plan-scale/50 bg-plan-scale/5">
+                <Card className="border-primary/30 bg-primary/5">
                   <CardContent className="flex items-center justify-between py-4">
                     <div className="flex items-center gap-3">
-                      <Lock className="h-5 w-5 text-plan-scale" />
+                      <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                        <Lock className="h-5 w-5 text-primary" />
+                      </div>
                       <div>
-                        <p className="font-medium">Desbloquea datos micro</p>
+                        <p className="font-medium text-foreground">Desbloquea datos micro</p>
                         <p className="text-sm text-muted-foreground">
                           Accede a datos individuales de usuarios con su consentimiento
                         </p>
                       </div>
                     </div>
                     <Button 
-                      variant="outline" 
-                      className="border-plan-scale text-plan-scale hover:bg-plan-scale/10"
+                      className="bg-primary hover:bg-primary/90 text-primary-foreground"
                       onClick={onUpgrade}
                     >
                       <ArrowUp className="mr-2 h-4 w-4" />
@@ -282,16 +351,16 @@ export const CampaignMetricsDashboard = ({
             <TabsContent value="micro" className="space-y-6 mt-0">
               {isScale ? (
                 <>
-                  <Card>
+                  <Card className="bg-card border-border">
                     <CardHeader>
                       <div className="flex items-center justify-between">
                         <div>
-                          <CardTitle className="text-base">Datos de Usuarios</CardTitle>
+                          <CardTitle className="text-base text-foreground">Datos de Usuarios</CardTitle>
                           <CardDescription>
                             Solo usuarios que aceptaron compartir sus datos
                           </CardDescription>
                         </div>
-                        <Badge variant="outline" className="text-green-500 border-green-500/50">
+                        <Badge variant="outline" className="text-green-400 border-green-500/30 bg-green-500/10">
                           <UserCheck className="h-3 w-3 mr-1" />
                           {microUserData.length} con consentimiento
                         </Badge>
@@ -300,21 +369,21 @@ export const CampaignMetricsDashboard = ({
                     <CardContent>
                       <Table>
                         <TableHeader>
-                          <TableRow>
-                            <TableHead>Usuario</TableHead>
-                            <TableHead>Email</TableHead>
-                            <TableHead className="text-center">Partidas</TableHead>
-                            <TableHead className="text-center">Puntuación</TableHead>
-                            <TableHead>Última actividad</TableHead>
+                          <TableRow className="border-border hover:bg-transparent">
+                            <TableHead className="text-muted-foreground">Usuario</TableHead>
+                            <TableHead className="text-muted-foreground">Email</TableHead>
+                            <TableHead className="text-center text-muted-foreground">Partidas</TableHead>
+                            <TableHead className="text-center text-muted-foreground">Puntuación</TableHead>
+                            <TableHead className="text-muted-foreground">Última actividad</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
                           {microUserData.map((user) => (
-                            <TableRow key={user.id}>
-                              <TableCell className="font-medium">{user.name}</TableCell>
+                            <TableRow key={user.id} className="border-border hover:bg-secondary/50">
+                              <TableCell className="font-medium text-foreground">{user.name}</TableCell>
                               <TableCell className="text-muted-foreground">{user.email}</TableCell>
-                              <TableCell className="text-center">{user.plays}</TableCell>
-                              <TableCell className="text-center font-bold">{user.score.toLocaleString()}</TableCell>
+                              <TableCell className="text-center text-foreground">{user.plays}</TableCell>
+                              <TableCell className="text-center font-bold text-primary">{user.score.toLocaleString()}</TableCell>
                               <TableCell className="text-muted-foreground">{user.lastPlay}</TableCell>
                             </TableRow>
                           ))}
@@ -323,16 +392,16 @@ export const CampaignMetricsDashboard = ({
                     </CardContent>
                   </Card>
 
-                  <Card>
+                  <Card className="bg-card border-border">
                     <CardContent className="py-4">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="font-medium">Exportar para CRM</p>
+                          <p className="font-medium text-foreground">Exportar para CRM</p>
                           <p className="text-sm text-muted-foreground">
                             Descarga los datos de usuarios para tus acciones comerciales
                           </p>
                         </div>
-                        <Button>
+                        <Button className="bg-primary hover:bg-primary/90">
                           <Download className="mr-2 h-4 w-4" />
                           Exportar CSV
                         </Button>
@@ -341,14 +410,16 @@ export const CampaignMetricsDashboard = ({
                   </Card>
                 </>
               ) : (
-                <Card className="text-center py-12">
+                <Card className="text-center py-12 bg-card border-border">
                   <CardContent>
-                    <Lock className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                    <h3 className="text-lg font-semibold mb-2">Datos Micro no disponibles</h3>
+                    <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4">
+                      <Lock className="h-8 w-8 text-primary" />
+                    </div>
+                    <h3 className="text-lg font-semibold mb-2 text-foreground">Datos Micro no disponibles</h3>
                     <p className="text-muted-foreground mb-4">
                       Esta funcionalidad está disponible solo para el plan SCALE
                     </p>
-                    <Button onClick={onUpgrade}>
+                    <Button className="bg-primary hover:bg-primary/90" onClick={onUpgrade}>
                       <ArrowUp className="mr-2 h-4 w-4" />
                       Upgrade a SCALE
                     </Button>
@@ -362,54 +433,62 @@ export const CampaignMetricsDashboard = ({
               {isCompleted ? (
                 <>
                   {/* Executive Summary */}
-                  <Card>
+                  <Card className="bg-card border-border">
                     <CardHeader>
-                      <CardTitle className="text-base">Resumen Ejecutivo</CardTitle>
+                      <CardTitle className="text-base text-foreground">Resumen Ejecutivo</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div className="text-center p-4 bg-muted/50 rounded-lg">
+                        <div className="text-center p-4 bg-primary/10 rounded-lg border border-primary/20">
                           <p className="text-2xl font-bold text-primary">{campaign.participants.toLocaleString()}</p>
                           <p className="text-xs text-muted-foreground">Total participantes</p>
                         </div>
-                        <div className="text-center p-4 bg-muted/50 rounded-lg">
-                          <p className="text-2xl font-bold text-green-500">68%</p>
+                        <div className="text-center p-4 bg-green-500/10 rounded-lg border border-green-500/20">
+                          <p className="text-2xl font-bold text-green-400">68%</p>
                           <p className="text-xs text-muted-foreground">Tasa de conversión</p>
                         </div>
-                        <div className="text-center p-4 bg-muted/50 rounded-lg">
+                        <div className="text-center p-4 bg-accent/10 rounded-lg border border-accent/20">
                           <p className="text-2xl font-bold text-accent">6,810</p>
                           <p className="text-xs text-muted-foreground">Interacciones totales</p>
                         </div>
-                        <div className="text-center p-4 bg-muted/50 rounded-lg">
-                          <p className="text-2xl font-bold text-yellow-500">344</p>
+                        <div className="text-center p-4 bg-violet-500/10 rounded-lg border border-violet-500/20">
+                          <p className="text-2xl font-bold text-violet-400">344</p>
                           <p className="text-xs text-muted-foreground">Rewards entregados</p>
                         </div>
                       </div>
 
                       <div className="grid md:grid-cols-2 gap-4">
-                        <div className="p-4 border border-border rounded-lg">
-                          <h4 className="font-medium mb-2">Comparativa Inicio vs Fin</h4>
+                        <div className="p-4 border border-border rounded-lg bg-secondary/30">
+                          <h4 className="font-medium mb-2 text-foreground">Comparativa Inicio vs Fin</h4>
                           <div className="space-y-2 text-sm">
                             <div className="flex justify-between">
-                              <span className="text-muted-foreground">Objetivo participantes:</span>
-                              <span>10,000</span>
+                              <span className="text-muted-foreground">Engagement inicial</span>
+                              <span className="font-medium text-foreground">23%</span>
                             </div>
                             <div className="flex justify-between">
-                              <span className="text-muted-foreground">Alcanzado:</span>
-                              <span className="text-green-500">{campaign.participants.toLocaleString()} (12.5%)</span>
+                              <span className="text-muted-foreground">Engagement final</span>
+                              <span className="font-medium text-green-400">68%</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">Incremento</span>
+                              <span className="font-bold text-primary">+196%</span>
                             </div>
                           </div>
                         </div>
-                        <div className="p-4 border border-border rounded-lg">
-                          <h4 className="font-medium mb-2">Engagement Total</h4>
+                        <div className="p-4 border border-border rounded-lg bg-secondary/30">
+                          <h4 className="font-medium mb-2 text-foreground">Métricas de Tiempo</h4>
                           <div className="space-y-2 text-sm">
                             <div className="flex justify-between">
-                              <span className="text-muted-foreground">Tiempo total jugado:</span>
-                              <span>486 horas</span>
+                              <span className="text-muted-foreground">Total minutos</span>
+                              <span className="font-medium text-foreground">{kpiData.totalMinutes.toLocaleString()}</span>
                             </div>
                             <div className="flex justify-between">
-                              <span className="text-muted-foreground">Promedio por usuario:</span>
-                              <span>23 minutos</span>
+                              <span className="text-muted-foreground">Avg min/user</span>
+                              <span className="font-medium text-foreground">{kpiData.avgMinutesPerUser} min</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">Sesión más larga</span>
+                              <span className="font-bold text-primary">45 min</span>
                             </div>
                           </div>
                         </div>
@@ -418,43 +497,91 @@ export const CampaignMetricsDashboard = ({
                   </Card>
 
                   {/* Download Reports */}
-                  <Card>
+                  <Card className="bg-card border-border">
                     <CardHeader>
-                      <CardTitle className="text-base">Descargar Reportes</CardTitle>
+                      <CardTitle className="text-base text-foreground">Descargar Reportes</CardTitle>
                       <CardDescription>
-                        Exporta los datos de tu campaña en diferentes formatos
+                        Obtén un análisis completo de tu campaña
                       </CardDescription>
                     </CardHeader>
-                    <CardContent>
-                      <div className="grid sm:grid-cols-3 gap-4">
-                        <Button variant="outline" className="h-auto py-4 flex-col gap-2">
-                          <FileText className="h-6 w-6 text-red-500" />
-                          <span>Reporte PDF</span>
-                          <span className="text-xs text-muted-foreground">Visual, ejecutivo</span>
+                    <CardContent className="space-y-3">
+                      <div className="flex items-center justify-between p-3 border border-border rounded-lg hover:border-primary/50 transition-colors bg-secondary/30">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                            <FileText className="h-5 w-5 text-primary" />
+                          </div>
+                          <div>
+                            <p className="font-medium text-foreground">Reporte MACRO</p>
+                            <p className="text-xs text-muted-foreground">Métricas agregadas y tendencias</p>
+                          </div>
+                        </div>
+                        <Button variant="outline" size="sm" className="border-primary/50 text-primary hover:bg-primary/10">
+                          <Download className="h-4 w-4 mr-2" />
+                          PDF
                         </Button>
-                        <Button variant="outline" className="h-auto py-4 flex-col gap-2">
-                          <FileSpreadsheet className="h-6 w-6 text-green-500" />
-                          <span>CSV / Excel</span>
-                          <span className="text-xs text-muted-foreground">Datos crudos</span>
-                        </Button>
-                        {isScale && (
-                          <Button variant="outline" className="h-auto py-4 flex-col gap-2">
-                            <UserCheck className="h-6 w-6 text-blue-500" />
-                            <span>Exportar Leads</span>
-                            <span className="text-xs text-muted-foreground">Usuarios con consentimiento</span>
-                          </Button>
-                        )}
                       </div>
+                      
+                      {isScale && (
+                        <div className="flex items-center justify-between p-3 border border-border rounded-lg hover:border-accent/50 transition-colors bg-secondary/30">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center">
+                              <FileSpreadsheet className="h-5 w-5 text-accent" />
+                            </div>
+                            <div>
+                              <p className="font-medium text-foreground">Reporte MICRO</p>
+                              <p className="text-xs text-muted-foreground">Datos individuales de usuarios</p>
+                            </div>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button variant="outline" size="sm" className="border-accent/50 text-accent hover:bg-accent/10">
+                              <Download className="h-4 w-4 mr-2" />
+                              PDF
+                            </Button>
+                            <Button variant="outline" size="sm" className="border-accent/50 text-accent hover:bg-accent/10">
+                              <Download className="h-4 w-4 mr-2" />
+                              CSV
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                      
+                      {!isScale && (
+                        <div className="flex items-center justify-between p-3 border border-border rounded-lg bg-secondary/20 opacity-60">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
+                              <Lock className="h-5 w-5 text-muted-foreground" />
+                            </div>
+                            <div>
+                              <p className="font-medium text-muted-foreground">Reporte MICRO</p>
+                              <p className="text-xs text-muted-foreground">Disponible en plan SCALE</p>
+                            </div>
+                          </div>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={onUpgrade}
+                            className="border-primary/50 text-primary hover:bg-primary/10"
+                          >
+                            <ArrowUp className="h-4 w-4 mr-2" />
+                            Upgrade
+                          </Button>
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
                 </>
               ) : (
-                <Card className="text-center py-12">
+                <Card className="text-center py-12 bg-card border-border">
                   <CardContent>
-                    <Calendar className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                    <h3 className="text-lg font-semibold mb-2">Campaña en curso</h3>
-                    <p className="text-muted-foreground">
-                      Los reportes finales estarán disponibles cuando la campaña termine
+                    <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
+                      <Calendar className="h-8 w-8 text-muted-foreground" />
+                    </div>
+                    <h3 className="text-lg font-semibold mb-2 text-foreground">Reportes no disponibles</h3>
+                    <p className="text-muted-foreground mb-2">
+                      Los reportes estarán disponibles cuando la campaña finalice
+                    </p>
+                    <p className="text-sm text-primary">
+                      {getDaysRemaining()} días restantes
                     </p>
                   </CardContent>
                 </Card>
