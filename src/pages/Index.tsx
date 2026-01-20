@@ -3,6 +3,7 @@ import { ArrowRight, Trophy, Target, Gamepad2, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import ContactForm from "@/components/ContactForm";
 
 const Index = () => {
   return (
@@ -100,20 +101,19 @@ const Index = () => {
           </div>
         </section>
 
-        {/* CTA Section */}
-        <section className="py-20">
+        {/* Contact Section */}
+        <section id="contact" className="py-20">
           <div className="container">
-            <div className="bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20 rounded-2xl p-8 md:p-12 text-center border border-primary/30">
-              <h2 className="text-3xl font-bold mb-4">¿Listo para empezar?</h2>
-              <p className="text-muted-foreground mb-8 max-w-xl mx-auto">
-                Únete a miles de usuarios y marcas que ya están transformando su engagement con gamificación.
-              </p>
-              <Button size="lg" asChild>
-                <Link to="/pricing">
-                  Ver Todos los Planes
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
+            <div className="bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20 rounded-2xl p-8 md:p-12 border border-primary/30">
+              <div className="text-center mb-8">
+                <h2 className="text-3xl font-bold mb-4">¿Listo para empezar?</h2>
+                <p className="text-muted-foreground max-w-xl mx-auto">
+                  Únete a miles de usuarios y marcas que ya están transformando su engagement con gamificación.
+                </p>
+              </div>
+              <div className="max-w-3xl mx-auto">
+                <ContactForm />
+              </div>
             </div>
           </div>
         </section>
