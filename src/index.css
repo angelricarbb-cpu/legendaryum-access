@@ -41,6 +41,11 @@
     --plan-scale: 0 75% 55%;
     --plan-enterprise: 30 30% 40%;
 
+    /* Ranking colors */
+    --ranking-gold: 43 96% 56%;
+    --ranking-silver: 240 5% 60%;
+    --ranking-bronze: 25 75% 47%;
+
     --sidebar-background: 240 10% 6%;
     --sidebar-foreground: 0 0% 98%;
     --sidebar-primary: 250 90% 60%;
