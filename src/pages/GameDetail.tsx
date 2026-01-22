@@ -36,6 +36,14 @@ interface RankingPlayer {
   points: number;
 }
 
+// Platform availability
+interface PlatformLinks {
+  ios?: string;
+  android?: string;
+  steam?: string;
+  web?: string;
+}
+
 // Extended campaign data with game details
 interface GameCampaign {
   id: string;
@@ -50,8 +58,7 @@ interface GameCampaign {
   description: string;
   aboutGame: string;
   faqs: { question: string; answer: string }[];
-  iosUrl?: string;
-  androidUrl?: string;
+  platforms: PlatformLinks;
   socialLinks: {
     twitter?: string;
     instagram?: string;
@@ -83,6 +90,10 @@ const mockGameData: Record<string, GameCampaign> = {
       { question: "What are the prizes?", answer: "Top players receive exclusive discount codes, free product samples, and limited edition merchandise from REDVOLT LIMIT." },
       { question: "How long does the campaign last?", answer: "The campaign runs for 7 days from the start date. Check the campaign info for exact dates." },
     ],
+    platforms: {
+      steam: "https://store.steampowered.com",
+      web: "#play",
+    },
     socialLinks: {
       twitter: "https://twitter.com/redvolt",
       instagram: "https://instagram.com/redvolt",
@@ -113,8 +124,10 @@ const mockGameData: Record<string, GameCampaign> = {
       { question: "Is there a leaderboard?", answer: "Yes! Your scores are tracked in real-time and displayed on the campaign leaderboard." },
       { question: "Can I compete with friends?", answer: "Absolutely! Share the campaign link with friends and compete to see who reaches the top first." },
     ],
-    iosUrl: "https://apps.apple.com",
-    androidUrl: "https://play.google.com",
+    platforms: {
+      ios: "https://apps.apple.com",
+      android: "https://play.google.com",
+    },
     socialLinks: {
       twitter: "https://twitter.com/redvolt",
       instagram: "https://instagram.com/redvolt",
@@ -442,46 +455,75 @@ const GameDetail = () => {
         )}
 
         {/* Download Section */}
-        {(game.iosUrl || game.androidUrl) && !showPreroll && (
+        {Object.values(game.platforms).some(Boolean) && !(game.hasVideo && showPreroll) && (
           <section className="py-12 border-t border-border">
             <div className="container">
               <h2 className="text-xl font-semibold text-foreground text-center mb-8">
                 Select the game download platform
               </h2>
-              <div className="flex justify-center">
-                <div className="bg-secondary/50 rounded-xl p-6 inline-flex items-center gap-6">
-                  <span className="font-medium text-foreground">Mobile</span>
-                  {game.androidUrl && (
-                    <a href={game.androidUrl} target="_blank" rel="noopener noreferrer">
-                      <Button variant="secondary" size="lg" className="gap-3 px-6 bg-card hover:bg-card/80">
-                        <Play className="h-5 w-5" />
-                        Google Play
+              <div className="flex flex-col items-center gap-6">
+                {/* Mobile Platforms */}
+                {(game.platforms.ios || game.platforms.android) && (
+                  <div className="bg-secondary/50 rounded-xl p-6 inline-flex flex-wrap items-center gap-4 sm:gap-6">
+                    <span className="font-medium text-foreground">Mobile</span>
+                    {game.platforms.android && (
+                      <a href={game.platforms.android} target="_blank" rel="noopener noreferrer">
+                        <Button variant="secondary" size="lg" className="gap-3 px-6 bg-card hover:bg-card/80">
+                          <Play className="h-5 w-5" />
+                          Google Play
+                        </Button>
+                      </a>
+                    )}
+                    {game.platforms.ios && (
+                      <a href={game.platforms.ios} target="_blank" rel="noopener noreferrer">
+                        <Button variant="secondary" size="lg" className="gap-3 px-6 bg-card hover:bg-card/80">
+                          <Apple className="h-5 w-5" />
+                          App Store
+                        </Button>
+                      </a>
+                    )}
+                  </div>
+                )}
+
+                {/* Desktop Platforms */}
+                {(game.platforms.steam || game.platforms.web) && (
+                  <div className="bg-secondary/50 rounded-xl p-6 inline-flex flex-wrap items-center gap-4 sm:gap-6">
+                    <span className="font-medium text-foreground">Desktop</span>
+                    {game.platforms.steam && (
+                      <a href={game.platforms.steam} target="_blank" rel="noopener noreferrer">
+                        <Button variant="secondary" size="lg" className="gap-3 px-6 bg-card hover:bg-card/80">
+                          <Gamepad2 className="h-5 w-5" />
+                          Steam
+                        </Button>
+                      </a>
+                    )}
+                    {game.platforms.web && (
+                      <Button 
+                        variant="secondary" 
+                        size="lg" 
+                        className="gap-3 px-6 bg-card hover:bg-card/80"
+                        onClick={handlePlayGame}
+                      >
+                        <Globe className="h-5 w-5" />
+                        Play in Browser
                       </Button>
-                    </a>
-                  )}
-                  {game.iosUrl && (
-                    <a href={game.iosUrl} target="_blank" rel="noopener noreferrer">
-                      <Button variant="secondary" size="lg" className="gap-3 px-6 bg-card hover:bg-card/80">
-                        <Apple className="h-5 w-5" />
-                        App Store
-                      </Button>
-                    </a>
-                  )}
-                </div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </section>
         )}
 
         {/* About the Game Section */}
-        {!showPreroll && (
+        {!(game.hasVideo && showPreroll) && (
           <section className="py-12 border-t border-border">
             <div className="container">
               <h2 className="text-xl font-semibold text-foreground text-center mb-8">About the game</h2>
               <div className="grid md:grid-cols-2 gap-8 items-center max-w-4xl mx-auto">
                 {/* Brand Logo */}
                 <div className="flex items-center justify-center">
-                  <div className="w-64 h-64 rounded-xl bg-gradient-to-br from-amber-900/50 to-orange-900/50 flex items-center justify-center">
+                  <div className="w-64 h-64 rounded-xl bg-gradient-to-br from-secondary to-muted flex items-center justify-center">
                     <Gamepad2 className="h-24 w-24 text-primary opacity-50" />
                   </div>
                 </div>
@@ -498,7 +540,7 @@ const GameDetail = () => {
         )}
 
         {/* Social Media Section */}
-        {Object.values(game.socialLinks).some(Boolean) && !showPreroll && (
+        {Object.values(game.socialLinks).some(Boolean) && !(game.hasVideo && showPreroll) && (
           <section className="py-8 border-t border-border">
             <div className="container">
               <h2 className="text-xl font-semibold text-foreground mb-6">Follow {game.brandName}</h2>
@@ -541,7 +583,7 @@ const GameDetail = () => {
         )}
 
         {/* FAQs Section */}
-        {game.faqs.length > 0 && !showPreroll && (
+        {game.faqs.length > 0 && !(game.hasVideo && showPreroll) && (
           <section className="py-12 border-t border-border bg-secondary/30">
             <div className="container">
               <h2 className="text-2xl font-bold text-foreground mb-8">Frequently Asked Questions</h2>
@@ -568,7 +610,7 @@ const GameDetail = () => {
         )}
 
         {/* New Games Section */}
-        {!showPreroll && (
+        {!(game.hasVideo && showPreroll) && (
           <section className="py-12 border-t border-border">
             <div className="container">
               <div className="flex items-center gap-2 mb-8">
