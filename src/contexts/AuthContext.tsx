@@ -1,11 +1,24 @@
 import React, { createContext, useContext, useState, ReactNode } from "react";
 
+export interface UserProfile {
+  firstName: string;
+  lastName: string;
+  gender: string;
+  birthDate: string;
+  phone: string;
+  country: string;
+  city: string;
+}
+
 export interface User {
   id: string;
   name: string;
   username: string;
   email: string;
   avatar?: string;
+  hasAcceptedTerms: boolean;
+  hasCompletedProfile: boolean;
+  profile?: UserProfile;
 }
 
 interface AuthContextType {
@@ -13,6 +26,8 @@ interface AuthContextType {
   user: User | null;
   loginWithGoogle: () => void;
   logout: () => void;
+  acceptTerms: () => void;
+  completeProfile: (profile: UserProfile) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -29,6 +44,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       username: "@LegendAR11",
       email: "angelo@example.com",
       avatar: "",
+      hasAcceptedTerms: false,
+      hasCompletedProfile: false,
     });
     setIsLoggedIn(true);
   };
@@ -38,8 +55,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setIsLoggedIn(false);
   };
 
+  const acceptTerms = () => {
+    if (user) {
+      setUser({ ...user, hasAcceptedTerms: true });
+    }
+  };
+
+  const completeProfile = (profile: UserProfile) => {
+    if (user) {
+      setUser({
+        ...user,
+        hasCompletedProfile: true,
+        profile,
+        name: `${profile.firstName} ${profile.lastName}`,
+      });
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ isLoggedIn, user, loginWithGoogle, logout }}>
+    <AuthContext.Provider value={{ 
+      isLoggedIn, 
+      user, 
+      loginWithGoogle, 
+      logout,
+      acceptTerms,
+      completeProfile
+    }}>
       {children}
     </AuthContext.Provider>
   );
