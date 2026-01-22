@@ -7,7 +7,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Trophy, Medal, Award, Info, Users } from "lucide-react";
+import { Trophy, Medal, Award, Info, Users, Zap, Sparkles, Tag } from "lucide-react";
 import { RankingCampaign, RankingPlayer } from "./RankingCampaignCard";
 
 interface TopPositionsModalProps {
@@ -82,11 +82,24 @@ const TopPositionsModal = ({
             </span>
           </div>
           
-          {campaign.hasCode && (
-            <Badge variant="secondary" className="bg-primary/20 text-primary">
-              Prize: CODE
-            </Badge>
-          )}
+          {/* Prize Icons */}
+          <div className="flex items-center gap-2">
+            {campaign.hasCode && (
+              <div className="flex items-center gap-1 p-1.5 bg-primary/20 rounded-lg" title="Has Code Reward">
+                <Tag className="h-4 w-4 text-primary" />
+              </div>
+            )}
+            {campaign.bonusLevel && (
+              <div className="flex items-center gap-1 p-1.5 bg-purple-500/20 rounded-lg" title="Bonus Level Available">
+                <Zap className="h-4 w-4 text-purple-400" />
+              </div>
+            )}
+            {campaign.specialReward && (
+              <div className="flex items-center gap-1 p-1.5 bg-amber-500/20 rounded-lg" title="Special Reward Available">
+                <Sparkles className="h-4 w-4 text-amber-400" />
+              </div>
+            )}
+          </div>
           
           <Button 
             variant="ghost" 
@@ -95,25 +108,24 @@ const TopPositionsModal = ({
             className="gap-2 text-primary hover:text-primary"
           >
             <Info className="h-4 w-4" />
-            Campaign Info
+            + Info
           </Button>
         </div>
 
         {/* Top 10 Table */}
         <div className="space-y-2">
           {/* Header */}
-          <div className="grid grid-cols-12 gap-2 px-4 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wide">
+          <div className="grid grid-cols-10 gap-2 px-4 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wide">
             <div className="col-span-1">Pos</div>
             <div className="col-span-6">Player</div>
             <div className="col-span-3 text-right">Points</div>
-            <div className="col-span-2 text-right">Prize</div>
           </div>
           
           {/* Players */}
           {top10.map((player) => (
             <div 
               key={player.position}
-              className={`grid grid-cols-12 gap-2 px-4 py-3 rounded-lg items-center transition-colors ${
+              className={`grid grid-cols-10 gap-2 px-4 py-3 rounded-lg items-center transition-colors ${
                 campaign.myPosition === player.position 
                   ? "bg-primary/20 border border-primary/30" 
                   : "bg-card hover:bg-secondary/50"
@@ -138,11 +150,6 @@ const TopPositionsModal = ({
               </div>
               <div className="col-span-3 text-right font-semibold">
                 {formatPoints(player.points)} pts
-              </div>
-              <div className="col-span-2 text-right">
-                {player.position <= 3 && campaign.hasCode && (
-                  <Badge variant="secondary" className="text-xs">Code</Badge>
-                )}
               </div>
             </div>
           ))}

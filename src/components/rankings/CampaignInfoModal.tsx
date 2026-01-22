@@ -6,8 +6,7 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Progress } from "@/components/ui/progress";
-import { Trophy, Gift, FileText, Calendar, Users, Award, Star, Zap, Target, Sparkles } from "lucide-react";
+import { Trophy, Gift, FileText, Calendar, Users, Award, Zap, Target, Sparkles, CreditCard } from "lucide-react";
 import { RankingCampaign } from "./RankingCampaignCard";
 import { format } from "date-fns";
 
@@ -29,46 +28,12 @@ const getCampaignDetails = (campaign: RankingCampaign) => ({
     "By participating, you agree to receive promotional communications",
   ],
   prizes: [
-    { position: "1st Place", reward: campaign.hasCode ? "Exclusive Code + $500 Gift Card" : "$500 Gift Card", icon: Trophy },
-    { position: "2nd Place", reward: campaign.hasCode ? "Exclusive Code + $250 Gift Card" : "$250 Gift Card", icon: Award },
-    { position: "3rd Place", reward: campaign.hasCode ? "Exclusive Code + $100 Gift Card" : "$100 Gift Card", icon: Award },
-    { position: "4th - 10th", reward: campaign.hasCode ? "Exclusive Discount Code" : "Mystery Box", icon: Gift },
+    { position: "1st Place", reward: "$100 Gift Card", icon: Trophy },
+    { position: "2nd Place", reward: "$50 Gift Card", icon: Award },
+    { position: "3rd Place", reward: "$25 Gift Card", icon: Award },
+    { position: "4th - 10th", reward: "$10 Gift Card", icon: Gift },
   ],
 });
-
-const getRewardTypeIcon = (type: string) => {
-  switch (type) {
-    case "discount":
-      return <span className="text-lg">🏷️</span>;
-    case "item":
-      return <span className="text-lg">🎁</span>;
-    case "code":
-      return <span className="text-lg">🔑</span>;
-    case "points":
-      return <span className="text-lg">⭐</span>;
-    case "mystery":
-      return <span className="text-lg">🎲</span>;
-    default:
-      return <Gift className="h-5 w-5" />;
-  }
-};
-
-const getRewardTypeLabel = (type: string) => {
-  switch (type) {
-    case "discount":
-      return "Discount";
-    case "item":
-      return "Item";
-    case "code":
-      return "Code";
-    case "points":
-      return "Points";
-    case "mystery":
-      return "Mystery";
-    default:
-      return "Reward";
-  }
-};
 
 const CampaignInfoModal = ({ isOpen, onClose, campaign }: CampaignInfoModalProps) => {
   if (!campaign) return null;
@@ -113,11 +78,24 @@ const CampaignInfoModal = ({ isOpen, onClose, campaign }: CampaignInfoModalProps
 
         <Separator className="my-4" />
 
+        {/* Description - Moved to top */}
+        <div>
+          <h3 className="font-semibold text-foreground mb-2 flex items-center gap-2">
+            <FileText className="h-4 w-4" />
+            Description
+          </h3>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            {details.description}
+          </p>
+        </div>
+
+        <Separator className="my-4" />
+
         {/* Bonus Level & Special Reward */}
         {(campaign.bonusLevel || campaign.specialReward) && (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Bonus Level */}
+              {/* Bonus Level - Discount Code related */}
               {campaign.bonusLevel && (
                 <div className="p-4 rounded-xl bg-gradient-to-br from-purple-500/10 to-purple-600/5 border border-purple-500/20">
                   <div className="flex items-center gap-2 mb-3">
@@ -126,18 +104,20 @@ const CampaignInfoModal = ({ isOpen, onClose, campaign }: CampaignInfoModalProps
                     </div>
                     <div>
                       <h4 className="font-semibold text-foreground">Bonus Level</h4>
-                      <p className="text-xs text-muted-foreground">Extra reward for playing</p>
+                      <p className="text-xs text-muted-foreground">Discount code reward</p>
                     </div>
                   </div>
                   
                   <div className="space-y-3">
                     <div className="flex items-center justify-between p-3 bg-background/50 rounded-lg">
                       <div className="flex items-center gap-2">
-                        {getRewardTypeIcon(campaign.bonusLevel.rewardType)}
-                        <span className="text-sm font-medium text-foreground">{campaign.bonusLevel.reward}</span>
+                        <span className="text-lg">🏷️</span>
+                        <span className="text-sm font-medium text-foreground">
+                          {campaign.bonusLevel.reward.includes('%') ? campaign.bonusLevel.reward : `${campaign.bonusLevel.reward} Discount`}
+                        </span>
                       </div>
-                      <Badge variant="secondary" className="text-[10px]">
-                        {getRewardTypeLabel(campaign.bonusLevel.rewardType)}
+                      <Badge variant="secondary" className="text-[10px] bg-purple-500/20 text-purple-400">
+                        Code
                       </Badge>
                     </div>
                     
@@ -150,7 +130,7 @@ const CampaignInfoModal = ({ isOpen, onClose, campaign }: CampaignInfoModalProps
                 </div>
               )}
 
-              {/* Special Reward */}
+              {/* Special Reward - Gift Card related */}
               {campaign.specialReward && (
                 <div className="p-4 rounded-xl bg-gradient-to-br from-amber-500/10 to-orange-600/5 border border-amber-500/20">
                   <div className="flex items-center gap-2 mb-3">
@@ -159,18 +139,20 @@ const CampaignInfoModal = ({ isOpen, onClose, campaign }: CampaignInfoModalProps
                     </div>
                     <div>
                       <h4 className="font-semibold text-foreground">Special Reward</h4>
-                      <p className="text-xs text-muted-foreground">Exclusive prize</p>
+                      <p className="text-xs text-muted-foreground">Gift card prize</p>
                     </div>
                   </div>
                   
                   <div className="space-y-3">
                     <div className="flex items-center justify-between p-3 bg-background/50 rounded-lg">
                       <div className="flex items-center gap-2">
-                        {getRewardTypeIcon(campaign.specialReward.rewardType)}
-                        <span className="text-sm font-medium text-foreground">{campaign.specialReward.reward}</span>
+                        <CreditCard className="h-5 w-5 text-amber-400" />
+                        <span className="text-sm font-medium text-foreground">
+                          {campaign.specialReward.reward.includes('Gift') ? campaign.specialReward.reward : `${campaign.specialReward.reward} Gift Card`}
+                        </span>
                       </div>
-                      <Badge variant="secondary" className="text-[10px]">
-                        {getRewardTypeLabel(campaign.specialReward.rewardType)}
+                      <Badge variant="secondary" className="text-[10px] bg-amber-500/20 text-amber-400">
+                        Gift Card
                       </Badge>
                     </div>
                     
@@ -187,19 +169,6 @@ const CampaignInfoModal = ({ isOpen, onClose, campaign }: CampaignInfoModalProps
             <Separator className="my-4" />
           </>
         )}
-
-        {/* Description */}
-        <div>
-          <h3 className="font-semibold text-foreground mb-2 flex items-center gap-2">
-            <FileText className="h-4 w-4" />
-            Description
-          </h3>
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            {details.description}
-          </p>
-        </div>
-
-        <Separator className="my-4" />
 
         {/* Top Ranking Prizes */}
         <div>
@@ -252,15 +221,6 @@ const CampaignInfoModal = ({ isOpen, onClose, campaign }: CampaignInfoModalProps
             ))}
           </ul>
         </div>
-
-        {/* Prize Type Badge */}
-        {campaign.hasCode && (
-          <div className="mt-4 flex justify-center">
-            <Badge variant="secondary" className="bg-primary/20 text-primary px-4 py-1">
-              This campaign rewards with exclusive CODES
-            </Badge>
-          </div>
-        )}
       </DialogContent>
     </Dialog>
   );
