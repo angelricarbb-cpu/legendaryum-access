@@ -295,12 +295,12 @@ const Rankings = () => {
           </div>
         </section>
 
-        {/* Campaigns List */}
+        {/* Campaigns Grid */}
         <section className="pb-12">
           <div className="container">
-            <div className="space-y-4">
-              {filteredCampaigns.length > 0 ? (
-                filteredCampaigns.map((campaign) => (
+            {filteredCampaigns.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {filteredCampaigns.map((campaign) => (
                   <RankingCampaignCard
                     key={campaign.id}
                     campaign={campaign}
@@ -309,13 +309,13 @@ const Rankings = () => {
                     onViewTopPositions={handleViewTopPositions}
                     onViewInfo={handleViewInfo}
                   />
-                ))
-              ) : (
-                <div className="text-center py-12">
-                  <p className="text-muted-foreground">No campaigns found in this category.</p>
-                </div>
-              )}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground">No campaigns found in this category.</p>
+              </div>
+            )}
           </div>
         </section>
       </main>
