@@ -9,6 +9,7 @@ import Pricing from "./pages/Pricing";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Rankings from "./pages/Rankings";
+import GameDetail from "./pages/GameDetail";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +27,7 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/rankings" element={<Rankings />} />
+            <Route path="/game/:id" element={<GameDetail />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
