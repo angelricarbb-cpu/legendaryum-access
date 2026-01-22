@@ -10,6 +10,13 @@ export interface UserProfile {
   city: string;
 }
 
+export type SubscriptionPlan = "free" | "premium" | "growth" | "scale" | "enterprise";
+
+export interface UserSubscription {
+  plan: SubscriptionPlan;
+  expiresAt?: Date;
+}
+
 export interface User {
   id: string;
   name: string;
@@ -19,6 +26,7 @@ export interface User {
   hasAcceptedTerms: boolean;
   hasCompletedProfile: boolean;
   profile?: UserProfile;
+  subscription?: UserSubscription;
 }
 
 interface AuthContextType {
@@ -46,6 +54,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       avatar: "",
       hasAcceptedTerms: false,
       hasCompletedProfile: false,
+      subscription: { plan: "free" }, // Default to free plan
     });
     setIsLoggedIn(true);
   };
