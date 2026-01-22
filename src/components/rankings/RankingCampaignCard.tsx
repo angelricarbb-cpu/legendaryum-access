@@ -1,9 +1,11 @@
+import { useState, useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Trophy, Medal, Award, Info, Gamepad2, Users } from "lucide-react";
+import { Trophy, Medal, Award, Info, Gamepad2, Users, Clock, Lock, Crown } from "lucide-react";
 
 export type CampaignFilterStatus = "available" | "ongoing" | "finished" | "coming_soon";
+export type PlanType = "free" | "premium" | "all";
 
 export interface RankingPlayer {
   position: number;
@@ -28,10 +30,12 @@ export interface RankingCampaign {
   endDate: Date;
   status: CampaignFilterStatus;
   hasCode?: boolean;
+  requiredPlan?: PlanType;
 }
 
 interface RankingCampaignCardProps {
   campaign: RankingCampaign;
+  userPlan?: PlanType;
   onJoin: (campaignId: string) => void;
   onContinue: (campaignId: string) => void;
   onViewTopPositions: (campaignId: string) => void;
@@ -52,17 +56,70 @@ const getPositionIcon = (position: number, size: "sm" | "md" = "sm") => {
   }
 };
 
+const useCountdown = (targetDate: Date) => {
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+
+  useEffect(() => {
+    const calculateTimeLeft = () => {
+      const difference = targetDate.getTime() - new Date().getTime();
+      
+      if (difference > 0) {
+        setTimeLeft({
+          days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+          hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+          minutes: Math.floor((difference / 1000 / 60) % 60),
+          seconds: Math.floor((difference / 1000) % 60),
+        });
+      } else {
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+      }
+    };
+
+    calculateTimeLeft();
+    const timer = setInterval(calculateTimeLeft, 1000);
+
+    return () => clearInterval(timer);
+  }, [targetDate]);
+
+  return timeLeft;
+};
+
+const CountdownDisplay = ({ targetDate, label }: { targetDate: Date; label: string }) => {
+  const timeLeft = useCountdown(targetDate);
+
+  const formatUnit = (value: number, unit: string) => {
+    return `${value}${unit}`;
+  };
+
+  return (
+    <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+      <Clock className="h-3 w-3" />
+      <span>{label}:</span>
+      <span className="font-medium text-foreground">
+        {timeLeft.days > 0 && formatUnit(timeLeft.days, "d ")}
+        {formatUnit(timeLeft.hours, "h ")}
+        {formatUnit(timeLeft.minutes, "m")}
+      </span>
+    </div>
+  );
+};
+
 const RankingCampaignCard = ({ 
   campaign, 
+  userPlan = "free",
   onJoin, 
   onContinue, 
   onViewTopPositions,
   onViewInfo 
 }: RankingCampaignCardProps) => {
   const formatPoints = (pts: number) => pts.toLocaleString();
+  
+  const isFull = campaign.totalPlayers >= campaign.maxPlayers;
+  const isPlanLocked = campaign.requiredPlan === "premium" && userPlan === "free";
+  const canJoin = !isFull && !isPlanLocked && campaign.status === "available";
 
   return (
-    <div className="bg-card rounded-xl border border-border hover:border-primary/40 transition-all duration-200 overflow-hidden group">
+    <div className={`bg-card rounded-xl border border-border hover:border-primary/40 transition-all duration-200 overflow-hidden group ${isPlanLocked ? 'opacity-80' : ''}`}>
       {/* Game Image Header */}
       <div className="relative aspect-[4/3] bg-gradient-to-br from-primary/20 to-accent/20 overflow-hidden">
         {campaign.gameImage ? (
@@ -78,26 +135,60 @@ const RankingCampaignCard = ({
           </div>
         )}
         
+        {/* Overlay for locked/full states */}
+        {(isPlanLocked || isFull) && campaign.status !== "finished" && (
+          <div className="absolute inset-0 bg-background/60 backdrop-blur-sm flex items-center justify-center">
+            {isPlanLocked ? (
+              <div className="flex flex-col items-center gap-2 text-center px-4">
+                <div className="bg-amber-500/20 rounded-full p-3">
+                  <Crown className="h-6 w-6 text-amber-500" />
+                </div>
+                <span className="text-xs font-medium text-foreground">Premium Only</span>
+              </div>
+            ) : isFull ? (
+              <div className="flex flex-col items-center gap-2 text-center px-4">
+                <div className="bg-destructive/20 rounded-full p-3">
+                  <Lock className="h-6 w-6 text-destructive" />
+                </div>
+                <span className="text-xs font-medium text-foreground">Capacity Full</span>
+              </div>
+            ) : null}
+          </div>
+        )}
+        
         {/* Badges overlay */}
         <div className="absolute top-2 left-2 right-2 flex justify-between items-start">
-          {campaign.hasCode && (
-            <Badge variant="destructive" className="text-[10px] px-2 py-0.5">
-              CODE
-            </Badge>
-          )}
+          <div className="flex gap-1.5">
+            {campaign.hasCode && (
+              <Badge variant="destructive" className="text-[10px] px-2 py-0.5">
+                CODE
+              </Badge>
+            )}
+            {campaign.requiredPlan === "premium" && (
+              <Badge className="text-[10px] px-2 py-0.5 bg-amber-500 hover:bg-amber-500 text-black">
+                <Crown className="h-2.5 w-2.5 mr-1" />
+                PREMIUM
+              </Badge>
+            )}
+            {campaign.requiredPlan === "free" && (
+              <Badge variant="secondary" className="text-[10px] px-2 py-0.5">
+                FREE
+              </Badge>
+            )}
+          </div>
           <button 
             onClick={() => onViewInfo(campaign.id)}
-            className="ml-auto bg-background/80 backdrop-blur-sm rounded-full p-1.5 hover:bg-background transition-colors"
+            className="bg-background/80 backdrop-blur-sm rounded-full p-1.5 hover:bg-background transition-colors"
           >
             <Info className="h-4 w-4 text-foreground" />
           </button>
         </div>
 
         {/* Capacity badge */}
-        <div className="absolute bottom-2 right-2 bg-background/80 backdrop-blur-sm rounded-full px-2 py-1 flex items-center gap-1">
+        <div className={`absolute bottom-2 right-2 backdrop-blur-sm rounded-full px-2 py-1 flex items-center gap-1 ${isFull ? 'bg-destructive/80' : 'bg-background/80'}`}>
           <Users className="h-3 w-3 text-muted-foreground" />
-          <span className="text-[10px] font-medium text-foreground">
-            {campaign.totalPlayers}/{campaign.maxPlayers.toLocaleString()}
+          <span className={`text-[10px] font-medium ${isFull ? 'text-destructive-foreground' : 'text-foreground'}`}>
+            {campaign.totalPlayers.toLocaleString()}/{campaign.maxPlayers.toLocaleString()}
           </span>
         </div>
       </div>
@@ -105,10 +196,29 @@ const RankingCampaignCard = ({
       {/* Content */}
       <div className="p-3">
         {/* Title & Brand */}
-        <div className="mb-3">
+        <div className="mb-2">
           <h3 className="text-sm font-semibold text-foreground truncate leading-tight">{campaign.title}</h3>
           <p className="text-xs text-muted-foreground truncate">{campaign.brandName}</p>
         </div>
+
+        {/* Countdown Timer */}
+        {campaign.status === "coming_soon" && (
+          <div className="mb-2 p-2 bg-secondary/30 rounded-lg">
+            <CountdownDisplay targetDate={campaign.startDate} label="Starts in" />
+          </div>
+        )}
+        
+        {campaign.status === "available" && (
+          <div className="mb-2 p-2 bg-secondary/30 rounded-lg">
+            <CountdownDisplay targetDate={campaign.endDate} label="Ends in" />
+          </div>
+        )}
+
+        {campaign.status === "ongoing" && (
+          <div className="mb-2 p-2 bg-secondary/30 rounded-lg">
+            <CountdownDisplay targetDate={campaign.endDate} label="Ends in" />
+          </div>
+        )}
 
         {/* Top 3 - Compact avatars */}
         <button 
@@ -159,23 +269,44 @@ const RankingCampaignCard = ({
 
         {/* Action Button */}
         {campaign.status === "available" && (
-          campaign.hasPlayed ? (
-            <Button 
-              onClick={() => onContinue(campaign.id)}
-              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg"
-              size="sm"
-            >
-              Continue
-            </Button>
-          ) : (
-            <Button 
-              onClick={() => onJoin(campaign.id)}
-              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg"
-              size="sm"
-            >
-              Join now
-            </Button>
-          )
+          <>
+            {isPlanLocked ? (
+              <Button 
+                disabled
+                className="w-full bg-amber-500/20 text-amber-500 rounded-lg cursor-not-allowed"
+                size="sm"
+              >
+                <Crown className="h-3.5 w-3.5 mr-1.5" />
+                Upgrade to Premium
+              </Button>
+            ) : isFull ? (
+              <Button 
+                disabled
+                variant="outline"
+                className="w-full rounded-lg cursor-not-allowed"
+                size="sm"
+              >
+                <Lock className="h-3.5 w-3.5 mr-1.5" />
+                Capacity Full
+              </Button>
+            ) : campaign.hasPlayed ? (
+              <Button 
+                onClick={() => onContinue(campaign.id)}
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg"
+                size="sm"
+              >
+                Continue
+              </Button>
+            ) : (
+              <Button 
+                onClick={() => onJoin(campaign.id)}
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg"
+                size="sm"
+              >
+                Join now
+              </Button>
+            )}
+          </>
         )}
         
         {campaign.status === "coming_soon" && (
@@ -185,13 +316,36 @@ const RankingCampaignCard = ({
         )}
         
         {campaign.status === "ongoing" && (
-          <Button 
-            onClick={() => onContinue(campaign.id)}
-            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg"
-            size="sm"
-          >
-            Continue
-          </Button>
+          <>
+            {isPlanLocked ? (
+              <Button 
+                disabled
+                className="w-full bg-amber-500/20 text-amber-500 rounded-lg cursor-not-allowed"
+                size="sm"
+              >
+                <Crown className="h-3.5 w-3.5 mr-1.5" />
+                Upgrade to Premium
+              </Button>
+            ) : isFull && !campaign.hasPlayed ? (
+              <Button 
+                disabled
+                variant="outline"
+                className="w-full rounded-lg cursor-not-allowed"
+                size="sm"
+              >
+                <Lock className="h-3.5 w-3.5 mr-1.5" />
+                Capacity Full
+              </Button>
+            ) : (
+              <Button 
+                onClick={() => onContinue(campaign.id)}
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg"
+                size="sm"
+              >
+                Continue
+              </Button>
+            )}
+          </>
         )}
         
         {campaign.status === "finished" && (

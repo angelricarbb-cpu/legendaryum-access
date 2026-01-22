@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import RankingCampaignCard, { RankingCampaign, CampaignFilterStatus } from "@/components/rankings/RankingCampaignCard";
+import RankingCampaignCard, { RankingCampaign, CampaignFilterStatus, PlanType } from "@/components/rankings/RankingCampaignCard";
 import TopPositionsModal from "@/components/rankings/TopPositionsModal";
 import CampaignInfoModal from "@/components/rankings/CampaignInfoModal";
 import TermsModal from "@/components/onboarding/TermsModal";
@@ -14,6 +14,7 @@ import { toast } from "sonner";
 
 // Mock data for campaigns
 const mockCampaigns: RankingCampaign[] = [
+  // Available campaigns
   {
     id: "1",
     title: "Turbo Jet Challenge",
@@ -32,6 +33,7 @@ const mockCampaigns: RankingCampaign[] = [
     endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     status: "available",
     hasCode: true,
+    requiredPlan: "all",
   },
   {
     id: "2",
@@ -52,7 +54,51 @@ const mockCampaigns: RankingCampaign[] = [
     endDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
     status: "available",
     hasCode: true,
+    requiredPlan: "free",
   },
+  {
+    id: "2b",
+    title: "Elite Racing Cup",
+    logo: "",
+    brandName: "PREMIUM MOTORS",
+    topPlayers: [
+      { position: 1, username: "@ProRacer", points: 320000 },
+      { position: 2, username: "@SpeedDemon", points: 280000 },
+      { position: 3, username: "@NitroKing", points: 245000 },
+    ],
+    myPosition: null,
+    myPoints: 0,
+    totalPlayers: 850,
+    maxPlayers: 5000,
+    hasPlayed: false,
+    startDate: new Date(),
+    endDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
+    status: "available",
+    hasCode: false,
+    requiredPlan: "premium",
+  },
+  {
+    id: "2c",
+    title: "Mega Tournament 2024",
+    logo: "",
+    brandName: "GAMING LEGENDS",
+    topPlayers: [
+      { position: 1, username: "@Champion1", points: 999999 },
+      { position: 2, username: "@TopGamer", points: 888888 },
+      { position: 3, username: "@ProPlayer", points: 777777 },
+    ],
+    myPosition: null,
+    myPoints: 0,
+    totalPlayers: 10000,
+    maxPlayers: 10000,
+    hasPlayed: false,
+    startDate: new Date(),
+    endDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
+    status: "available",
+    hasCode: true,
+    requiredPlan: "all",
+  },
+  // Ongoing campaigns
   {
     id: "3",
     title: "Space Raiders Tournament",
@@ -71,7 +117,29 @@ const mockCampaigns: RankingCampaign[] = [
     endDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
     status: "ongoing",
     hasCode: false,
+    requiredPlan: "all",
   },
+  {
+    id: "3b",
+    title: "VIP Battle Royale",
+    logo: "",
+    brandName: "ELITE GAMING",
+    topPlayers: [
+      { position: 1, username: "@VIPPlayer", points: 500000 },
+      { position: 2, username: "@EliteGamer", points: 450000 },
+    ],
+    myPosition: null,
+    myPoints: 0,
+    totalPlayers: 200,
+    maxPlayers: 500,
+    hasPlayed: false,
+    startDate: new Date(),
+    endDate: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
+    status: "ongoing",
+    hasCode: false,
+    requiredPlan: "premium",
+  },
+  // Finished campaigns
   {
     id: "4",
     title: "Winter Challenge 2024",
@@ -91,7 +159,30 @@ const mockCampaigns: RankingCampaign[] = [
     endDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
     status: "finished",
     hasCode: true,
+    requiredPlan: "all",
   },
+  {
+    id: "4b",
+    title: "New Year Showdown",
+    logo: "",
+    brandName: "PARTY GAMES",
+    topPlayers: [
+      { position: 1, username: "@Firework", points: 300000 },
+      { position: 2, username: "@Sparkler", points: 250000 },
+      { position: 3, username: "@Countdown", points: 200000 },
+    ],
+    myPosition: 8,
+    myPoints: 150000,
+    totalPlayers: 5000,
+    maxPlayers: 5000,
+    hasPlayed: true,
+    startDate: new Date(Date.now() - 45 * 24 * 60 * 60 * 1000),
+    endDate: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000),
+    status: "finished",
+    hasCode: false,
+    requiredPlan: "free",
+  },
+  // Coming soon campaigns
   {
     id: "5",
     title: "Summer Splash Showdown",
@@ -103,10 +194,28 @@ const mockCampaigns: RankingCampaign[] = [
     totalPlayers: 0,
     maxPlayers: 15000,
     hasPlayed: false,
-    startDate: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000),
+    startDate: new Date(Date.now() + 6 * 24 * 60 * 60 * 1000 + 7 * 60 * 60 * 1000 + 10 * 60 * 1000),
     endDate: new Date(Date.now() + 40 * 24 * 60 * 60 * 1000),
     status: "coming_soon",
     hasCode: false,
+    requiredPlan: "all",
+  },
+  {
+    id: "5b",
+    title: "Premium Championship",
+    logo: "",
+    brandName: "VIP LEAGUE",
+    topPlayers: [],
+    myPosition: null,
+    myPoints: 0,
+    totalPlayers: 0,
+    maxPlayers: 1000,
+    hasPlayed: false,
+    startDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000 + 12 * 60 * 60 * 1000),
+    endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+    status: "coming_soon",
+    hasCode: true,
+    requiredPlan: "premium",
   },
 ];
 
@@ -304,6 +413,7 @@ const Rankings = () => {
                   <RankingCampaignCard
                     key={campaign.id}
                     campaign={campaign}
+                    userPlan={user?.subscription?.plan === "premium" ? "premium" : "free"}
                     onJoin={handleJoin}
                     onContinue={handleContinue}
                     onViewTopPositions={handleViewTopPositions}
