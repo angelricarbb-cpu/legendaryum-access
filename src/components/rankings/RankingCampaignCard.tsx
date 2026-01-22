@@ -61,141 +61,151 @@ const RankingCampaignCard = ({
   const formatPoints = (pts: number) => pts.toLocaleString();
 
   return (
-    <div className="flex flex-col lg:flex-row items-start lg:items-center gap-4 lg:gap-6 p-4 lg:p-6 bg-card rounded-xl border border-border hover:border-primary/30 transition-colors">
-      {/* Game Image Section */}
-      <div className="flex-shrink-0 w-full lg:w-auto flex justify-center lg:justify-start">
-        <div className="w-28 h-28 lg:w-36 lg:h-36 bg-gradient-to-br from-primary/20 to-accent/20 rounded-xl flex items-center justify-center overflow-hidden">
-          {campaign.gameImage ? (
-            <img 
-              src={campaign.gameImage} 
-              alt={campaign.title}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="flex flex-col items-center gap-2">
-              <Gamepad2 className="h-10 w-10 text-primary" />
-              <span className="text-xs font-bold text-foreground leading-tight text-center px-2">
-                {campaign.brandName}
-              </span>
-            </div>
-          )}
+    <div className="bg-card rounded-xl border border-border hover:border-primary/30 transition-all duration-200 overflow-hidden">
+      {/* Header with Game Image and Title */}
+      <div className="flex items-center gap-4 p-4 border-b border-border/50">
+        <div className="flex-shrink-0">
+          <div className="w-16 h-16 bg-gradient-to-br from-primary/20 to-accent/20 rounded-lg flex items-center justify-center overflow-hidden">
+            {campaign.gameImage ? (
+              <img 
+                src={campaign.gameImage} 
+                alt={campaign.title}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <Gamepad2 className="h-6 w-6 text-primary" />
+            )}
+          </div>
         </div>
+        
+        <div className="flex-1 min-w-0">
+          <h3 className="text-base font-semibold text-foreground truncate">{campaign.title}</h3>
+          <p className="text-xs text-muted-foreground">{campaign.brandName}</p>
+        </div>
+
+        {campaign.hasCode && (
+          <Badge variant="destructive" className="text-xs flex-shrink-0">
+            CODE
+          </Badge>
+        )}
       </div>
 
-      {/* Campaign Info & Top Players */}
-      <div className="flex-1 min-w-0">
-        <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-3">
-          <h3 className="text-lg font-semibold text-foreground">{campaign.title}</h3>
+      {/* Top 3 Players - Compact */}
+      <div className="px-4 py-3 border-b border-border/50">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Top Players</span>
           <button 
             onClick={() => onViewTopPositions(campaign.id)}
-            className="text-primary text-sm hover:underline inline-flex items-center gap-1"
+            className="text-primary text-xs hover:underline"
           >
-            View top positions
+            View all
           </button>
         </div>
-
-        {/* Top 3 Players with Points */}
-        <div className="space-y-2 mb-3">
+        
+        <div className="flex items-center gap-2">
           {campaign.topPlayers.slice(0, 3).map((player) => (
-            <div key={player.position} className="flex items-center gap-3">
-              <div className="flex items-center gap-2 min-w-[24px]">
-                {getPositionIcon(player.position)}
-              </div>
-              <Avatar className="h-6 w-6">
+            <div key={player.position} className="flex items-center gap-1.5 bg-secondary/50 rounded-full px-2 py-1">
+              {getPositionIcon(player.position)}
+              <Avatar className="h-5 w-5">
                 <AvatarImage src={player.avatar} />
-                <AvatarFallback className="text-xs bg-secondary">
+                <AvatarFallback className="text-[10px] bg-secondary">
                   {player.username.slice(1, 3).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
-              <span className="text-sm text-muted-foreground truncate max-w-[120px]">
+              <span className="text-xs text-foreground truncate max-w-[60px]">
                 {player.username}
-              </span>
-              <span className="text-sm font-medium text-foreground ml-auto">
-                {formatPoints(player.points)} pts
               </span>
             </div>
           ))}
           {campaign.topPlayers.length === 0 && (
-            <p className="text-sm text-muted-foreground italic">No players yet. Be the first!</p>
+            <p className="text-xs text-muted-foreground italic">Be the first to play!</p>
           )}
         </div>
+      </div>
 
-        {/* My Score - Below View top positions context */}
-        <div className="flex items-center gap-2 text-sm">
-          <span className="text-muted-foreground">My score:</span>
-          <span className="font-semibold text-foreground">
-            {campaign.hasPlayed ? `${formatPoints(campaign.myPoints)} pts` : "- - -"}
-          </span>
+      {/* My Stats & Actions */}
+      <div className="p-4">
+        <div className="flex items-center justify-between mb-4">
+          {/* My Score & Position */}
+          <div className="flex items-center gap-4">
+            <div>
+              <p className="text-xs text-muted-foreground">My Score</p>
+              <p className="text-sm font-semibold text-foreground">
+                {campaign.hasPlayed ? `${formatPoints(campaign.myPoints)} pts` : "---"}
+              </p>
+            </div>
+            <div className="w-px h-8 bg-border" />
+            <div>
+              <p className="text-xs text-muted-foreground">My Position</p>
+              <p className="text-sm font-semibold text-foreground">
+                {campaign.myPosition ? `#${campaign.myPosition}` : "#--"}
+              </p>
+            </div>
+          </div>
+
+          {/* Capacity */}
+          <div className="text-right">
+            <p className="text-xs text-muted-foreground">Capacity</p>
+            <p className="text-sm font-medium text-foreground">
+              {campaign.totalPlayers}/{campaign.maxPlayers.toLocaleString()}
+            </p>
+          </div>
         </div>
-      </div>
 
-      {/* My Position Section */}
-      <div className="flex-shrink-0 text-center px-4 py-3 bg-secondary/50 rounded-lg min-w-[130px]">
-        <p className="text-xs text-muted-foreground mb-1">My position</p>
-        <p className="text-2xl font-bold text-foreground">
-          {campaign.myPosition ? `#${campaign.myPosition}` : "#--"}
-        </p>
-        <p className="text-xs text-muted-foreground">
-          of {campaign.totalPlayers} players
-        </p>
-      </div>
-
-      {/* Actions Section */}
-      <div className="flex flex-col items-center gap-2 min-w-[130px]">
-        {campaign.hasCode && (
-          <Badge variant="destructive" className="text-xs">
-            CODE
-          </Badge>
-        )}
-        <p className="text-sm text-muted-foreground">
-          {campaign.totalPlayers} / {campaign.maxPlayers.toLocaleString()}
-        </p>
-        <button 
-          onClick={() => onViewInfo(campaign.id)}
-          className="text-primary text-xs hover:underline flex items-center gap-1"
-        >
-          <Info className="h-3 w-3" />
-          + Info
-        </button>
-        
-        {campaign.status === "available" && (
-          campaign.hasPlayed ? (
-            <Button 
-              onClick={() => onContinue(campaign.id)}
-              className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full px-6"
-            >
-              Continue
-            </Button>
-          ) : (
-            <Button 
-              onClick={() => onJoin(campaign.id)}
-              className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full px-6"
-            >
-              Join now
-            </Button>
-          )
-        )}
-        
-        {campaign.status === "coming_soon" && (
-          <Badge variant="secondary" className="rounded-full px-4 py-1">
-            Coming Soon
-          </Badge>
-        )}
-        
-        {campaign.status === "ongoing" && (
-          <Button 
-            onClick={() => onContinue(campaign.id)}
-            className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full px-6"
+        {/* Action Buttons */}
+        <div className="flex items-center gap-2">
+          <button 
+            onClick={() => onViewInfo(campaign.id)}
+            className="flex items-center justify-center gap-1 px-3 py-2 text-xs text-muted-foreground hover:text-foreground border border-border rounded-lg hover:bg-secondary/50 transition-colors"
           >
-            Continue
-          </Button>
-        )}
-        
-        {campaign.status === "finished" && (
-          <Badge variant="outline" className="rounded-full px-4 py-1">
-            Finished
-          </Badge>
-        )}
+            <Info className="h-3.5 w-3.5" />
+            Info
+          </button>
+          
+          <div className="flex-1">
+            {campaign.status === "available" && (
+              campaign.hasPlayed ? (
+                <Button 
+                  onClick={() => onContinue(campaign.id)}
+                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg"
+                  size="sm"
+                >
+                  Continue
+                </Button>
+              ) : (
+                <Button 
+                  onClick={() => onJoin(campaign.id)}
+                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg"
+                  size="sm"
+                >
+                  Join now
+                </Button>
+              )
+            )}
+            
+            {campaign.status === "coming_soon" && (
+              <Badge variant="secondary" className="w-full justify-center rounded-lg py-2">
+                Coming Soon
+              </Badge>
+            )}
+            
+            {campaign.status === "ongoing" && (
+              <Button 
+                onClick={() => onContinue(campaign.id)}
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg"
+                size="sm"
+              >
+                Continue
+              </Button>
+            )}
+            
+            {campaign.status === "finished" && (
+              <Badge variant="outline" className="w-full justify-center rounded-lg py-2">
+                Finished
+              </Badge>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
