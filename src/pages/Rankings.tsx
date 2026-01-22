@@ -5,6 +5,8 @@ import Footer from "@/components/layout/Footer";
 import RankingCampaignCard, { RankingCampaign, CampaignFilterStatus } from "@/components/rankings/RankingCampaignCard";
 import TopPositionsModal from "@/components/rankings/TopPositionsModal";
 import CampaignInfoModal from "@/components/rankings/CampaignInfoModal";
+import TermsModal from "@/components/onboarding/TermsModal";
+import ProfileCompletionModal from "@/components/onboarding/ProfileCompletionModal";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { ArrowUpDown, Trophy, Gamepad2, Gift, Sparkles } from "lucide-react";
@@ -117,22 +119,69 @@ const filterTabs: { key: CampaignFilterStatus; label: string }[] = [
 
 const Rankings = () => {
   const navigate = useNavigate();
-  const { isLoggedIn, user } = useAuth();
+  const { isLoggedIn, user, acceptTerms, completeProfile } = useAuth();
   const [activeFilter, setActiveFilter] = useState<CampaignFilterStatus>("available");
   
   // Modal states
   const [topPositionsModalOpen, setTopPositionsModalOpen] = useState(false);
   const [infoModalOpen, setInfoModalOpen] = useState(false);
   const [selectedCampaign, setSelectedCampaign] = useState<RankingCampaign | null>(null);
+  
+  // Onboarding modal states
+  const [termsModalOpen, setTermsModalOpen] = useState(false);
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
+  const [pendingCampaignId, setPendingCampaignId] = useState<string | null>(null);
 
   const filteredCampaigns = mockCampaigns.filter((c) => c.status === activeFilter);
 
   const handleJoin = (campaignId: string) => {
     if (!isLoggedIn) {
-      toast.error("Please login to join a campaign");
+      toast.error("Por favor, inicia sesión para unirte a una campaña");
       return;
     }
+
+    // Check if user has accepted terms
+    if (!user?.hasAcceptedTerms) {
+      setPendingCampaignId(campaignId);
+      setTermsModalOpen(true);
+      return;
+    }
+
+    // Check if user has completed profile
+    if (!user?.hasCompletedProfile) {
+      setPendingCampaignId(campaignId);
+      setProfileModalOpen(true);
+      return;
+    }
+
+    // All checks passed, navigate to game
     navigate(`/game/${campaignId}`);
+  };
+
+  const handleTermsAccepted = () => {
+    acceptTerms();
+    setTermsModalOpen(false);
+    
+    // Now check if profile is complete
+    if (!user?.hasCompletedProfile) {
+      setProfileModalOpen(true);
+    } else if (pendingCampaignId) {
+      navigate(`/game/${pendingCampaignId}`);
+      setPendingCampaignId(null);
+    }
+  };
+
+  const handleProfileCompleted = (profile: typeof user extends null ? never : NonNullable<typeof user>['profile']) => {
+    if (profile) {
+      completeProfile(profile);
+    }
+    setProfileModalOpen(false);
+    
+    // Navigate to the pending campaign
+    if (pendingCampaignId) {
+      navigate(`/game/${pendingCampaignId}`);
+      setPendingCampaignId(null);
+    }
   };
 
   const handleContinue = (campaignId: string) => {
@@ -287,6 +336,25 @@ const Rankings = () => {
         isOpen={infoModalOpen}
         onClose={() => setInfoModalOpen(false)}
         campaign={selectedCampaign}
+      />
+
+      {/* Onboarding Modals */}
+      <TermsModal
+        isOpen={termsModalOpen}
+        onClose={() => {
+          setTermsModalOpen(false);
+          setPendingCampaignId(null);
+        }}
+        onAccept={handleTermsAccepted}
+      />
+
+      <ProfileCompletionModal
+        isOpen={profileModalOpen}
+        onClose={() => {
+          setProfileModalOpen(false);
+          setPendingCampaignId(null);
+        }}
+        onComplete={handleProfileCompleted}
       />
     </div>
   );
