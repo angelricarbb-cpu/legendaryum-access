@@ -47,12 +47,12 @@ const Index = () => {
           <div className="container">
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
               <Link 
-                to="#" 
+                to="/rankings" 
                 className="group relative bg-gradient-to-br from-yellow-500/20 to-orange-500/20 rounded-2xl p-6 border border-border overflow-hidden hover:border-primary/50 transition-colors"
               >
                 <div className="relative z-10">
                   <Trophy className="h-8 w-8 text-yellow-500 mb-4" />
-                  <h3 className="font-bold text-lg mb-2">Ranking to Earn</h3>
+                  <h3 className="font-bold text-lg mb-2">Ranking</h3>
                   <p className="text-sm text-muted-foreground">
                     Compete in challenges, climb the ranking, and earn real rewards.
                   </p>

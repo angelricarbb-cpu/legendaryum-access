@@ -1,7 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Trophy, Medal, Award, Info } from "lucide-react";
+import { Trophy, Medal, Award, Info, Gamepad2 } from "lucide-react";
 
 export type CampaignFilterStatus = "available" | "ongoing" | "finished" | "coming_soon";
 
@@ -17,6 +17,7 @@ export interface RankingCampaign {
   title: string;
   logo: string;
   brandName: string;
+  gameImage?: string;
   topPlayers: RankingPlayer[];
   myPosition: number | null;
   myPoints: number;
@@ -33,6 +34,7 @@ interface RankingCampaignCardProps {
   campaign: RankingCampaign;
   onJoin: (campaignId: string) => void;
   onContinue: (campaignId: string) => void;
+  onViewTopPositions: (campaignId: string) => void;
   onViewInfo: (campaignId: string) => void;
 }
 
@@ -49,34 +51,51 @@ const getPositionIcon = (position: number) => {
   }
 };
 
-const RankingCampaignCard = ({ campaign, onJoin, onContinue, onViewInfo }: RankingCampaignCardProps) => {
+const RankingCampaignCard = ({ 
+  campaign, 
+  onJoin, 
+  onContinue, 
+  onViewTopPositions,
+  onViewInfo 
+}: RankingCampaignCardProps) => {
   const formatPoints = (pts: number) => pts.toLocaleString();
 
   return (
     <div className="flex flex-col lg:flex-row items-start lg:items-center gap-4 lg:gap-6 p-4 lg:p-6 bg-card rounded-xl border border-border hover:border-primary/30 transition-colors">
-      {/* Logo Section */}
+      {/* Game Image Section */}
       <div className="flex-shrink-0 w-full lg:w-auto flex justify-center lg:justify-start">
-        <div className="w-24 h-24 lg:w-32 lg:h-32 bg-gradient-to-br from-destructive to-ranking-gold rounded-lg flex items-center justify-center p-2">
-          <div className="text-center">
-            <span className="text-xs font-bold text-foreground leading-tight block">{campaign.brandName}</span>
-          </div>
+        <div className="w-28 h-28 lg:w-36 lg:h-36 bg-gradient-to-br from-primary/20 to-accent/20 rounded-xl flex items-center justify-center overflow-hidden">
+          {campaign.gameImage ? (
+            <img 
+              src={campaign.gameImage} 
+              alt={campaign.title}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="flex flex-col items-center gap-2">
+              <Gamepad2 className="h-10 w-10 text-primary" />
+              <span className="text-xs font-bold text-foreground leading-tight text-center px-2">
+                {campaign.brandName}
+              </span>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Campaign Info */}
+      {/* Campaign Info & Top Players */}
       <div className="flex-1 min-w-0">
         <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-3">
           <h3 className="text-lg font-semibold text-foreground">{campaign.title}</h3>
           <button 
-            onClick={() => onViewInfo(campaign.id)}
+            onClick={() => onViewTopPositions(campaign.id)}
             className="text-primary text-sm hover:underline inline-flex items-center gap-1"
           >
             View top positions
           </button>
         </div>
 
-        {/* Top Players */}
-        <div className="space-y-2">
+        {/* Top 3 Players with Points */}
+        <div className="space-y-2 mb-3">
           {campaign.topPlayers.slice(0, 3).map((player) => (
             <div key={player.position} className="flex items-center gap-3">
               <div className="flex items-center gap-2 min-w-[24px]">
@@ -96,11 +115,22 @@ const RankingCampaignCard = ({ campaign, onJoin, onContinue, onViewInfo }: Ranki
               </span>
             </div>
           ))}
+          {campaign.topPlayers.length === 0 && (
+            <p className="text-sm text-muted-foreground italic">No players yet. Be the first!</p>
+          )}
+        </div>
+
+        {/* My Score - Below View top positions context */}
+        <div className="flex items-center gap-2 text-sm">
+          <span className="text-muted-foreground">My score:</span>
+          <span className="font-semibold text-foreground">
+            {campaign.hasPlayed ? `${formatPoints(campaign.myPoints)} pts` : "- - -"}
+          </span>
         </div>
       </div>
 
       {/* My Position Section */}
-      <div className="flex-shrink-0 text-center px-4 py-2 bg-secondary/50 rounded-lg min-w-[120px]">
+      <div className="flex-shrink-0 text-center px-4 py-3 bg-secondary/50 rounded-lg min-w-[130px]">
         <p className="text-xs text-muted-foreground mb-1">My position</p>
         <p className="text-2xl font-bold text-foreground">
           {campaign.myPosition ? `#${campaign.myPosition}` : "#--"}
@@ -108,13 +138,10 @@ const RankingCampaignCard = ({ campaign, onJoin, onContinue, onViewInfo }: Ranki
         <p className="text-xs text-muted-foreground">
           of {campaign.totalPlayers} players
         </p>
-        <p className="text-sm font-medium text-foreground mt-1">
-          {formatPoints(campaign.myPoints)} pts
-        </p>
       </div>
 
       {/* Actions Section */}
-      <div className="flex flex-col items-center gap-2 min-w-[120px]">
+      <div className="flex flex-col items-center gap-2 min-w-[130px]">
         {campaign.hasCode && (
           <Badge variant="destructive" className="text-xs">
             CODE
