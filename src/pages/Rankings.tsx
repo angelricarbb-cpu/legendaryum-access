@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import RankingCampaignCard, { RankingCampaign, CampaignFilterStatus } from "@/components/rankings/RankingCampaignCard";
@@ -115,6 +116,7 @@ const filterTabs: { key: CampaignFilterStatus; label: string }[] = [
 ];
 
 const Rankings = () => {
+  const navigate = useNavigate();
   const { isLoggedIn, user } = useAuth();
   const [activeFilter, setActiveFilter] = useState<CampaignFilterStatus>("available");
   
@@ -130,11 +132,11 @@ const Rankings = () => {
       toast.error("Please login to join a campaign");
       return;
     }
-    toast.success("Joining campaign...");
+    navigate(`/game/${campaignId}`);
   };
 
   const handleContinue = (campaignId: string) => {
-    toast.info("Continuing campaign...");
+    navigate(`/game/${campaignId}`);
   };
 
   const handleViewTopPositions = (campaignId: string) => {
