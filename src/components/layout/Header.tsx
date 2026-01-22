@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Search, LayoutDashboard, CreditCard, AlertTriangle, LogOut } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface HeaderProps {
   isLoggedIn?: boolean;
@@ -22,6 +23,8 @@ interface HeaderProps {
 
 const Header = ({ isLoggedIn = false, user }: HeaderProps) => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { setReturnUrl, logout } = useAuth();
   
   // Mock user for demonstration - in real app this would come from auth context
   const mockUser = user || {
@@ -97,7 +100,13 @@ const Header = ({ isLoggedIn = false, user }: HeaderProps) => {
                     Report
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => navigate("/auth")}>
+                  <DropdownMenuItem 
+                    className="text-destructive focus:text-destructive" 
+                    onClick={() => {
+                      logout();
+                      navigate("/");
+                    }}
+                  >
                     <LogOut className="mr-2 h-4 w-4" />
                     Sign out
                   </DropdownMenuItem>
@@ -109,8 +118,15 @@ const Header = ({ isLoggedIn = false, user }: HeaderProps) => {
               <Button variant="outline" size="sm" asChild>
                 <Link to="/dashboard">Dashboard</Link>
               </Button>
-              <Button size="sm" asChild>
-                <Link to="/auth">Login</Link>
+              <Button 
+                size="sm" 
+                onClick={() => {
+                  // Save current location to return after login
+                  setReturnUrl(location.pathname);
+                  navigate("/auth");
+                }}
+              >
+                Login
               </Button>
             </>
           )}

@@ -13,7 +13,7 @@ const Auth = () => {
   const [searchParams] = useSearchParams();
   const plan = searchParams.get("plan");
   const [isLoading, setIsLoading] = useState(false);
-  const { loginWithGoogle } = useAuth();
+  const { loginWithGoogle, returnUrl, setReturnUrl } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -30,7 +30,11 @@ const Auth = () => {
       loginWithGoogle();
       setIsLoading(false);
       toast.success("¡Inicio de sesión con Google exitoso!");
-      navigate("/dashboard");
+      
+      // Navigate to returnUrl if set, otherwise stay on current context
+      const redirectTo = returnUrl || "/";
+      setReturnUrl(null); // Clear the return URL after use
+      navigate(redirectTo);
     }, 1000);
   };
 
