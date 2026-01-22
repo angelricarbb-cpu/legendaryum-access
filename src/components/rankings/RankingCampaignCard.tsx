@@ -54,6 +54,7 @@ interface RankingCampaignCardProps {
   onContinue: (campaignId: string) => void;
   onViewTopPositions: (campaignId: string) => void;
   onViewInfo: (campaignId: string) => void;
+  onUpgrade?: () => void;
 }
 
 const getPositionIcon = (position: number, size: "sm" | "md" = "sm") => {
@@ -124,7 +125,8 @@ const RankingCampaignCard = ({
   onJoin, 
   onContinue, 
   onViewTopPositions,
-  onViewInfo 
+  onViewInfo,
+  onUpgrade
 }: RankingCampaignCardProps) => {
   const formatPoints = (pts: number) => pts.toLocaleString();
   
@@ -286,8 +288,8 @@ const RankingCampaignCard = ({
           <>
             {isPlanLocked ? (
               <Button 
-                disabled
-                className="w-full bg-amber-500/20 text-amber-500 rounded-lg cursor-not-allowed"
+                onClick={onUpgrade}
+                className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-lg"
                 size="sm"
               >
                 <Crown className="h-3.5 w-3.5 mr-1.5" />
@@ -333,8 +335,8 @@ const RankingCampaignCard = ({
           <>
             {isPlanLocked ? (
               <Button 
-                disabled
-                className="w-full bg-amber-500/20 text-amber-500 rounded-lg cursor-not-allowed"
+                onClick={onUpgrade}
+                className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-lg"
                 size="sm"
               >
                 <Crown className="h-3.5 w-3.5 mr-1.5" />
