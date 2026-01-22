@@ -119,6 +119,28 @@ const CountdownDisplay = ({ targetDate, label }: { targetDate: Date; label: stri
   );
 };
 
+const CountdownButton = ({ targetDate }: { targetDate: Date }) => {
+  const timeLeft = useCountdown(targetDate);
+
+  const formatUnit = (value: number, unit: string) => {
+    return `${value}${unit}`;
+  };
+
+  return (
+    <div className="w-full text-center py-2 bg-secondary/50 rounded-lg">
+      <div className="flex items-center justify-center gap-1.5 text-xs font-medium text-muted-foreground">
+        <Clock className="h-3.5 w-3.5" />
+        <span>
+          {timeLeft.days > 0 && formatUnit(timeLeft.days, "d ")}
+          {formatUnit(timeLeft.hours, "h ")}
+          {formatUnit(timeLeft.minutes, "m ")}
+          {formatUnit(timeLeft.seconds, "s")}
+        </span>
+      </div>
+    </div>
+  );
+};
+
 const RankingCampaignCard = ({ 
   campaign, 
   userPlan = "free",
@@ -186,11 +208,6 @@ const RankingCampaignCard = ({
                 PREMIUM
               </Badge>
             )}
-            {campaign.requiredPlan === "free" && (
-              <Badge variant="secondary" className="text-[10px] px-2 py-0.5">
-                FREE
-              </Badge>
-            )}
           </div>
           <button 
             onClick={() => onViewInfo(campaign.id)}
@@ -236,36 +253,38 @@ const RankingCampaignCard = ({
           </div>
         )}
 
-        {/* Top 3 - Compact avatars */}
-        <button 
-          onClick={() => onViewTopPositions(campaign.id)}
-          className="w-full mb-3 p-2 bg-secondary/30 rounded-lg hover:bg-secondary/50 transition-colors"
-        >
-          <div className="flex items-center justify-between mb-1.5">
-            <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Top 3</span>
-            <span className="text-[10px] text-primary">View all →</span>
-          </div>
-          <div className="flex items-center justify-center gap-1">
-            {campaign.topPlayers.slice(0, 3).map((player) => (
-              <div key={player.position} className="flex flex-col items-center">
-                <div className="relative">
-                  <Avatar className="h-8 w-8 border-2 border-background">
-                    <AvatarImage src={player.avatar} />
-                    <AvatarFallback className="text-[10px] bg-secondary">
-                      {player.username.slice(1, 3).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="absolute -bottom-1 -right-1 bg-background rounded-full p-0.5">
-                    {getPositionIcon(player.position)}
+        {/* Top 3 - Compact avatars (hidden for coming_soon) */}
+        {campaign.status !== "coming_soon" && (
+          <button 
+            onClick={() => onViewTopPositions(campaign.id)}
+            className="w-full mb-3 p-2 bg-secondary/30 rounded-lg hover:bg-secondary/50 transition-colors"
+          >
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Top 3</span>
+              <span className="text-[10px] text-primary">+ Info</span>
+            </div>
+            <div className="flex items-center justify-center gap-1">
+              {campaign.topPlayers.slice(0, 3).map((player) => (
+                <div key={player.position} className="flex flex-col items-center">
+                  <div className="relative">
+                    <Avatar className="h-8 w-8 border-2 border-background">
+                      <AvatarImage src={player.avatar} />
+                      <AvatarFallback className="text-[10px] bg-secondary">
+                        {player.username.slice(1, 3).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="absolute -bottom-1 -right-1 bg-background rounded-full p-0.5">
+                      {getPositionIcon(player.position)}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-            {campaign.topPlayers.length === 0 && (
-              <p className="text-[10px] text-muted-foreground italic py-1">Be the first!</p>
-            )}
-          </div>
-        </button>
+              ))}
+              {campaign.topPlayers.length === 0 && (
+                <p className="text-[10px] text-muted-foreground italic py-1">Be the first!</p>
+              )}
+            </div>
+          </button>
+        )}
 
         {/* My Stats Row */}
         <div className="grid grid-cols-2 gap-2 mb-3">
@@ -326,9 +345,7 @@ const RankingCampaignCard = ({
         )}
         
         {campaign.status === "coming_soon" && (
-          <div className="w-full text-center py-2 bg-secondary/50 rounded-lg">
-            <span className="text-xs font-medium text-muted-foreground">Coming Soon</span>
-          </div>
+          <CountdownButton targetDate={campaign.startDate} />
         )}
         
         {campaign.status === "ongoing" && (

@@ -37,11 +37,11 @@ const mockCampaigns: RankingCampaign[] = [
     bonusLevel: {
       gamesRequired: 5,
       reward: "10% Discount Code",
-      rewardType: "discount",
+      rewardType: "code",
     },
     specialReward: {
       gamesRequired: 15,
-      reward: "Exclusive Gaming Headset",
+      reward: "$50 Amazon Gift Card",
       rewardType: "item",
     },
   },
@@ -64,16 +64,16 @@ const mockCampaigns: RankingCampaign[] = [
     endDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
     status: "available",
     hasCode: true,
-    requiredPlan: "free",
+    requiredPlan: "all",
     bonusLevel: {
       gamesRequired: 3,
-      reward: "500 Bonus Points",
-      rewardType: "points",
+      reward: "15% Off Code",
+      rewardType: "code",
     },
     specialReward: {
       gamesRequired: 10,
-      reward: "VIP Access Code",
-      rewardType: "code",
+      reward: "$25 PlayStation Gift Card",
+      rewardType: "item",
     },
   },
   {
@@ -98,13 +98,13 @@ const mockCampaigns: RankingCampaign[] = [
     requiredPlan: "premium",
     bonusLevel: {
       gamesRequired: 7,
-      reward: "Premium Racing Skin",
-      rewardType: "item",
+      reward: "20% Premium Discount",
+      rewardType: "code",
     },
     specialReward: {
       gamesRequired: 20,
-      reward: "Mystery Premium Box",
-      rewardType: "mystery",
+      reward: "$100 Steam Gift Card",
+      rewardType: "item",
     },
   },
   {
@@ -130,12 +130,12 @@ const mockCampaigns: RankingCampaign[] = [
     bonusLevel: {
       gamesRequired: 10,
       reward: "25% Off Coupon",
-      rewardType: "discount",
+      rewardType: "code",
     },
     specialReward: {
       gamesRequired: 25,
-      reward: "Legendary Game Pass",
-      rewardType: "code",
+      reward: "$75 Xbox Gift Card",
+      rewardType: "item",
     },
   },
   // Ongoing campaigns
@@ -160,12 +160,12 @@ const mockCampaigns: RankingCampaign[] = [
     requiredPlan: "all",
     bonusLevel: {
       gamesRequired: 8,
-      reward: "1000 Star Points",
-      rewardType: "points",
+      reward: "30% Discount Code",
+      rewardType: "code",
     },
     specialReward: {
       gamesRequired: 18,
-      reward: "Space Commander Skin",
+      reward: "$60 Nintendo eShop Gift Card",
       rewardType: "item",
     },
   },
@@ -190,13 +190,13 @@ const mockCampaigns: RankingCampaign[] = [
     requiredPlan: "premium",
     bonusLevel: {
       gamesRequired: 5,
-      reward: "Elite Weapon Pack",
-      rewardType: "item",
+      reward: "VIP 40% Discount",
+      rewardType: "code",
     },
     specialReward: {
       gamesRequired: 12,
-      reward: "VIP Lifetime Access",
-      rewardType: "code",
+      reward: "$150 Visa Gift Card",
+      rewardType: "item",
     },
   },
   // Finished campaigns
@@ -222,12 +222,12 @@ const mockCampaigns: RankingCampaign[] = [
     requiredPlan: "all",
     bonusLevel: {
       gamesRequired: 6,
-      reward: "Winter Theme Pack",
-      rewardType: "item",
+      reward: "Winter 20% Off Code",
+      rewardType: "code",
     },
     specialReward: {
       gamesRequired: 15,
-      reward: "Frost King Crown",
+      reward: "$80 Amazon Gift Card",
       rewardType: "item",
     },
   },
@@ -250,16 +250,16 @@ const mockCampaigns: RankingCampaign[] = [
     endDate: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000),
     status: "finished",
     hasCode: false,
-    requiredPlan: "free",
+    requiredPlan: "all",
     bonusLevel: {
       gamesRequired: 4,
-      reward: "Party Hat Avatar",
-      rewardType: "item",
+      reward: "Party 15% Discount",
+      rewardType: "code",
     },
     specialReward: {
       gamesRequired: 10,
-      reward: "Mystery Party Box",
-      rewardType: "mystery",
+      reward: "$40 Google Play Gift Card",
+      rewardType: "item",
     },
   },
   // Coming soon campaigns
@@ -281,13 +281,13 @@ const mockCampaigns: RankingCampaign[] = [
     requiredPlan: "all",
     bonusLevel: {
       gamesRequired: 5,
-      reward: "Beach Vibes Skin",
-      rewardType: "item",
+      reward: "Summer 25% Off Code",
+      rewardType: "code",
     },
     specialReward: {
       gamesRequired: 12,
-      reward: "Summer VIP Pass",
-      rewardType: "code",
+      reward: "$50 Uber Eats Gift Card",
+      rewardType: "item",
     },
   },
   {
@@ -308,12 +308,12 @@ const mockCampaigns: RankingCampaign[] = [
     requiredPlan: "premium",
     bonusLevel: {
       gamesRequired: 8,
-      reward: "50% Premium Discount",
-      rewardType: "discount",
+      reward: "Premium 50% Discount",
+      rewardType: "code",
     },
     specialReward: {
       gamesRequired: 20,
-      reward: "Championship Trophy NFT",
+      reward: "$200 MasterCard Gift Card",
       rewardType: "item",
     },
   },
