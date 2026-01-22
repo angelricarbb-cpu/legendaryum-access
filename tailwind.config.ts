@@ -57,6 +57,11 @@ export default {
           scale: "hsl(var(--plan-scale))",
           enterprise: "hsl(var(--plan-enterprise))",
         },
+        ranking: {
+          gold: "hsl(var(--ranking-gold))",
+          silver: "hsl(var(--ranking-silver))",
+          bronze: "hsl(var(--ranking-bronze))",
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
