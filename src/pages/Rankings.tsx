@@ -34,6 +34,16 @@ const mockCampaigns: RankingCampaign[] = [
     status: "available",
     hasCode: true,
     requiredPlan: "all",
+    bonusLevel: {
+      gamesRequired: 5,
+      reward: "10% Discount Code",
+      rewardType: "discount",
+    },
+    specialReward: {
+      gamesRequired: 15,
+      reward: "Exclusive Gaming Headset",
+      rewardType: "item",
+    },
   },
   {
     id: "2",
@@ -55,6 +65,16 @@ const mockCampaigns: RankingCampaign[] = [
     status: "available",
     hasCode: true,
     requiredPlan: "free",
+    bonusLevel: {
+      gamesRequired: 3,
+      reward: "500 Bonus Points",
+      rewardType: "points",
+    },
+    specialReward: {
+      gamesRequired: 10,
+      reward: "VIP Access Code",
+      rewardType: "code",
+    },
   },
   {
     id: "2b",
@@ -76,6 +96,16 @@ const mockCampaigns: RankingCampaign[] = [
     status: "available",
     hasCode: false,
     requiredPlan: "premium",
+    bonusLevel: {
+      gamesRequired: 7,
+      reward: "Premium Racing Skin",
+      rewardType: "item",
+    },
+    specialReward: {
+      gamesRequired: 20,
+      reward: "Mystery Premium Box",
+      rewardType: "mystery",
+    },
   },
   {
     id: "2c",
@@ -97,6 +127,16 @@ const mockCampaigns: RankingCampaign[] = [
     status: "available",
     hasCode: true,
     requiredPlan: "all",
+    bonusLevel: {
+      gamesRequired: 10,
+      reward: "25% Off Coupon",
+      rewardType: "discount",
+    },
+    specialReward: {
+      gamesRequired: 25,
+      reward: "Legendary Game Pass",
+      rewardType: "code",
+    },
   },
   // Ongoing campaigns
   {
@@ -118,6 +158,16 @@ const mockCampaigns: RankingCampaign[] = [
     status: "ongoing",
     hasCode: false,
     requiredPlan: "all",
+    bonusLevel: {
+      gamesRequired: 8,
+      reward: "1000 Star Points",
+      rewardType: "points",
+    },
+    specialReward: {
+      gamesRequired: 18,
+      reward: "Space Commander Skin",
+      rewardType: "item",
+    },
   },
   {
     id: "3b",
@@ -138,6 +188,16 @@ const mockCampaigns: RankingCampaign[] = [
     status: "ongoing",
     hasCode: false,
     requiredPlan: "premium",
+    bonusLevel: {
+      gamesRequired: 5,
+      reward: "Elite Weapon Pack",
+      rewardType: "item",
+    },
+    specialReward: {
+      gamesRequired: 12,
+      reward: "VIP Lifetime Access",
+      rewardType: "code",
+    },
   },
   // Finished campaigns
   {
@@ -160,6 +220,16 @@ const mockCampaigns: RankingCampaign[] = [
     status: "finished",
     hasCode: true,
     requiredPlan: "all",
+    bonusLevel: {
+      gamesRequired: 6,
+      reward: "Winter Theme Pack",
+      rewardType: "item",
+    },
+    specialReward: {
+      gamesRequired: 15,
+      reward: "Frost King Crown",
+      rewardType: "item",
+    },
   },
   {
     id: "4b",
@@ -181,6 +251,16 @@ const mockCampaigns: RankingCampaign[] = [
     status: "finished",
     hasCode: false,
     requiredPlan: "free",
+    bonusLevel: {
+      gamesRequired: 4,
+      reward: "Party Hat Avatar",
+      rewardType: "item",
+    },
+    specialReward: {
+      gamesRequired: 10,
+      reward: "Mystery Party Box",
+      rewardType: "mystery",
+    },
   },
   // Coming soon campaigns
   {
@@ -199,6 +279,16 @@ const mockCampaigns: RankingCampaign[] = [
     status: "coming_soon",
     hasCode: false,
     requiredPlan: "all",
+    bonusLevel: {
+      gamesRequired: 5,
+      reward: "Beach Vibes Skin",
+      rewardType: "item",
+    },
+    specialReward: {
+      gamesRequired: 12,
+      reward: "Summer VIP Pass",
+      rewardType: "code",
+    },
   },
   {
     id: "5b",
@@ -216,6 +306,16 @@ const mockCampaigns: RankingCampaign[] = [
     status: "coming_soon",
     hasCode: true,
     requiredPlan: "premium",
+    bonusLevel: {
+      gamesRequired: 8,
+      reward: "50% Premium Discount",
+      rewardType: "discount",
+    },
+    specialReward: {
+      gamesRequired: 20,
+      reward: "Championship Trophy NFT",
+      rewardType: "item",
+    },
   },
 ];
 

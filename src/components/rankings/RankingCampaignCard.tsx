@@ -14,6 +14,18 @@ export interface RankingPlayer {
   points: number;
 }
 
+export interface BonusLevel {
+  gamesRequired: number;
+  reward: string;
+  rewardType: "discount" | "item" | "code" | "points" | "mystery";
+}
+
+export interface SpecialReward {
+  gamesRequired: number;
+  reward: string;
+  rewardType: "discount" | "item" | "code" | "points" | "mystery";
+}
+
 export interface RankingCampaign {
   id: string;
   title: string;
@@ -31,6 +43,8 @@ export interface RankingCampaign {
   status: CampaignFilterStatus;
   hasCode?: boolean;
   requiredPlan?: PlanType;
+  bonusLevel?: BonusLevel;
+  specialReward?: SpecialReward;
 }
 
 interface RankingCampaignCardProps {
