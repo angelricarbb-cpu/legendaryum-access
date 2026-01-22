@@ -518,6 +518,7 @@ const Rankings = () => {
                     onContinue={handleContinue}
                     onViewTopPositions={handleViewTopPositions}
                     onViewInfo={handleViewInfo}
+                    onUpgrade={() => navigate("/pricing")}
                   />
                 ))}
               </div>
