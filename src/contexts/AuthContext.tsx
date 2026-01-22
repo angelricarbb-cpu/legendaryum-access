@@ -36,6 +36,8 @@ interface AuthContextType {
   logout: () => void;
   acceptTerms: () => void;
   completeProfile: (profile: UserProfile) => void;
+  returnUrl: string | null;
+  setReturnUrl: (url: string | null) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -43,6 +45,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+  const [returnUrl, setReturnUrl] = useState<string | null>(null);
 
   const loginWithGoogle = () => {
     // Simulated Google SSO login
@@ -88,7 +91,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       loginWithGoogle, 
       logout,
       acceptTerms,
-      completeProfile
+      completeProfile,
+      returnUrl,
+      setReturnUrl
     }}>
       {children}
     </AuthContext.Provider>
