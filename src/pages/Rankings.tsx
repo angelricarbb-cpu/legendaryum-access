@@ -2,6 +2,8 @@ import { useState } from "react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import RankingCampaignCard, { RankingCampaign, CampaignFilterStatus } from "@/components/rankings/RankingCampaignCard";
+import TopPositionsModal from "@/components/rankings/TopPositionsModal";
+import CampaignInfoModal from "@/components/rankings/CampaignInfoModal";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { ArrowUpDown, Trophy, Gamepad2, Gift, Sparkles } from "lucide-react";
@@ -115,6 +117,11 @@ const filterTabs: { key: CampaignFilterStatus; label: string }[] = [
 const Rankings = () => {
   const { isLoggedIn, user } = useAuth();
   const [activeFilter, setActiveFilter] = useState<CampaignFilterStatus>("available");
+  
+  // Modal states
+  const [topPositionsModalOpen, setTopPositionsModalOpen] = useState(false);
+  const [infoModalOpen, setInfoModalOpen] = useState(false);
+  const [selectedCampaign, setSelectedCampaign] = useState<RankingCampaign | null>(null);
 
   const filteredCampaigns = mockCampaigns.filter((c) => c.status === activeFilter);
 
@@ -124,17 +131,31 @@ const Rankings = () => {
       return;
     }
     toast.success("Joining campaign...");
-    // Here would navigate to game or update campaign status
   };
 
   const handleContinue = (campaignId: string) => {
     toast.info("Continuing campaign...");
-    // Navigate to game
+  };
+
+  const handleViewTopPositions = (campaignId: string) => {
+    const campaign = mockCampaigns.find(c => c.id === campaignId);
+    if (campaign) {
+      setSelectedCampaign(campaign);
+      setTopPositionsModalOpen(true);
+    }
   };
 
   const handleViewInfo = (campaignId: string) => {
-    toast.info("Opening campaign details...");
-    // Open modal with full rankings
+    const campaign = mockCampaigns.find(c => c.id === campaignId);
+    if (campaign) {
+      setSelectedCampaign(campaign);
+      setInfoModalOpen(true);
+    }
+  };
+
+  const handleOpenInfoFromTopPositions = () => {
+    setTopPositionsModalOpen(false);
+    setInfoModalOpen(true);
   };
 
   return (
@@ -234,6 +255,7 @@ const Rankings = () => {
                     campaign={campaign}
                     onJoin={handleJoin}
                     onContinue={handleContinue}
+                    onViewTopPositions={handleViewTopPositions}
                     onViewInfo={handleViewInfo}
                   />
                 ))
@@ -248,6 +270,22 @@ const Rankings = () => {
       </main>
 
       <Footer />
+
+      {/* Modals */}
+      <TopPositionsModal
+        isOpen={topPositionsModalOpen}
+        onClose={() => setTopPositionsModalOpen(false)}
+        campaign={selectedCampaign}
+        onOpenInfo={handleOpenInfoFromTopPositions}
+        onJoin={handleJoin}
+        onContinue={handleContinue}
+      />
+
+      <CampaignInfoModal
+        isOpen={infoModalOpen}
+        onClose={() => setInfoModalOpen(false)}
+        campaign={selectedCampaign}
+      />
     </div>
   );
 };
