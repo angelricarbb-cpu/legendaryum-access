@@ -95,7 +95,7 @@ const mockCampaigns: RankingCampaign[] = [
     endDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
     status: "available",
     hasCode: false,
-    requiredPlan: "premium",
+    requiredPlan: "all", // Premium user can join - simulating they already have access
     bonusLevel: {
       gamesRequired: 7,
       reward: "20% Premium Discount",

@@ -49,6 +49,40 @@ const mockEvents: EventCampaign[] = [
     ticketPrice: 9.99,
     hasTicket: true,
   },
+  // FREE event - user can join directly with purple button
+  {
+    id: "e1b",
+    title: "Community Game Night",
+    logo: "",
+    brandName: "OPEN GAMING",
+    topPlayers: [
+      { position: 1, username: "@CommunityPro", points: 180000 },
+      { position: 2, username: "@FreeGamer", points: 150000 },
+      { position: 3, username: "@OpenPlayer", points: 120000 },
+    ],
+    myPosition: null,
+    myPoints: 0,
+    totalPlayers: 3200,
+    maxPlayers: 10000,
+    hasPlayed: false,
+    startDate: new Date(),
+    endDate: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000),
+    status: "available",
+    hasCode: true,
+    requiredPlan: "all",
+    bonusLevel: {
+      gamesRequired: 3,
+      reward: "10% Community Discount",
+      rewardType: "code",
+    },
+    specialReward: {
+      gamesRequired: 8,
+      reward: "$30 Steam Gift Card",
+      rewardType: "item",
+    },
+    ticketPrice: 0,
+    hasTicket: true, // Free event, no ticket needed
+  },
   {
     id: "e2",
     title: "VIP Exclusive Night",
