@@ -286,21 +286,23 @@ const RankingCampaignCard = ({
           </button>
         )}
 
-        {/* My Stats Row */}
-        <div className="grid grid-cols-2 gap-2 mb-3">
-          <div className="bg-secondary/30 rounded-lg p-2 text-center">
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wide">My Score</p>
-            <p className="text-sm font-bold text-foreground">
-              {campaign.hasPlayed ? formatPoints(campaign.myPoints) : "---"}
-            </p>
+        {/* My Stats Row - Hidden for coming_soon */}
+        {campaign.status !== "coming_soon" && (
+          <div className="grid grid-cols-2 gap-2 mb-3">
+            <div className="bg-secondary/30 rounded-lg p-2 text-center">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wide">My Score</p>
+              <p className="text-sm font-bold text-foreground">
+                {campaign.hasPlayed ? formatPoints(campaign.myPoints) : "---"}
+              </p>
+            </div>
+            <div className="bg-secondary/30 rounded-lg p-2 text-center">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Position</p>
+              <p className="text-sm font-bold text-foreground">
+                {campaign.myPosition ? `#${campaign.myPosition}` : "#--"}
+              </p>
+            </div>
           </div>
-          <div className="bg-secondary/30 rounded-lg p-2 text-center">
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Position</p>
-            <p className="text-sm font-bold text-foreground">
-              {campaign.myPosition ? `#${campaign.myPosition}` : "#--"}
-            </p>
-          </div>
-        </div>
+        )}
 
         {/* Action Button */}
         {campaign.status === "available" && (
@@ -335,7 +337,11 @@ const RankingCampaignCard = ({
             ) : (
               <Button 
                 onClick={() => onJoin(campaign.id)}
-                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg"
+                className={`w-full rounded-lg ${
+                  campaign.requiredPlan === "premium" 
+                    ? "bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white"
+                    : "bg-primary hover:bg-primary/90 text-primary-foreground"
+                }`}
                 size="sm"
               >
                 Join now

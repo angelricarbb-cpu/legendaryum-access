@@ -7,6 +7,7 @@ import TopPositionsModal from "@/components/rankings/TopPositionsModal";
 import CampaignInfoModal from "@/components/rankings/CampaignInfoModal";
 import TermsModal from "@/components/onboarding/TermsModal";
 import ProfileCompletionModal from "@/components/onboarding/ProfileCompletionModal";
+import TicketPaymentModal from "@/components/events/TicketPaymentModal";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { ArrowUpDown, Calendar, Gamepad2, Gift, Sparkles, Ticket } from "lucide-react";
@@ -259,6 +260,10 @@ const Events = () => {
   const [termsModalOpen, setTermsModalOpen] = useState(false);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
   const [pendingCampaignId, setPendingCampaignId] = useState<string | null>(null);
+  
+  // Ticket payment modal states
+  const [ticketModalOpen, setTicketModalOpen] = useState(false);
+  const [selectedTicketEvent, setSelectedTicketEvent] = useState<EventCampaign | null>(null);
 
   const filteredEvents = events.filter((e) => e.status === activeFilter);
 
@@ -299,17 +304,26 @@ const Events = () => {
       return;
     }
 
-    // Simulate ticket purchase
-    toast.success("¡Ticket comprado exitosamente! Estarás listo cuando el evento comience.");
-    
-    // Update the event to mark ticket as purchased
-    setEvents(prevEvents => 
-      prevEvents.map(event => 
-        event.id === campaignId 
-          ? { ...event, hasTicket: true }
-          : event
-      )
-    );
+    const event = events.find(e => e.id === campaignId);
+    if (event) {
+      setSelectedTicketEvent(event);
+      setTicketModalOpen(true);
+    }
+  };
+
+  const handleTicketPaymentSuccess = () => {
+    if (selectedTicketEvent) {
+      // Update the event to mark ticket as purchased
+      setEvents(prevEvents => 
+        prevEvents.map(event => 
+          event.id === selectedTicketEvent.id 
+            ? { ...event, hasTicket: true }
+            : event
+        )
+      );
+      toast.success("¡Ticket comprado exitosamente! Estarás listo cuando el evento comience.");
+    }
+    setSelectedTicketEvent(null);
   };
 
   const handleTermsAccepted = () => {
@@ -516,6 +530,19 @@ const Events = () => {
     onClose={() => setProfileModalOpen(false)}
     onComplete={handleProfileCompleted}
   />
+
+  {selectedTicketEvent && (
+    <TicketPaymentModal
+      isOpen={ticketModalOpen}
+      onClose={() => {
+        setTicketModalOpen(false);
+        setSelectedTicketEvent(null);
+      }}
+      eventTitle={selectedTicketEvent.title}
+      ticketPrice={selectedTicketEvent.ticketPrice}
+      onPaymentSuccess={handleTicketPaymentSuccess}
+    />
+  )}
 </div>
 );
 };
