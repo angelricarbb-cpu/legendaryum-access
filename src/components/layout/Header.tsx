@@ -57,6 +57,9 @@ const Header = ({ isLoggedIn = false, user }: HeaderProps) => {
           <Link to="/missions" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
             Missions
           </Link>
+          <Link to="/games" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+            Games
+          </Link>
           <Link to="/events" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
             Events
           </Link>

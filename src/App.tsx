@@ -11,6 +11,7 @@ import Dashboard from "./pages/Dashboard";
 import Rankings from "./pages/Rankings";
 import Events from "./pages/Events";
 import Missions from "./pages/Missions";
+import Games from "./pages/Games";
 import GameDetail from "./pages/GameDetail";
 import NotFound from "./pages/NotFound";
 
@@ -31,6 +32,7 @@ const App = () => (
             <Route path="/rankings" element={<Rankings />} />
             <Route path="/events" element={<Events />} />
             <Route path="/missions" element={<Missions />} />
+            <Route path="/games" element={<Games />} />
             <Route path="/game/:id" element={<GameDetail />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
