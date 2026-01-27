@@ -196,12 +196,46 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const loginWithGoogle = async () => {
+    // Simulación de Google OAuth - crea un usuario demo
+    // En producción, descomentar el código real y configurar Google OAuth
+    const demoEmail = `demo_${Date.now()}@legendaryum.com`;
+    const demoPassword = "demo123456";
+    
+    // Intentar crear usuario demo
+    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+      email: demoEmail,
+      password: demoPassword,
+      options: {
+        emailRedirectTo: window.location.origin,
+        data: { 
+          full_name: "Usuario Demo Google",
+          avatar_url: "https://lh3.googleusercontent.com/a/default-user=s96-c"
+        },
+      },
+    });
+
+    if (signUpError) {
+      console.error("Error en login simulado:", signUpError);
+      return;
+    }
+
+    // El usuario ya está autenticado tras el signup si auto-confirm está activo
+    if (signUpData.user) {
+      await supabase.from("profiles").update({
+        first_name: "Usuario",
+        last_name: "Demo Google",
+        avatar_url: "https://lh3.googleusercontent.com/a/default-user=s96-c",
+      }).eq("user_id", signUpData.user.id);
+    }
+
+    /* Código real para Google OAuth (descomentar cuando esté configurado):
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
         redirectTo: window.location.origin + (returnUrl || "/"),
       },
     });
+    */
   };
 
   const logout = async () => {
