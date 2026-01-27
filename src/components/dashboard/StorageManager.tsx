@@ -62,38 +62,91 @@ export const StorageManager = () => {
   useEffect(() => {
     if (user) {
       fetchData();
+    } else {
+      // Si no hay usuario, mostrar límites del plan free como demo
+      setDefaultLimits();
     }
   }, [user]);
 
-  const fetchData = async () => {
-    if (!user) return;
+  const setDefaultLimits = async () => {
     setIsLoading(true);
-
-    // Fetch user files
-    const { data: filesData, error: filesError } = await supabase
-      .from("user_files")
-      .select("*")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false });
-
-    if (filesError) {
-      console.error("Error fetching files:", filesError);
-    } else {
-      setFiles(filesData || []);
-    }
-
-    // Fetch storage limits for user's plan
-    const plan = user.subscription?.plan || "free";
-    const { data: limitsData, error: limitsError } = await supabase
+    const { data: limitsData } = await supabase
       .from("storage_limits")
       .select("*")
-      .eq("plan", plan)
+      .eq("plan", "free")
       .maybeSingle();
-
-    if (limitsError) {
-      console.error("Error fetching limits:", limitsError);
-    } else if (limitsData) {
+    
+    if (limitsData) {
       setLimits(limitsData);
+    } else {
+      // Fallback si no hay datos en DB
+      setLimits({
+        max_storage_bytes: 52428800, // 50MB
+        max_file_size_bytes: 5242880, // 5MB
+        max_files: 10,
+      });
+    }
+    setFiles([]);
+    setIsLoading(false);
+  };
+
+  const fetchData = async () => {
+    if (!user) {
+      setDefaultLimits();
+      return;
+    }
+    setIsLoading(true);
+
+    try {
+      // Fetch user files
+      const { data: filesData, error: filesError } = await supabase
+        .from("user_files")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false });
+
+      if (filesError) {
+        console.error("Error fetching files:", filesError);
+        setFiles([]);
+      } else {
+        setFiles(filesData || []);
+      }
+
+      // Fetch storage limits for user's plan
+      const plan = user.subscription?.plan || "free";
+      const { data: limitsData, error: limitsError } = await supabase
+        .from("storage_limits")
+        .select("*")
+        .eq("plan", plan)
+        .maybeSingle();
+
+      if (limitsError) {
+        console.error("Error fetching limits:", limitsError);
+      }
+      
+      if (limitsData) {
+        setLimits(limitsData);
+      } else {
+        // Fallback a free si no encuentra el plan
+        const { data: freeLimits } = await supabase
+          .from("storage_limits")
+          .select("*")
+          .eq("plan", "free")
+          .maybeSingle();
+        
+        setLimits(freeLimits || {
+          max_storage_bytes: 52428800,
+          max_file_size_bytes: 5242880,
+          max_files: 10,
+        });
+      }
+    } catch (error) {
+      console.error("Error in fetchData:", error);
+      setLimits({
+        max_storage_bytes: 52428800,
+        max_file_size_bytes: 5242880,
+        max_files: 10,
+      });
     }
 
     setIsLoading(false);
