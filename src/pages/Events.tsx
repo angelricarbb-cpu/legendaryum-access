@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import EventCampaignCard, { EventCampaign, EventFilterStatus, PlanType } from "@/components/events/EventCampaignCard";
@@ -10,6 +10,7 @@ import ProfileCompletionModal from "@/components/onboarding/ProfileCompletionMod
 import TicketPaymentModal from "@/components/events/TicketPaymentModal";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
+import useRequireAuth from "@/hooks/useRequireAuth";
 import { ArrowUpDown, Calendar, Gamepad2, Gift, Sparkles, Ticket } from "lucide-react";
 import { toast } from "sonner";
 
@@ -281,7 +282,9 @@ const filterTabs: { key: EventFilterStatus; label: string }[] = [
 
 const Events = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { isLoggedIn, user, acceptTerms, completeProfile } = useAuth();
+  const { redirectToAuthWithReturn, redirectToPricingWithMessage, canAccessPlan } = useRequireAuth();
   const [activeFilter, setActiveFilter] = useState<EventFilterStatus>("available");
   const [events, setEvents] = useState<EventCampaign[]>(mockEvents);
   
@@ -302,13 +305,21 @@ const Events = () => {
   const filteredEvents = events.filter((e) => e.status === activeFilter);
 
   const handleJoin = (campaignId: string) => {
+    const event = events.find(e => e.id === campaignId);
+    
+    // Check if user is logged in
     if (!isLoggedIn) {
-      toast.error("Por favor, inicia sesión para unirte a un evento");
+      redirectToAuthWithReturn(location.pathname);
       return;
     }
 
-    const event = events.find(e => e.id === campaignId);
-    if (!event?.hasTicket) {
+    // Check plan requirements
+    if (event?.requiredPlan === "premium" && !canAccessPlan("premium")) {
+      redirectToPricingWithMessage("Premium");
+      return;
+    }
+
+    if (!event?.hasTicket && event?.ticketPrice && event.ticketPrice > 0) {
       toast.error("Necesitas un ticket para unirte a este evento");
       return;
     }
@@ -332,13 +343,20 @@ const Events = () => {
   };
 
   const handleBuyTicket = (campaignId: string) => {
+    // Check if user is logged in first
     if (!isLoggedIn) {
-      toast.error("Por favor, inicia sesión para comprar un ticket");
-      navigate("/auth");
+      redirectToAuthWithReturn(location.pathname);
       return;
     }
 
     const event = events.find(e => e.id === campaignId);
+    
+    // Check plan requirements for premium events
+    if (event?.requiredPlan === "premium" && !canAccessPlan("premium")) {
+      redirectToPricingWithMessage("Premium");
+      return;
+    }
+
     if (event) {
       setSelectedTicketEvent(event);
       setTicketModalOpen(true);

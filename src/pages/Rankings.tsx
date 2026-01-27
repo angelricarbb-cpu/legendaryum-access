@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import RankingCampaignCard, { RankingCampaign, CampaignFilterStatus, PlanType } from "@/components/rankings/RankingCampaignCard";
@@ -9,6 +9,7 @@ import TermsModal from "@/components/onboarding/TermsModal";
 import ProfileCompletionModal from "@/components/onboarding/ProfileCompletionModal";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
+import useRequireAuth from "@/hooks/useRequireAuth";
 import { ArrowUpDown, Trophy, Gamepad2, Gift, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
@@ -392,7 +393,9 @@ const filterTabs: { key: CampaignFilterStatus; label: string }[] = [
 
 const Rankings = () => {
   const navigate = useNavigate();
-  const { isLoggedIn, user, acceptTerms, completeProfile } = useAuth();
+  const location = useLocation();
+  const { isLoggedIn, user, acceptTerms, completeProfile, setReturnUrl } = useAuth();
+  const { redirectToAuthWithReturn, redirectToPricingWithMessage, canAccessPlan } = useRequireAuth();
   const [activeFilter, setActiveFilter] = useState<CampaignFilterStatus>("available");
   
   // Modal states
@@ -408,8 +411,17 @@ const Rankings = () => {
   const filteredCampaigns = mockCampaigns.filter((c) => c.status === activeFilter);
 
   const handleJoin = (campaignId: string) => {
+    const campaign = mockCampaigns.find(c => c.id === campaignId);
+    
+    // Check if user is logged in
     if (!isLoggedIn) {
-      toast.error("Por favor, inicia sesión para unirte a una campaña");
+      redirectToAuthWithReturn(location.pathname);
+      return;
+    }
+
+    // Check plan requirements
+    if (campaign?.requiredPlan === "premium" && !canAccessPlan("premium")) {
+      redirectToPricingWithMessage("Premium");
       return;
     }
 
