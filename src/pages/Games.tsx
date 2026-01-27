@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import GameCard, { Game, GamePlanType } from "@/components/games/GameCard";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/contexts/AuthContext";
+import useRequireAuth from "@/hooks/useRequireAuth";
 import { Gamepad2, Sparkles, Trophy, Target } from "lucide-react";
 import { toast } from "sonner";
 
@@ -39,7 +40,9 @@ type FilterType = "all" | "missions" | "rankings";
 
 const Games = () => {
   const navigate = useNavigate();
-  const { isLoggedIn, user, setReturnUrl } = useAuth();
+  const location = useLocation();
+  const { isLoggedIn, user } = useAuth();
+  const { redirectToAuthWithReturn, redirectToPricingWithMessage, canAccessPlan } = useRequireAuth();
   const [activeFilter, setActiveFilter] = useState<FilterType>("all");
   const [sortBy, setSortBy] = useState<string>("games");
 
@@ -54,17 +57,14 @@ const Games = () => {
     const game = mockGames.find(g => g.id === gameId);
     if (!game) return;
 
-    const isPlanLocked = game.requiredPlan === "premium" && 
-      (user?.subscription?.plan === "free" || !user?.subscription?.plan);
+    const isPlanLocked = game.requiredPlan === "premium" && !canAccessPlan("premium");
 
     if (isPlanLocked) {
       if (!isLoggedIn) {
-        setReturnUrl(`/games`);
-        navigate("/auth");
+        redirectToAuthWithReturn(location.pathname);
         return;
       }
-      toast.info("Este juego requiere Premium. Actualiza tu plan para acceder.");
-      navigate("/pricing");
+      redirectToPricingWithMessage("Premium");
       return;
     }
 

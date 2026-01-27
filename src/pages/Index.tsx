@@ -5,11 +5,17 @@ import MainCategoriesGrid from "@/components/home/MainCategoriesGrid";
 import CommunitySection from "@/components/home/CommunitySection";
 import B2BSection from "@/components/home/B2BSection";
 import ContactForm from "@/components/ContactForm";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Index = () => {
+  const { isLoggedIn, user } = useAuth();
+  
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <Header />
+      <Header 
+        isLoggedIn={isLoggedIn} 
+        user={user ? { name: user.name, username: user.username, avatar: user.avatar } : undefined} 
+      />
       
       <main className="flex-1">
         {/* Hero Slider - Visual slides rotating */}

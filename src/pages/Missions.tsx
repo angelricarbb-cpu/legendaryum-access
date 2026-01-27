@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import MissionCard, { Mission, MissionFilterStatus, PlanType } from "@/components/missions/MissionCard";
@@ -8,6 +8,7 @@ import TermsModal from "@/components/onboarding/TermsModal";
 import ProfileCompletionModal from "@/components/onboarding/ProfileCompletionModal";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
+import useRequireAuth from "@/hooks/useRequireAuth";
 import { Target, Sparkles, Trophy, Zap } from "lucide-react";
 import { toast } from "sonner";
 
@@ -172,7 +173,9 @@ const filterTabs: { key: MissionFilterStatus; label: string }[] = [
 
 const Missions = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { isLoggedIn, user, acceptTerms, completeProfile } = useAuth();
+  const { redirectToAuthWithReturn, redirectToPricingWithMessage, canAccessPlan } = useRequireAuth();
   const [activeFilter, setActiveFilter] = useState<MissionFilterStatus>("available");
   
   // Modal states
@@ -187,8 +190,17 @@ const Missions = () => {
   const filteredMissions = mockMissions.filter((m) => m.status === activeFilter);
 
   const handleStart = (missionId: string) => {
+    const mission = mockMissions.find(m => m.id === missionId);
+    
+    // Check if user is logged in
     if (!isLoggedIn) {
-      toast.error("Por favor, inicia sesión para comenzar una misión");
+      redirectToAuthWithReturn(location.pathname);
+      return;
+    }
+
+    // Check plan requirements
+    if (mission?.requiredPlan === "premium" && !canAccessPlan("premium")) {
+      redirectToPricingWithMessage("Premium");
       return;
     }
 

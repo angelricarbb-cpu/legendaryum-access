@@ -6,6 +6,8 @@ import PricingCard from "@/components/pricing/PricingCard";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Check, CreditCard, Loader2 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import useRequireAuth from "@/hooks/useRequireAuth";
 
 const plans = [
   {
@@ -93,19 +95,23 @@ const plans = [
   },
 ];
 
-// Simulated current user subscription
-const currentSubscription = {
-  plan: "FREE",
-  isAuthenticated: true, // Simulating authenticated user
-};
-
 const Pricing = () => {
   const navigate = useNavigate();
+  const { isLoggedIn, user, setReturnUrl } = useAuth();
+  const { getUserPlan, redirectToAuthWithReturn } = useRequireAuth();
   const [selectedPlan, setSelectedPlan] = useState<typeof plans[0] | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
+  // Get current plan from auth context
+  const currentPlan = getUserPlan().toUpperCase();
+
   const handleSelectPlan = (plan: typeof plans[0]) => {
+    // Require login for paid plans
+    if (plan.name !== "FREE" && !isLoggedIn) {
+      redirectToAuthWithReturn("/pricing");
+      return;
+    }
     if (plan.name === "FREE") {
       navigate("/dashboard");
       return;
@@ -138,15 +144,22 @@ const Pricing = () => {
     }, 2000);
   };
 
-  const isCurrentPlan = (planName: string) => currentSubscription.plan === planName;
+  const isCurrentPlan = (planName: string) => currentPlan === planName;
   const isUpgrade = (planName: string) => {
-    const planOrder = ["FREE", "PREMIUM", "GROWTH", "SCALE"];
-    return planOrder.indexOf(planName) > planOrder.indexOf(currentSubscription.plan);
+    const planOrder = ["FREE", "PREMIUM", "GROWTH", "SCALE", "ENTERPRISE"];
+    return planOrder.indexOf(planName) > planOrder.indexOf(currentPlan);
+  };
+  const isDowngrade = (planName: string) => {
+    const planOrder = ["FREE", "PREMIUM", "GROWTH", "SCALE", "ENTERPRISE"];
+    return planOrder.indexOf(planName) < planOrder.indexOf(currentPlan) && planName !== "FREE";
   };
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header />
+      <Header 
+        isLoggedIn={isLoggedIn} 
+        user={user ? { name: user.name, username: user.username, avatar: user.avatar } : undefined} 
+      />
       
       <main className="flex-1 py-20">
         <div className="container">
@@ -157,9 +170,9 @@ const Pricing = () => {
             <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
               Desbloquea todo el potencial de Legendaryum con el plan que mejor se adapte a ti.
             </p>
-            {currentSubscription.isAuthenticated && (
+            {isLoggedIn && (
               <p className="mt-4 text-sm text-muted-foreground">
-                Tu plan actual: <span className="text-primary font-semibold">{currentSubscription.plan}</span>
+                Tu plan actual: <span className="text-primary font-semibold">{currentPlan}</span>
               </p>
             )}
           </div>
@@ -174,7 +187,9 @@ const Pricing = () => {
                     ? "Plan Actual" 
                     : isUpgrade(plan.name) 
                       ? "Upgrade" 
-                      : plan.buttonText
+                      : isDowngrade(plan.name)
+                        ? "Downgrade"
+                        : plan.buttonText
                 }
                 onSelect={() => handleSelectPlan(plan)}
                 disabled={isCurrentPlan(plan.name)}
