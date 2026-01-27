@@ -9,14 +9,19 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Target, Clock, Users, Gift, Crown, Calendar } from "lucide-react";
-import { Mission } from "./MissionCard";
+import { Mission, PlanType } from "./MissionCard";
+
+// Helper function to check if user's plan can access premium content
+const canAccessPremium = (userPlan: PlanType): boolean => {
+  return ["premium", "growth", "scale", "enterprise"].includes(userPlan);
+};
 
 interface MissionInfoModalProps {
   mission: Mission | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onStart?: (missionId: string) => void;
-  userPlan?: "free" | "premium" | "all";
+  userPlan?: PlanType;
 }
 
 const formatTimeToComplete = (seconds: number): string => {
@@ -36,7 +41,7 @@ const MissionInfoModal = ({
   if (!mission) return null;
 
   const progressPercentage = (mission.completedCount / mission.maxParticipants) * 100;
-  const isPlanLocked = mission.requiredPlan === "premium" && userPlan === "free";
+  const isPlanLocked = mission.requiredPlan === "premium" && !canAccessPremium(userPlan);
   const isFull = mission.completedCount >= mission.maxParticipants;
   const canStart = !isFull && !isPlanLocked && mission.status === "available" && !mission.hasCompleted;
 

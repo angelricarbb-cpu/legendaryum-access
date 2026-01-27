@@ -5,7 +5,12 @@ import { Progress } from "@/components/ui/progress";
 import { Info, Gamepad2, Users, Clock, Lock, Crown, Target } from "lucide-react";
 
 export type MissionFilterStatus = "available" | "finished" | "completed" | "coming_soon";
-export type PlanType = "free" | "premium" | "all";
+export type PlanType = "free" | "premium" | "growth" | "scale" | "enterprise" | "all";
+
+// Helper function to check if user's plan can access premium content
+const canAccessPremium = (userPlan: PlanType): boolean => {
+  return ["premium", "growth", "scale", "enterprise"].includes(userPlan);
+};
 
 export interface Mission {
   id: string;
@@ -120,7 +125,7 @@ const MissionCard = ({
   onUpgrade
 }: MissionCardProps) => {
   const isFull = mission.completedCount >= mission.maxParticipants;
-  const isPlanLocked = mission.requiredPlan === "premium" && userPlan === "free";
+  const isPlanLocked = mission.requiredPlan === "premium" && !canAccessPremium(userPlan);
   const canStart = !isFull && !isPlanLocked && mission.status === "available" && !mission.hasCompleted;
   
   // Progress percentage for capacity bar

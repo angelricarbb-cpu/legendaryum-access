@@ -1,7 +1,12 @@
 import { Badge } from "@/components/ui/badge";
 import { Crown, Gamepad2 } from "lucide-react";
 
-export type GamePlanType = "free" | "premium" | "all";
+export type GamePlanType = "free" | "premium" | "growth" | "scale" | "enterprise" | "all";
+
+// Helper function to check if user's plan can access premium content
+const canAccessPremium = (userPlan: GamePlanType): boolean => {
+  return ["premium", "growth", "scale", "enterprise"].includes(userPlan);
+};
 
 export interface Game {
   id: string;
@@ -19,7 +24,7 @@ interface GameCardProps {
 }
 
 const GameCard = ({ game, userPlan = "free", onClick }: GameCardProps) => {
-  const isPlanLocked = game.requiredPlan === "premium" && userPlan === "free";
+  const isPlanLocked = game.requiredPlan === "premium" && !canAccessPremium(userPlan);
 
   return (
     <button

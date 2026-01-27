@@ -391,7 +391,7 @@ const Missions = () => {
         open={infoModalOpen}
         onOpenChange={setInfoModalOpen}
         onStart={handleStart}
-        userPlan={user?.subscription?.plan as PlanType || "free"}
+        userPlan={(user?.subscription?.plan || "free") as PlanType}
       />
 
       <TermsModal 
