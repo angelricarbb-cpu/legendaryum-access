@@ -8,34 +8,75 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 const Auth = () => {
   const [searchParams] = useSearchParams();
   const plan = searchParams.get("plan");
   const [isLoading, setIsLoading] = useState(false);
-  const { loginWithGoogle, returnUrl, setReturnUrl } = useAuth();
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [regName, setRegName] = useState("");
+  const [regEmail, setRegEmail] = useState("");
+  const [regPassword, setRegPassword] = useState("");
+  const [regPasswordConfirm, setRegPasswordConfirm] = useState("");
+  
+  const { loginWithEmail, signUpWithEmail, loginWithGoogle, returnUrl, setReturnUrl } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    // Simular carga
-    setTimeout(() => setIsLoading(false), 1000);
+    
+    const { error } = await loginWithEmail(loginEmail, loginPassword);
+    
+    if (error) {
+      toast.error(error);
+      setIsLoading(false);
+      return;
+    }
+    
+    toast.success("¡Inicio de sesión exitoso!");
+    const redirectTo = returnUrl || "/";
+    setReturnUrl(null);
+    navigate(redirectTo);
+    setIsLoading(false);
   };
 
-  const handleGoogleLogin = () => {
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (regPassword !== regPasswordConfirm) {
+      toast.error("Las contraseñas no coinciden");
+      return;
+    }
+    
+    if (regPassword.length < 6) {
+      toast.error("La contraseña debe tener al menos 6 caracteres");
+      return;
+    }
+    
     setIsLoading(true);
-    // Simulate Google SSO delay
-    setTimeout(() => {
-      loginWithGoogle();
+    
+    const { error } = await signUpWithEmail(regEmail, regPassword, regName);
+    
+    if (error) {
+      toast.error(error);
       setIsLoading(false);
-      toast.success("¡Inicio de sesión con Google exitoso!");
-      
-      // Navigate to returnUrl if set, otherwise stay on current context
-      const redirectTo = returnUrl || "/";
-      setReturnUrl(null); // Clear the return URL after use
-      navigate(redirectTo);
-    }, 1000);
+      return;
+    }
+    
+    toast.success("¡Cuenta creada exitosamente!");
+    const redirectTo = returnUrl || "/";
+    setReturnUrl(null);
+    navigate(redirectTo);
+    setIsLoading(false);
+  };
+
+  const handleGoogleLogin = async () => {
+    setIsLoading(true);
+    await loginWithGoogle();
+    // Google OAuth will redirect, so we don't need to handle navigation here
   };
 
   return (
@@ -100,16 +141,33 @@ const Auth = () => {
                 </div>
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleLogin} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" placeholder="tu@email.com" required />
+                  <Input 
+                    id="email" 
+                    type="email" 
+                    placeholder="tu@email.com" 
+                    required 
+                    value={loginEmail}
+                    onChange={(e) => setLoginEmail(e.target.value)}
+                    disabled={isLoading}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="password">Contraseña</Label>
-                  <Input id="password" type="password" placeholder="••••••••" required />
+                  <Input 
+                    id="password" 
+                    type="password" 
+                    placeholder="••••••••" 
+                    required 
+                    value={loginPassword}
+                    onChange={(e) => setLoginPassword(e.target.value)}
+                    disabled={isLoading}
+                  />
                 </div>
                 <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   {isLoading ? "Cargando..." : "Iniciar Sesión"}
                 </Button>
               </form>
@@ -171,24 +229,57 @@ const Auth = () => {
                 </div>
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleRegister} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="reg-name">Nombre completo</Label>
-                  <Input id="reg-name" type="text" placeholder="Tu nombre" required />
+                  <Input 
+                    id="reg-name" 
+                    type="text" 
+                    placeholder="Tu nombre" 
+                    required 
+                    value={regName}
+                    onChange={(e) => setRegName(e.target.value)}
+                    disabled={isLoading}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="reg-email">Email</Label>
-                  <Input id="reg-email" type="email" placeholder="tu@email.com" required />
+                  <Input 
+                    id="reg-email" 
+                    type="email" 
+                    placeholder="tu@email.com" 
+                    required 
+                    value={regEmail}
+                    onChange={(e) => setRegEmail(e.target.value)}
+                    disabled={isLoading}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="reg-password">Contraseña</Label>
-                  <Input id="reg-password" type="password" placeholder="••••••••" required />
+                  <Input 
+                    id="reg-password" 
+                    type="password" 
+                    placeholder="••••••••" 
+                    required 
+                    value={regPassword}
+                    onChange={(e) => setRegPassword(e.target.value)}
+                    disabled={isLoading}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="reg-password-confirm">Confirmar contraseña</Label>
-                  <Input id="reg-password-confirm" type="password" placeholder="••••••••" required />
+                  <Input 
+                    id="reg-password-confirm" 
+                    type="password" 
+                    placeholder="••••••••" 
+                    required 
+                    value={regPasswordConfirm}
+                    onChange={(e) => setRegPasswordConfirm(e.target.value)}
+                    disabled={isLoading}
+                  />
                 </div>
                 <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   {isLoading ? "Cargando..." : "Crear Cuenta"}
                 </Button>
               </form>
