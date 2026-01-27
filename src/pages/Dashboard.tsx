@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { 
   CreditCard, User, LogOut, Settings, BarChart3, Sparkles, ArrowUp, ArrowDown, 
@@ -16,6 +16,8 @@ import { FinishedCampaignsModal } from "@/components/campaigns/FinishedCampaigns
 import { CampaignEditModal } from "@/components/campaigns/CampaignEditModal";
 import { AccessPassModal } from "@/components/dashboard/AccessPassModal";
 import { AchievementsModal } from "@/components/dashboard/AchievementsModal";
+import { StorageManager } from "@/components/dashboard/StorageManager";
+import { useAuth } from "@/contexts/AuthContext";
 
 // Exclude ENTERPRISE from upgrade/downgrade plans
 const allPlans = [
@@ -320,7 +322,7 @@ const Dashboard = () => {
             </CardContent>
           </Card>
 
-          {/* Features */}
+          {/* Features with Storage */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">Beneficios Activos</CardTitle>
@@ -334,6 +336,8 @@ const Dashboard = () => {
                   </li>
                 ))}
               </ul>
+              {/* Storage Manager */}
+              <StorageManager />
             </CardContent>
           </Card>
 

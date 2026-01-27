@@ -14,7 +14,132 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          birth_date: string | null
+          city: string | null
+          country: string | null
+          created_at: string
+          description: string | null
+          first_name: string | null
+          gender: string | null
+          id: string
+          last_name: string | null
+          phone: string | null
+          profile_completed: boolean | null
+          social_media: Json | null
+          subscription_expires_at: string | null
+          subscription_plan: string | null
+          terms_accepted: boolean | null
+          terms_accepted_at: string | null
+          topics: string[] | null
+          updated_at: string
+          user_id: string
+          username: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          birth_date?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          description?: string | null
+          first_name?: string | null
+          gender?: string | null
+          id?: string
+          last_name?: string | null
+          phone?: string | null
+          profile_completed?: boolean | null
+          social_media?: Json | null
+          subscription_expires_at?: string | null
+          subscription_plan?: string | null
+          terms_accepted?: boolean | null
+          terms_accepted_at?: string | null
+          topics?: string[] | null
+          updated_at?: string
+          user_id: string
+          username?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          birth_date?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          description?: string | null
+          first_name?: string | null
+          gender?: string | null
+          id?: string
+          last_name?: string | null
+          phone?: string | null
+          profile_completed?: boolean | null
+          social_media?: Json | null
+          subscription_expires_at?: string | null
+          subscription_plan?: string | null
+          terms_accepted?: boolean | null
+          terms_accepted_at?: string | null
+          topics?: string[] | null
+          updated_at?: string
+          user_id?: string
+          username?: string | null
+        }
+        Relationships: []
+      }
+      storage_limits: {
+        Row: {
+          id: string
+          max_file_size_bytes: number
+          max_files: number
+          max_storage_bytes: number
+          plan: string
+        }
+        Insert: {
+          id?: string
+          max_file_size_bytes: number
+          max_files: number
+          max_storage_bytes: number
+          plan: string
+        }
+        Update: {
+          id?: string
+          max_file_size_bytes?: number
+          max_files?: number
+          max_storage_bytes?: number
+          plan?: string
+        }
+        Relationships: []
+      }
+      user_files: {
+        Row: {
+          created_at: string
+          file_name: string
+          file_path: string
+          file_size: number
+          file_type: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          file_name: string
+          file_path: string
+          file_size?: number
+          file_type?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          file_name?: string
+          file_path?: string
+          file_size?: number
+          file_type?: string | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
