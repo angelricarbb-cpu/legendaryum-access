@@ -5,7 +5,12 @@ import { Badge } from "@/components/ui/badge";
 import { Trophy, Medal, Award, Info, Gamepad2, Users, Clock, Lock, Crown } from "lucide-react";
 
 export type CampaignFilterStatus = "available" | "ongoing" | "finished" | "coming_soon";
-export type PlanType = "free" | "premium" | "all";
+export type PlanType = "free" | "premium" | "growth" | "scale" | "enterprise" | "all";
+
+// Helper function to check if user's plan can access premium content
+const canAccessPremium = (userPlan: PlanType): boolean => {
+  return ["premium", "growth", "scale", "enterprise"].includes(userPlan);
+};
 
 export interface RankingPlayer {
   position: number;
@@ -153,7 +158,7 @@ const RankingCampaignCard = ({
   const formatPoints = (pts: number) => pts.toLocaleString();
   
   const isFull = campaign.totalPlayers >= campaign.maxPlayers;
-  const isPlanLocked = campaign.requiredPlan === "premium" && userPlan === "free";
+  const isPlanLocked = campaign.requiredPlan === "premium" && !canAccessPremium(userPlan);
   const canJoin = !isFull && !isPlanLocked && campaign.status === "available";
 
   return (
