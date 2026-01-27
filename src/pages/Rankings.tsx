@@ -7,6 +7,7 @@ import TopPositionsModal from "@/components/rankings/TopPositionsModal";
 import CampaignInfoModal from "@/components/rankings/CampaignInfoModal";
 import TermsModal from "@/components/onboarding/TermsModal";
 import ProfileCompletionModal from "@/components/onboarding/ProfileCompletionModal";
+import UpgradeModal from "@/components/upgrade/UpgradeModal";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import useRequireAuth from "@/hooks/useRequireAuth";
@@ -394,8 +395,8 @@ const filterTabs: { key: CampaignFilterStatus; label: string }[] = [
 const Rankings = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { isLoggedIn, user, acceptTerms, completeProfile, setReturnUrl } = useAuth();
-  const { redirectToAuthWithReturn, redirectToPricingWithMessage, canAccessPlan } = useRequireAuth();
+  const { isLoggedIn, user, acceptTerms, completeProfile, setReturnUrl, upgradePlan } = useAuth();
+  const { redirectToAuthWithReturn, canAccessPlan } = useRequireAuth();
   const [activeFilter, setActiveFilter] = useState<CampaignFilterStatus>("available");
   
   // Modal states
@@ -407,8 +408,23 @@ const Rankings = () => {
   const [termsModalOpen, setTermsModalOpen] = useState(false);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
   const [pendingCampaignId, setPendingCampaignId] = useState<string | null>(null);
+  
+  // Upgrade modal state
+  const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
 
   const filteredCampaigns = mockCampaigns.filter((c) => c.status === activeFilter);
+
+  const handleUpgradeSuccess = () => {
+    upgradePlan("premium");
+  };
+
+  const handleUpgrade = () => {
+    if (!isLoggedIn) {
+      redirectToAuthWithReturn(location.pathname);
+      return;
+    }
+    setUpgradeModalOpen(true);
+  };
 
   const handleJoin = (campaignId: string) => {
     const campaign = mockCampaigns.find(c => c.id === campaignId);
@@ -419,9 +435,9 @@ const Rankings = () => {
       return;
     }
 
-    // Check plan requirements
+    // Check plan requirements - show upgrade modal instead of redirecting
     if (campaign?.requiredPlan === "premium" && !canAccessPlan("premium")) {
-      redirectToPricingWithMessage("Premium");
+      setUpgradeModalOpen(true);
       return;
     }
 
@@ -589,12 +605,12 @@ const Rankings = () => {
                   <RankingCampaignCard
                     key={campaign.id}
                     campaign={campaign}
-                    userPlan={user?.subscription?.plan === "premium" ? "premium" : "free"}
+                    userPlan={user?.subscription?.plan as PlanType || "free"}
                     onJoin={handleJoin}
                     onContinue={handleContinue}
                     onViewTopPositions={handleViewTopPositions}
                     onViewInfo={handleViewInfo}
-                    onUpgrade={() => navigate("/pricing")}
+                    onUpgrade={handleUpgrade}
                   />
                 ))}
               </div>
@@ -642,6 +658,14 @@ const Rankings = () => {
           setPendingCampaignId(null);
         }}
         onComplete={handleProfileCompleted}
+      />
+
+      {/* Upgrade Modal */}
+      <UpgradeModal
+        isOpen={upgradeModalOpen}
+        onClose={() => setUpgradeModalOpen(false)}
+        onUpgradeSuccess={handleUpgradeSuccess}
+        targetPlan="premium"
       />
     </div>
   );

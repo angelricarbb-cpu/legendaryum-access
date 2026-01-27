@@ -3,12 +3,12 @@ import { useNavigate, useLocation } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import GameCard, { Game, GamePlanType } from "@/components/games/GameCard";
+import UpgradeModal from "@/components/upgrade/UpgradeModal";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/contexts/AuthContext";
 import useRequireAuth from "@/hooks/useRequireAuth";
 import { Gamepad2, Sparkles, Trophy, Target } from "lucide-react";
-import { toast } from "sonner";
 
 // Mock data for games
 const mockGames: Game[] = [
@@ -41,10 +41,13 @@ type FilterType = "all" | "missions" | "rankings";
 const Games = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { isLoggedIn, user } = useAuth();
-  const { redirectToAuthWithReturn, redirectToPricingWithMessage, canAccessPlan } = useRequireAuth();
+  const { isLoggedIn, user, upgradePlan } = useAuth();
+  const { redirectToAuthWithReturn, canAccessPlan } = useRequireAuth();
   const [activeFilter, setActiveFilter] = useState<FilterType>("all");
   const [sortBy, setSortBy] = useState<string>("games");
+  
+  // Upgrade modal state
+  const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
 
   const filteredGames = mockGames.filter((game) => {
     if (activeFilter === "all") return true;
@@ -52,6 +55,10 @@ const Games = () => {
     if (activeFilter === "rankings") return game.category === "ranking";
     return true;
   });
+
+  const handleUpgradeSuccess = () => {
+    upgradePlan("premium");
+  };
 
   const handleGameClick = (gameId: string) => {
     const game = mockGames.find(g => g.id === gameId);
@@ -64,16 +71,13 @@ const Games = () => {
         redirectToAuthWithReturn(location.pathname);
         return;
       }
-      redirectToPricingWithMessage("Premium");
+      // Show upgrade modal instead of redirecting to pricing
+      setUpgradeModalOpen(true);
       return;
     }
 
     // Navigate to game detail
     navigate(`/game/${gameId}`);
-  };
-
-  const handleUpgrade = () => {
-    navigate("/pricing");
   };
 
   return (
@@ -236,6 +240,14 @@ const Games = () => {
       </main>
 
       <Footer />
+
+      {/* Upgrade Modal */}
+      <UpgradeModal
+        isOpen={upgradeModalOpen}
+        onClose={() => setUpgradeModalOpen(false)}
+        onUpgradeSuccess={handleUpgradeSuccess}
+        targetPlan="premium"
+      />
     </div>
   );
 };

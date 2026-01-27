@@ -8,6 +8,7 @@ import CampaignInfoModal from "@/components/rankings/CampaignInfoModal";
 import TermsModal from "@/components/onboarding/TermsModal";
 import ProfileCompletionModal from "@/components/onboarding/ProfileCompletionModal";
 import TicketPaymentModal from "@/components/events/TicketPaymentModal";
+import UpgradeModal from "@/components/upgrade/UpgradeModal";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import useRequireAuth from "@/hooks/useRequireAuth";
@@ -283,8 +284,8 @@ const filterTabs: { key: EventFilterStatus; label: string }[] = [
 const Events = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { isLoggedIn, user, acceptTerms, completeProfile } = useAuth();
-  const { redirectToAuthWithReturn, redirectToPricingWithMessage, canAccessPlan } = useRequireAuth();
+  const { isLoggedIn, user, acceptTerms, completeProfile, upgradePlan } = useAuth();
+  const { redirectToAuthWithReturn, canAccessPlan } = useRequireAuth();
   const [activeFilter, setActiveFilter] = useState<EventFilterStatus>("available");
   const [events, setEvents] = useState<EventCampaign[]>(mockEvents);
   
@@ -301,8 +302,23 @@ const Events = () => {
   // Ticket payment modal states
   const [ticketModalOpen, setTicketModalOpen] = useState(false);
   const [selectedTicketEvent, setSelectedTicketEvent] = useState<EventCampaign | null>(null);
+  
+  // Upgrade modal state
+  const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
 
   const filteredEvents = events.filter((e) => e.status === activeFilter);
+
+  const handleUpgradeSuccess = () => {
+    upgradePlan("premium");
+  };
+
+  const handleUpgrade = () => {
+    if (!isLoggedIn) {
+      redirectToAuthWithReturn(location.pathname);
+      return;
+    }
+    setUpgradeModalOpen(true);
+  };
 
   const handleJoin = (campaignId: string) => {
     const event = events.find(e => e.id === campaignId);
@@ -313,9 +329,9 @@ const Events = () => {
       return;
     }
 
-    // Check plan requirements
+    // Check plan requirements - show upgrade modal instead of redirecting
     if (event?.requiredPlan === "premium" && !canAccessPlan("premium")) {
-      redirectToPricingWithMessage("Premium");
+      setUpgradeModalOpen(true);
       return;
     }
 
@@ -351,9 +367,9 @@ const Events = () => {
 
     const event = events.find(e => e.id === campaignId);
     
-    // Check plan requirements for premium events
+    // Check plan requirements for premium events - show upgrade modal instead of redirecting
     if (event?.requiredPlan === "premium" && !canAccessPlan("premium")) {
-      redirectToPricingWithMessage("Premium");
+      setUpgradeModalOpen(true);
       return;
     }
 
@@ -532,18 +548,18 @@ const Events = () => {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {filteredEvents.map((event) => (
-              <EventCampaignCard
-                key={event.id}
-                campaign={event}
-                userPlan={user?.subscription?.plan || "free"}
-                onJoin={handleJoin}
-                onContinue={handleContinue}
-                onViewTopPositions={handleViewTopPositions}
-                onViewInfo={handleViewInfo}
-                onUpgrade={() => navigate("/pricing")}
-                onBuyTicket={handleBuyTicket}
-              />
-            ))}
+                  <EventCampaignCard
+                    key={event.id}
+                    campaign={event}
+                    userPlan={user?.subscription?.plan as PlanType || "free"}
+                    onJoin={handleJoin}
+                    onContinue={handleContinue}
+                    onViewTopPositions={handleViewTopPositions}
+                    onViewInfo={handleViewInfo}
+                    onUpgrade={handleUpgrade}
+                    onBuyTicket={handleBuyTicket}
+                  />
+                ))}
           </div>
         )}
       </div>
@@ -595,6 +611,14 @@ const Events = () => {
       onPaymentSuccess={handleTicketPaymentSuccess}
     />
   )}
+
+  {/* Upgrade Modal */}
+  <UpgradeModal
+    isOpen={upgradeModalOpen}
+    onClose={() => setUpgradeModalOpen(false)}
+    onUpgradeSuccess={handleUpgradeSuccess}
+    targetPlan="premium"
+  />
 </div>
 );
 };

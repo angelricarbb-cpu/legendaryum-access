@@ -6,11 +6,11 @@ import MissionCard, { Mission, MissionFilterStatus, PlanType } from "@/component
 import MissionInfoModal from "@/components/missions/MissionInfoModal";
 import TermsModal from "@/components/onboarding/TermsModal";
 import ProfileCompletionModal from "@/components/onboarding/ProfileCompletionModal";
+import UpgradeModal from "@/components/upgrade/UpgradeModal";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import useRequireAuth from "@/hooks/useRequireAuth";
 import { Target, Sparkles, Trophy, Zap } from "lucide-react";
-import { toast } from "sonner";
 
 // Mock data for missions
 const mockMissions: Mission[] = [
@@ -174,8 +174,8 @@ const filterTabs: { key: MissionFilterStatus; label: string }[] = [
 const Missions = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { isLoggedIn, user, acceptTerms, completeProfile } = useAuth();
-  const { redirectToAuthWithReturn, redirectToPricingWithMessage, canAccessPlan } = useRequireAuth();
+  const { isLoggedIn, user, acceptTerms, completeProfile, upgradePlan } = useAuth();
+  const { redirectToAuthWithReturn, canAccessPlan } = useRequireAuth();
   const [activeFilter, setActiveFilter] = useState<MissionFilterStatus>("available");
   
   // Modal states
@@ -186,8 +186,23 @@ const Missions = () => {
   const [termsModalOpen, setTermsModalOpen] = useState(false);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
   const [pendingMissionId, setPendingMissionId] = useState<string | null>(null);
+  
+  // Upgrade modal state
+  const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
 
   const filteredMissions = mockMissions.filter((m) => m.status === activeFilter);
+
+  const handleUpgradeSuccess = () => {
+    upgradePlan("premium");
+  };
+
+  const handleUpgrade = () => {
+    if (!isLoggedIn) {
+      redirectToAuthWithReturn(location.pathname);
+      return;
+    }
+    setUpgradeModalOpen(true);
+  };
 
   const handleStart = (missionId: string) => {
     const mission = mockMissions.find(m => m.id === missionId);
@@ -198,9 +213,9 @@ const Missions = () => {
       return;
     }
 
-    // Check plan requirements
+    // Check plan requirements - show upgrade modal instead of redirecting
     if (mission?.requiredPlan === "premium" && !canAccessPlan("premium")) {
-      redirectToPricingWithMessage("Premium");
+      setUpgradeModalOpen(true);
       return;
     }
 
@@ -254,10 +269,6 @@ const Missions = () => {
       setSelectedMission(mission);
       setInfoModalOpen(true);
     }
-  };
-
-  const handleUpgrade = () => {
-    navigate("/pricing");
   };
 
   return (
@@ -404,6 +415,14 @@ const Missions = () => {
         isOpen={profileModalOpen} 
         onClose={() => setProfileModalOpen(false)}
         onComplete={handleProfileCompleted}
+      />
+
+      {/* Upgrade Modal */}
+      <UpgradeModal
+        isOpen={upgradeModalOpen}
+        onClose={() => setUpgradeModalOpen(false)}
+        onUpgradeSuccess={handleUpgradeSuccess}
+        targetPlan="premium"
       />
     </div>
   );

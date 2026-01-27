@@ -38,6 +38,7 @@ interface AuthContextType {
   completeProfile: (profile: UserProfile) => void;
   returnUrl: string | null;
   setReturnUrl: (url: string | null) => void;
+  upgradePlan: (plan: SubscriptionPlan) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -84,6 +85,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const upgradePlan = (plan: SubscriptionPlan) => {
+    if (user) {
+      setUser({
+        ...user,
+        subscription: { plan, expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) },
+      });
+    }
+  };
+
   return (
     <AuthContext.Provider value={{ 
       isLoggedIn, 
@@ -93,7 +103,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       acceptTerms,
       completeProfile,
       returnUrl,
-      setReturnUrl
+      setReturnUrl,
+      upgradePlan
     }}>
       {children}
     </AuthContext.Provider>
