@@ -56,43 +56,34 @@ export const StorageManager = () => {
   const [showModal, setShowModal] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
+  const userPlan = user?.subscription?.plan || "free";
+  const hasStorageAccess = userPlan === "growth" || userPlan === "scale";
+
   const totalUsed = files.reduce((acc, file) => acc + file.file_size, 0);
   const usagePercent = limits ? (totalUsed / limits.max_storage_bytes) * 100 : 0;
 
-  useEffect(() => {
-    if (user) {
-      fetchData();
-    } else {
-      // Si no hay usuario, mostrar límites del plan free como demo
-      setDefaultLimits();
-    }
-  }, [user]);
-
-  const setDefaultLimits = async () => {
-    setIsLoading(true);
-    const { data: limitsData } = await supabase
-      .from("storage_limits")
-      .select("*")
-      .eq("plan", "free")
-      .maybeSingle();
-    
-    if (limitsData) {
-      setLimits(limitsData);
-    } else {
-      // Fallback si no hay datos en DB
-      setLimits({
-        max_storage_bytes: 52428800, // 50MB
-        max_file_size_bytes: 5242880, // 5MB
-        max_files: 10,
-      });
-    }
-    setFiles([]);
-    setIsLoading(false);
+  // Límites fijos: 10 archivos, 50MB total, 5MB por archivo
+  const fixedLimits: StorageLimits = {
+    max_storage_bytes: 52428800, // 50MB
+    max_file_size_bytes: 5242880, // 5MB
+    max_files: 10,
   };
 
+  useEffect(() => {
+    if (user && hasStorageAccess) {
+      fetchData();
+    } else {
+      setLimits(fixedLimits);
+      setFiles([]);
+      setIsLoading(false);
+    }
+  }, [user, hasStorageAccess]);
+
   const fetchData = async () => {
-    if (!user) {
-      setDefaultLimits();
+    if (!user || !hasStorageAccess) {
+      setLimits(fixedLimits);
+      setFiles([]);
+      setIsLoading(false);
       return;
     }
     setIsLoading(true);
@@ -112,41 +103,11 @@ export const StorageManager = () => {
         setFiles(filesData || []);
       }
 
-      // Fetch storage limits for user's plan
-      const plan = user.subscription?.plan || "free";
-      const { data: limitsData, error: limitsError } = await supabase
-        .from("storage_limits")
-        .select("*")
-        .eq("plan", plan)
-        .maybeSingle();
-
-      if (limitsError) {
-        console.error("Error fetching limits:", limitsError);
-      }
-      
-      if (limitsData) {
-        setLimits(limitsData);
-      } else {
-        // Fallback a free si no encuentra el plan
-        const { data: freeLimits } = await supabase
-          .from("storage_limits")
-          .select("*")
-          .eq("plan", "free")
-          .maybeSingle();
-        
-        setLimits(freeLimits || {
-          max_storage_bytes: 52428800,
-          max_file_size_bytes: 5242880,
-          max_files: 10,
-        });
-      }
+      // Usar límites fijos para Growth/Scale
+      setLimits(fixedLimits);
     } catch (error) {
       console.error("Error in fetchData:", error);
-      setLimits({
-        max_storage_bytes: 52428800,
-        max_file_size_bytes: 5242880,
-        max_files: 10,
-      });
+      setLimits(fixedLimits);
     }
 
     setIsLoading(false);
@@ -265,6 +226,63 @@ export const StorageManager = () => {
     );
   }
 
+  // Si no tiene acceso, mostrar mensaje de upgrade
+  if (!hasStorageAccess) {
+    return (
+      <div 
+        className="mt-4 p-4 rounded-lg bg-gradient-to-br from-amber-500/10 to-orange-500/10 border border-amber-500/30 cursor-pointer hover:border-amber-500/50 transition-colors"
+        onClick={() => setShowModal(true)}
+      >
+        <div className="flex items-center gap-2 text-sm font-medium text-amber-600">
+          <HardDrive className="h-4 w-4" />
+          <span>Almacenamiento de Premios</span>
+        </div>
+        <p className="text-xs text-muted-foreground mt-1">
+          Sube giftcards y premios para tus campañas
+        </p>
+        <p className="text-xs text-amber-600 font-medium mt-2">
+          🔒 Disponible en planes Growth y Scale
+        </p>
+
+        <Dialog open={showModal} onOpenChange={setShowModal}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <HardDrive className="h-5 w-5 text-amber-500" />
+                Almacenamiento de Premios
+              </DialogTitle>
+              <DialogDescription>
+                Sube hasta 10 archivos (giftcards, códigos, premios) para repartir a los ganadores de tus campañas.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4 py-4">
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+                <Upload className="h-8 w-8 text-primary" />
+                <div>
+                  <p className="font-medium">10 archivos</p>
+                  <p className="text-xs text-muted-foreground">Hasta 50MB de almacenamiento total</p>
+                </div>
+              </div>
+
+              <div className="text-center space-y-3">
+                <p className="text-sm text-muted-foreground">
+                  Esta funcionalidad está disponible para los planes <span className="font-semibold text-primary">Growth</span> y <span className="font-semibold text-primary">Scale</span>.
+                </p>
+                <Button 
+                  className="w-full"
+                  onClick={() => window.location.href = "/pricing"}
+                >
+                  Hacer Upgrade
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
+    );
+  }
+
   return (
     <>
       {/* Mini preview in card */}
@@ -275,15 +293,15 @@ export const StorageManager = () => {
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2 text-sm font-medium">
             <HardDrive className="h-4 w-4 text-primary" />
-            <span>Almacenamiento</span>
+            <span>Premios de Campañas</span>
           </div>
           <span className="text-xs text-muted-foreground">
-            {files.length}/{limits?.max_files || 0} archivos
+            {files.length}/{limits?.max_files || 10} archivos
           </span>
         </div>
         <Progress value={usagePercent} className="h-2" />
         <p className="text-xs text-muted-foreground mt-1">
-          {formatBytes(totalUsed)} / {limits ? formatBytes(limits.max_storage_bytes) : "0 B"}
+          {formatBytes(totalUsed)} / {limits ? formatBytes(limits.max_storage_bytes) : "50 MB"}
         </p>
       </div>
 
@@ -293,10 +311,10 @@ export const StorageManager = () => {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <HardDrive className="h-5 w-5" />
-              Gestor de Almacenamiento
+              Premios de Campañas
             </DialogTitle>
             <DialogDescription>
-              Gestiona tus archivos. Tu plan permite hasta {limits?.max_files} archivos.
+              Sube giftcards, códigos y premios para repartir a los ganadores. Máximo 10 archivos.
             </DialogDescription>
           </DialogHeader>
 
@@ -305,7 +323,7 @@ export const StorageManager = () => {
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Espacio usado</span>
               <span className="font-medium">
-                {formatBytes(totalUsed)} / {limits ? formatBytes(limits.max_storage_bytes) : "0 B"}
+                {formatBytes(totalUsed)} / {limits ? formatBytes(limits.max_storage_bytes) : "50 MB"}
               </span>
             </div>
             <Progress value={usagePercent} className="h-3" />
@@ -321,7 +339,7 @@ export const StorageManager = () => {
           <div className="flex gap-2">
             <Button 
               className="flex-1" 
-              disabled={isUploading || (limits && files.length >= limits.max_files)}
+              disabled={isUploading || files.length >= 10}
               asChild
             >
               <label className="cursor-pointer">
@@ -330,7 +348,7 @@ export const StorageManager = () => {
                 ) : (
                   <Upload className="h-4 w-4 mr-2" />
                 )}
-                {isUploading ? "Subiendo..." : "Subir archivo"}
+                {isUploading ? "Subiendo..." : "Subir premio"}
                 <input
                   type="file"
                   className="hidden"
@@ -341,11 +359,9 @@ export const StorageManager = () => {
             </Button>
           </div>
 
-          {limits && (
-            <p className="text-xs text-muted-foreground text-center">
-              Máx. {formatBytes(limits.max_file_size_bytes)} por archivo
-            </p>
-          )}
+          <p className="text-xs text-muted-foreground text-center">
+            Máx. 5MB por archivo • Formatos: imágenes, PDF, documentos
+          </p>
 
           {/* Files list */}
           <ScrollArea className="h-[300px] border rounded-lg">
