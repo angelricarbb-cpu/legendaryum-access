@@ -195,20 +195,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return { error: null };
   };
 
-  const loginWithGoogle = async () => {
-    // Simulación de Google OAuth - crea un usuario demo
-    // En producción, descomentar el código real y configurar Google OAuth
+  const loginWithGoogle = async (): Promise<void> => {
+    // Simulación de Google OAuth - crea un usuario demo instantáneamente
     const demoEmail = `demo_${Date.now()}@legendaryum.com`;
     const demoPassword = "demo123456";
     
-    // Intentar crear usuario demo
     const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
       email: demoEmail,
       password: demoPassword,
       options: {
         emailRedirectTo: window.location.origin,
         data: { 
-          full_name: "Usuario Demo Google",
+          full_name: "Usuario Demo",
           avatar_url: "https://lh3.googleusercontent.com/a/default-user=s96-c"
         },
       },
@@ -216,26 +214,31 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     if (signUpError) {
       console.error("Error en login simulado:", signUpError);
-      return;
+      throw signUpError;
     }
 
-    // El usuario ya está autenticado tras el signup si auto-confirm está activo
+    // Actualizar perfil con datos básicos
     if (signUpData.user) {
       await supabase.from("profiles").update({
         first_name: "Usuario",
-        last_name: "Demo Google",
+        last_name: "Demo",
         avatar_url: "https://lh3.googleusercontent.com/a/default-user=s96-c",
+        terms_accepted: true,
+        terms_accepted_at: new Date().toISOString(),
+        profile_completed: true,
       }).eq("user_id", signUpData.user.id);
-    }
 
-    /* Código real para Google OAuth (descomentar cuando esté configurado):
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: window.location.origin + (returnUrl || "/"),
-      },
-    });
-    */
+      // Refrescar el perfil para tener los datos actualizados
+      const userData = await fetchProfile(signUpData.user);
+      if (userData) {
+        setUser({
+          ...userData,
+          hasAcceptedTerms: true,
+          hasCompletedProfile: true,
+        });
+        setIsLoggedIn(true);
+      }
+    }
   };
 
   const logout = async () => {
