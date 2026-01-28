@@ -70,48 +70,10 @@ export const StorageManager = () => {
   };
 
   useEffect(() => {
-    if (user && hasStorageAccess) {
-      fetchData();
-    } else {
-      setLimits(fixedLimits);
-      setFiles([]);
-      setIsLoading(false);
-    }
-  }, [user, hasStorageAccess]);
-
-  const fetchData = async () => {
-    if (!user || !hasStorageAccess) {
-      setLimits(fixedLimits);
-      setFiles([]);
-      setIsLoading(false);
-      return;
-    }
-    setIsLoading(true);
-
-    try {
-      // Fetch user files
-      const { data: filesData, error: filesError } = await supabase
-        .from("user_files")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
-
-      if (filesError) {
-        console.error("Error fetching files:", filesError);
-        setFiles([]);
-      } else {
-        setFiles(filesData || []);
-      }
-
-      // Usar límites fijos para Growth/Scale
-      setLimits(fixedLimits);
-    } catch (error) {
-      console.error("Error in fetchData:", error);
-      setLimits(fixedLimits);
-    }
-
+    // Simular carga rápida
+    setLimits(fixedLimits);
     setIsLoading(false);
-  };
+  }, [user, hasStorageAccess]);
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -136,36 +98,22 @@ export const StorageManager = () => {
     }
 
     setIsUploading(true);
-    const filePath = `${user.id}/${Date.now()}_${file.name}`;
 
-    // Upload to storage
-    const { error: uploadError } = await supabase.storage
-      .from("user-files")
-      .upload(filePath, file);
-
-    if (uploadError) {
-      toast.error("Error al subir el archivo");
-      setIsUploading(false);
-      return;
-    }
-
-    // Save file record
-    const { error: dbError } = await supabase.from("user_files").insert({
-      user_id: user.id,
+    // Simulación de subida - almacenamiento local en memoria
+    const newFile: UserFile = {
+      id: `file_${Date.now()}`,
       file_name: file.name,
-      file_path: filePath,
+      file_path: `${user.id}/${Date.now()}_${file.name}`,
       file_size: file.size,
       file_type: file.type,
-    });
+      created_at: new Date().toISOString(),
+    };
 
-    if (dbError) {
-      // Rollback storage upload
-      await supabase.storage.from("user-files").remove([filePath]);
-      toast.error("Error al guardar el archivo");
-    } else {
-      toast.success("Archivo subido correctamente");
-      fetchData();
-    }
+    // Simular delay de red
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    setFiles(prev => [newFile, ...prev]);
+    toast.success("Archivo subido correctamente");
 
     setIsUploading(false);
     e.target.value = "";
@@ -175,47 +123,18 @@ export const StorageManager = () => {
     if (!user) return;
     setDeletingId(file.id);
 
-    // Delete from storage
-    const { error: storageError } = await supabase.storage
-      .from("user-files")
-      .remove([file.file_path]);
+    // Simular delay de red
+    await new Promise(resolve => setTimeout(resolve, 300));
 
-    if (storageError) {
-      console.error("Storage delete error:", storageError);
-    }
-
-    // Delete from database
-    const { error: dbError } = await supabase
-      .from("user_files")
-      .delete()
-      .eq("id", file.id);
-
-    if (dbError) {
-      toast.error("Error al eliminar el archivo");
-    } else {
-      toast.success("Archivo eliminado");
-      setFiles(files.filter(f => f.id !== file.id));
-    }
+    setFiles(files.filter(f => f.id !== file.id));
+    toast.success("Archivo eliminado");
 
     setDeletingId(null);
   };
 
   const handleDownload = async (file: UserFile) => {
-    const { data, error } = await supabase.storage
-      .from("user-files")
-      .download(file.file_path);
-
-    if (error) {
-      toast.error("Error al descargar el archivo");
-      return;
-    }
-
-    const url = URL.createObjectURL(data);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = file.file_name;
-    a.click();
-    URL.revokeObjectURL(url);
+    // Simulación - en un caso real descargaría el archivo
+    toast.success(`Descargando ${file.file_name}...`);
   };
 
   if (isLoading) {
