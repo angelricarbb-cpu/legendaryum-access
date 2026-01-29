@@ -17,8 +17,7 @@ import { CampaignEditModal } from "@/components/campaigns/CampaignEditModal";
 import { AccessPassModal } from "@/components/dashboard/AccessPassModal";
 import { AchievementsModal } from "@/components/dashboard/AchievementsModal";
 import { StorageManager } from "@/components/dashboard/StorageManager";
-import { useAuth } from "@/contexts/AuthContext";
-
+import { useAuth, SubscriptionPlan } from "@/contexts/AuthContext";
 // Exclude ENTERPRISE from upgrade/downgrade plans
 const allPlans = [
   { name: "FREE", price: "Gratis", priceValue: 0 },
@@ -29,11 +28,13 @@ const allPlans = [
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const { user: authUser, upgradePlan } = useAuth();
   
-  const [user, setUser] = useState({
-    name: "Usuario Demo",
-    email: "demo@legendaryum.com",
-    currentPlan: "PREMIUM" as "FREE" | "PREMIUM" | "GROWTH" | "SCALE",
+  // Sync local state with global auth state
+  const [localUser, setLocalUser] = useState({
+    name: authUser?.name || "Usuario Demo",
+    email: authUser?.email || "demo@legendaryum.com",
+    currentPlan: (authUser?.subscription?.plan?.toUpperCase() || "FREE") as "FREE" | "PREMIUM" | "GROWTH" | "SCALE",
     subscriptionStartDate: new Date("2024-01-15"),
     subscriptionEndDate: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000), // 20 days from now
     scheduledPlan: null as string | null,
@@ -41,6 +42,18 @@ const Dashboard = () => {
     // Track if user previously had GROWTH/SCALE - allows seeing finished campaigns after downgrade
     hadCampaignPlan: false,
   });
+
+  // Keep local state in sync with auth context
+  useEffect(() => {
+    if (authUser?.subscription?.plan) {
+      setLocalUser(prev => ({
+        ...prev,
+        currentPlan: authUser.subscription!.plan.toUpperCase() as "FREE" | "PREMIUM" | "GROWTH" | "SCALE",
+        name: authUser.name || prev.name,
+        email: authUser.email || prev.email,
+      }));
+    }
+  }, [authUser?.subscription?.plan, authUser?.name, authUser?.email]);
 
   const [profileData, setProfileData] = useState({
     firstName: "Usuario",
@@ -80,12 +93,12 @@ const Dashboard = () => {
   const [showAccessPass, setShowAccessPass] = useState(false);
   const [showAchievements, setShowAchievements] = useState(false);
 
-  const canCreateCampaigns = user.currentPlan === "GROWTH" || user.currentPlan === "SCALE";
+  const canCreateCampaigns = localUser.currentPlan === "GROWTH" || localUser.currentPlan === "SCALE";
   
   // Campaign limits by plan
   const getCampaignLimit = () => {
-    if (user.currentPlan === "GROWTH") return 1;
-    if (user.currentPlan === "SCALE") return 3;
+    if (localUser.currentPlan === "GROWTH") return 1;
+    if (localUser.currentPlan === "SCALE") return 3;
     return 0;
   };
   
@@ -113,17 +126,17 @@ const Dashboard = () => {
   };
 
   const getPlanIndex = (planName: string) => allPlans.findIndex(p => p.name === planName);
-  const isUpgrade = (targetPlan: string) => getPlanIndex(targetPlan) > getPlanIndex(user.currentPlan);
-  const isDowngrade = (targetPlan: string) => getPlanIndex(targetPlan) < getPlanIndex(user.currentPlan);
-  const isCancellation = (targetPlan: string) => targetPlan === "FREE" && user.currentPlan !== "FREE";
+  const isUpgrade = (targetPlan: string) => getPlanIndex(targetPlan) > getPlanIndex(localUser.currentPlan);
+  const isDowngrade = (targetPlan: string) => getPlanIndex(targetPlan) < getPlanIndex(localUser.currentPlan);
+  const isCancellation = (targetPlan: string) => targetPlan === "FREE" && localUser.currentPlan !== "FREE";
 
   const getDaysRemaining = () => {
-    const diffTime = user.subscriptionEndDate.getTime() - new Date().getTime();
+    const diffTime = localUser.subscriptionEndDate.getTime() - new Date().getTime();
     return Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
   };
 
   const calculateProration = (newPlanPrice: number) => {
-    const currentPlanData = allPlans.find(p => p.name === user.currentPlan);
+    const currentPlanData = allPlans.find(p => p.name === localUser.currentPlan);
     if (!currentPlanData) return newPlanPrice;
     const credit = (currentPlanData.priceValue / 30) * getDaysRemaining();
     return Math.max(0, newPlanPrice - credit);
@@ -133,9 +146,13 @@ const Dashboard = () => {
 
   const handleChangePlan = (planName: string) => setSelectedNewPlan(planName);
 
-  const confirmPlanChange = () => {
+  const confirmPlanChange = async () => {
     if (!selectedNewPlan) return;
     setIsProcessing(true);
+    
+    // Update global auth context first
+    const planLower = selectedNewPlan.toLowerCase() as SubscriptionPlan;
+    await upgradePlan(planLower);
     
     setTimeout(() => {
       setIsProcessing(false);
@@ -143,7 +160,7 @@ const Dashboard = () => {
       if (isUpgrade(selectedNewPlan)) {
         setSuccessMessage("¡Tu nuevo plan se ha activado! Tu período de 30 días comienza ahora.");
         const isUpgradingToCampaignPlan = selectedNewPlan === "GROWTH" || selectedNewPlan === "SCALE";
-        setUser(prev => ({ 
+        setLocalUser(prev => ({ 
           ...prev, 
           currentPlan: selectedNewPlan as any, 
           subscriptionStartDate: new Date(), 
@@ -153,11 +170,11 @@ const Dashboard = () => {
           hadCampaignPlan: isUpgradingToCampaignPlan ? true : prev.hadCampaignPlan
         }));
       } else if (isCancellation(selectedNewPlan)) {
-        setSuccessMessage(`Tu suscripción ha sido cancelada. Mantendrás los beneficios hasta el ${formatDate(user.subscriptionEndDate)}.`);
-        setUser(prev => ({ ...prev, scheduledPlan: "FREE", subscriptionStatus: "canceled" }));
+        setSuccessMessage(`Tu suscripción ha sido cancelada. Mantendrás los beneficios hasta el ${formatDate(localUser.subscriptionEndDate)}.`);
+        setLocalUser(prev => ({ ...prev, scheduledPlan: "FREE", subscriptionStatus: "canceled" }));
       } else {
-        setSuccessMessage(`El cambio a ${selectedNewPlan} se aplicará el ${formatDate(user.subscriptionEndDate)}. Hasta entonces mantienes tu plan actual.`);
-        setUser(prev => ({ ...prev, scheduledPlan: selectedNewPlan, subscriptionStatus: "scheduled_downgrade" }));
+        setSuccessMessage(`El cambio a ${selectedNewPlan} se aplicará el ${formatDate(localUser.subscriptionEndDate)}. Hasta entonces mantienes tu plan actual.`);
+        setLocalUser(prev => ({ ...prev, scheduledPlan: selectedNewPlan, subscriptionStatus: "scheduled_downgrade" }));
       }
       
       setShowSuccess(true);
@@ -166,7 +183,7 @@ const Dashboard = () => {
         setSelectedNewPlan(null);
         setShowManageModal(false);
       }, 3000);
-    }, 2000);
+    }, 1500);
   };
 
   const handleCreateCampaign = () => {
@@ -204,7 +221,7 @@ const Dashboard = () => {
   };
 
   // For FREE/PREMIUM users, only show finished campaigns if they previously had GROWTH/SCALE
-  const canViewFinishedCampaigns = user.currentPlan === "GROWTH" || user.currentPlan === "SCALE" || user.hadCampaignPlan;
+  const canViewFinishedCampaigns = localUser.currentPlan === "GROWTH" || localUser.currentPlan === "SCALE" || localUser.hadCampaignPlan;
   
   const finishedCampaigns = canViewFinishedCampaigns 
     ? campaigns
@@ -226,7 +243,7 @@ const Dashboard = () => {
 
   const campaignToEdit = campaigns.find(c => c.id === showEditCampaign);
 
-  const currentPlanData = allPlans.find(p => p.name === user.currentPlan);
+  const currentPlanData = allPlans.find(p => p.name === localUser.currentPlan);
   const selectedPlanData = allPlans.find(p => p.name === selectedNewPlan);
   const selectedCampaign = campaigns.find(c => c.id === selectedCampaignForMetrics);
 
@@ -237,9 +254,9 @@ const Dashboard = () => {
       return `Tu nuevo plan se activará de inmediato. Se descontará el tiempo no utilizado de tu plan actual ($${((currentPlanData?.priceValue || 0) / 30 * getDaysRemaining()).toFixed(2)} de crédito) y comenzará un nuevo período de 30 días. Pagarás $${prorated.toFixed(2)} ahora.`;
     }
     if (isCancellation(selectedNewPlan)) {
-      return `Tu plan permanecerá activo hasta el ${formatDate(user.subscriptionEndDate)} (${getDaysRemaining()} días restantes). Luego pasarás al plan FREE automáticamente. No se generan reembolsos.`;
+      return `Tu plan permanecerá activo hasta el ${formatDate(localUser.subscriptionEndDate)} (${getDaysRemaining()} días restantes). Luego pasarás al plan FREE automáticamente. No se generan reembolsos.`;
     }
-    return `El cambio de plan se aplicará al finalizar tu período actual el ${formatDate(user.subscriptionEndDate)} (${getDaysRemaining()} días restantes). Hasta entonces, mantendrás todos los beneficios de tu plan vigente. No se generan reembolsos parciales.`;
+    return `El cambio de plan se aplicará al finalizar tu período actual el ${formatDate(localUser.subscriptionEndDate)} (${getDaysRemaining()} días restantes). Hasta entonces, mantendrás todos los beneficios de tu plan vigente. No se generan reembolsos parciales.`;
   };
 
   return (
@@ -253,7 +270,7 @@ const Dashboard = () => {
             <span className="text-xl font-semibold">Legendaryum</span>
           </Link>
           <div className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground hidden sm:block">{user.email}</span>
+            <span className="text-sm text-muted-foreground hidden sm:block">{localUser.email}</span>
             <Button variant="ghost" size="icon" asChild><Link to="/"><LogOut className="h-4 w-4" /></Link></Button>
           </div>
         </div>
@@ -261,32 +278,32 @@ const Dashboard = () => {
 
       <main className="container py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold">Hola, {user.name.split(" ")[0]} 👋</h1>
+          <h1 className="text-3xl font-bold">Hola, {localUser.name.split(" ")[0]} 👋</h1>
           <p className="text-muted-foreground">Gestiona tu suscripción, perfil y campañas desde aquí.</p>
         </div>
 
         {/* Status alerts */}
-        {user.subscriptionStatus === "canceled" && (
-          <div className="mb-6 p-4 rounded-lg bg-red-500/10 border border-red-500/30 flex items-center gap-3">
-            <XCircle className="h-5 w-5 text-red-500" />
+        {localUser.subscriptionStatus === "canceled" && (
+          <div className="mb-6 p-4 rounded-lg bg-destructive/10 border border-destructive/30 flex items-center gap-3">
+            <XCircle className="h-5 w-5 text-destructive" />
             <div>
-              <p className="font-medium text-red-500">Suscripción cancelada</p>
+              <p className="font-medium text-destructive">Suscripción cancelada</p>
               <p className="text-sm text-muted-foreground">
-                Tu plan actual permanecerá activo hasta el {formatDate(user.subscriptionEndDate)}. 
+                Tu plan actual permanecerá activo hasta el {formatDate(localUser.subscriptionEndDate)}. 
                 Después pasarás automáticamente al plan FREE.
               </p>
             </div>
           </div>
         )}
         
-        {user.subscriptionStatus === "scheduled_downgrade" && user.scheduledPlan && (
-          <div className="mb-6 p-4 rounded-lg bg-yellow-500/10 border border-yellow-500/30 flex items-center gap-3">
-            <AlertTriangle className="h-5 w-5 text-yellow-500" />
+        {localUser.subscriptionStatus === "scheduled_downgrade" && localUser.scheduledPlan && (
+          <div className="mb-6 p-4 rounded-lg bg-warning/10 border border-warning/30 flex items-center gap-3">
+            <AlertTriangle className="h-5 w-5 text-warning" />
             <div>
-              <p className="font-medium text-yellow-500">Cambio de plan programado</p>
+              <p className="font-medium text-warning">Cambio de plan programado</p>
               <p className="text-sm text-muted-foreground">
-                Tu plan cambiará a {user.scheduledPlan} el {formatDate(user.subscriptionEndDate)}. 
-                Hasta entonces mantienes todos los beneficios de {user.currentPlan}.
+                Tu plan cambiará a {localUser.scheduledPlan} el {formatDate(localUser.subscriptionEndDate)}. 
+                Hasta entonces mantienes todos los beneficios de {localUser.currentPlan}.
               </p>
             </div>
           </div>
@@ -297,22 +314,22 @@ const Dashboard = () => {
           <Card className="md:col-span-2 lg:col-span-1">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">Tu Plan</CardTitle>
-              <Badge className={getPlanColor(user.currentPlan)}>{user.currentPlan}</Badge>
+              <Badge className={getPlanColor(localUser.currentPlan)}>{localUser.currentPlan}</Badge>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold mb-1">{currentPlanData?.price}</div>
-              {user.currentPlan !== "FREE" && (
+              {localUser.currentPlan !== "FREE" && (
                 <div className="space-y-1 mb-3">
                   <p className="text-xs text-muted-foreground flex items-center gap-1">
                     <Calendar className="h-3 w-3" />
-                    Renovación: {formatDate(user.subscriptionEndDate)}
+                    Renovación: {formatDate(localUser.subscriptionEndDate)}
                   </p>
                   <p className="text-xs text-muted-foreground">
                     {getDaysRemaining()} días restantes del período actual
                   </p>
                 </div>
               )}
-              {user.currentPlan === "FREE" && (
+              {localUser.currentPlan === "FREE" && (
                 <p className="text-xs text-muted-foreground mb-3">Plan gratuito - sin cargos</p>
               )}
               <Button variant="outline" className="w-full" onClick={() => setShowManageModal(true)}>
@@ -330,7 +347,7 @@ const Dashboard = () => {
             </CardHeader>
             <CardContent>
               <ul className="space-y-2">
-                {getPlanFeatures(user.currentPlan).map((feature, index) => (
+                {getPlanFeatures(localUser.currentPlan).map((feature, index) => (
                   <li key={index} className="flex items-center gap-2 text-sm">
                     <Check className="h-4 w-4 text-primary" /><span className="text-muted-foreground">{feature}</span>
                   </li>
@@ -465,7 +482,7 @@ const Dashboard = () => {
         <CampaignWizard 
           open={showCampaignWizard} 
           onOpenChange={setShowCampaignWizard} 
-          userPlan={user.currentPlan as "GROWTH" | "SCALE"} 
+          userPlan={localUser.currentPlan as "GROWTH" | "SCALE"} 
           onComplete={handleCampaignComplete} 
         />
       )}
@@ -475,7 +492,7 @@ const Dashboard = () => {
         <CampaignMetricsDashboard
           open={showMetrics}
           onOpenChange={setShowMetrics}
-          userPlan={user.currentPlan as "GROWTH" | "SCALE"}
+          userPlan={localUser.currentPlan as "GROWTH" | "SCALE"}
           onUpgrade={() => {
             setShowMetrics(false);
             handleChangePlan("SCALE");
@@ -502,7 +519,7 @@ const Dashboard = () => {
           setSelectedCampaignForMetrics(campaignId);
           setShowMetrics(true);
         }}
-        userPlan={user.currentPlan}
+        userPlan={localUser.currentPlan}
         onUpgrade={() => {
           setShowFinishedCampaigns(false);
           setShowManageModal(true);
@@ -588,16 +605,16 @@ const Dashboard = () => {
           </DialogHeader>
           <div className="space-y-3 py-4">
             {allPlans.map((plan) => {
-              const isCurrent = plan.name === user.currentPlan;
+              const isCurrent = plan.name === localUser.currentPlan;
               const isUpgradeOption = isUpgrade(plan.name);
-              const isScheduled = user.scheduledPlan === plan.name;
+              const isScheduled = localUser.scheduledPlan === plan.name;
               
               return (
                 <div 
                   key={plan.name} 
                   className={`flex items-center justify-between p-4 rounded-lg border transition-colors ${
                     isCurrent ? "border-primary bg-primary/5" : 
-                    isScheduled ? "border-yellow-500 bg-yellow-500/5" :
+                    isScheduled ? "border-warning bg-warning/5" :
                     "border-border hover:border-primary/50 cursor-pointer"
                   }`} 
                   onClick={() => !isCurrent && !isScheduled && handleChangePlan(plan.name)}
@@ -610,7 +627,7 @@ const Dashboard = () => {
                       <div className="font-medium flex items-center gap-2">
                         {plan.name}
                         {isCurrent && <Badge variant="outline" className="text-xs">Actual</Badge>}
-                        {isScheduled && <Badge variant="outline" className="text-xs text-yellow-500 border-yellow-500">Programado</Badge>}
+                        {isScheduled && <Badge variant="outline" className="text-xs text-warning border-warning">Programado</Badge>}
                       </div>
                       <div className="text-sm text-muted-foreground">{plan.price}</div>
                     </div>
@@ -644,7 +661,7 @@ const Dashboard = () => {
             </div>
           </div>
           
-          {user.currentPlan !== "FREE" && user.subscriptionStatus === "active" && (
+          {localUser.currentPlan !== "FREE" && localUser.subscriptionStatus === "active" && (
             <div className="border-t border-border pt-4">
               <Button 
                 variant="ghost" 
