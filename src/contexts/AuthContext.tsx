@@ -298,6 +298,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
     
+    // For demo users (simulated login), just update local state
+    if (user.id.startsWith("demo_")) {
+      setUser({
+        ...user,
+        subscription: { plan, expiresAt },
+      });
+      return;
+    }
+    
+    // For real users, update in database
     await supabase.from("profiles").update({
       subscription_plan: plan,
       subscription_expires_at: expiresAt.toISOString(),
