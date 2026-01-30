@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { 
   CreditCard, User, LogOut, Settings, BarChart3, Sparkles, ArrowUp, ArrowDown, 
-  Check, Loader2, Plus, Rocket, Calendar, XCircle, AlertTriangle, Trophy
+  Check, Loader2, Plus, Rocket, Calendar, XCircle, AlertTriangle, Trophy, HardDrive
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,7 +16,7 @@ import { FinishedCampaignsModal } from "@/components/campaigns/FinishedCampaigns
 import { CampaignEditModal } from "@/components/campaigns/CampaignEditModal";
 import { AccessPassModal } from "@/components/dashboard/AccessPassModal";
 import { AchievementsModal } from "@/components/dashboard/AchievementsModal";
-import { StorageManager } from "@/components/dashboard/StorageManager";
+import { StorageManagerModal } from "@/components/dashboard/StorageManagerModal";
 import { useAuth, SubscriptionPlan } from "@/contexts/AuthContext";
 // Exclude ENTERPRISE from upgrade/downgrade plans
 const allPlans = [
@@ -92,6 +92,7 @@ const Dashboard = () => {
   const [showEditCampaign, setShowEditCampaign] = useState<string | null>(null);
   const [showAccessPass, setShowAccessPass] = useState(false);
   const [showAchievements, setShowAchievements] = useState(false);
+  const [showStorageManager, setShowStorageManager] = useState(false);
 
   const canCreateCampaigns = localUser.currentPlan === "GROWTH" || localUser.currentPlan === "SCALE";
   
@@ -339,7 +340,7 @@ const Dashboard = () => {
             </CardContent>
           </Card>
 
-          {/* Features with Storage */}
+          {/* Features (without Storage) */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">Beneficios Activos</CardTitle>
@@ -353,8 +354,6 @@ const Dashboard = () => {
                   </li>
                 ))}
               </ul>
-              {/* Storage Manager */}
-              <StorageManager />
             </CardContent>
           </Card>
 
@@ -395,11 +394,11 @@ const Dashboard = () => {
             </CardContent>
           </Card>
 
-          {/* Quick Actions */}
+          {/* Quick Actions - 5 buttons */}
           <Card className="md:col-span-2 lg:col-span-3">
             <CardHeader><CardTitle>Acciones Rápidas</CardTitle></CardHeader>
             <CardContent>
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
                 <Button variant="outline" className="h-auto py-4 flex-col gap-2" onClick={() => setShowProfileModal(true)}>
                   <User className="h-5 w-5" /><span>Editar Perfil</span>
                 </Button>
@@ -411,6 +410,9 @@ const Dashboard = () => {
                 </Button>
                 <Button variant="outline" className="h-auto py-4 flex-col gap-2" onClick={() => setShowAchievements(true)}>
                   <Trophy className="h-5 w-5" /><span>Logros</span>
+                </Button>
+                <Button variant="outline" className="h-auto py-4 flex-col gap-2" onClick={() => setShowStorageManager(true)}>
+                  <HardDrive className="h-5 w-5" /><span>Premios de Campañas</span>
                 </Button>
               </div>
             </CardContent>
@@ -477,6 +479,7 @@ const Dashboard = () => {
       
       <AccessPassModal open={showAccessPass} onOpenChange={setShowAccessPass} />
       <AchievementsModal open={showAchievements} onOpenChange={setShowAchievements} />
+      <StorageManagerModal open={showStorageManager} onOpenChange={setShowStorageManager} />
       
       {canCreateCampaigns && (
         <CampaignWizard 
