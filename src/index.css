@@ -111,3 +111,40 @@
     @apply bg-background text-foreground antialiased;
   }
 }
+
+/* Story ring animated gradient */
+@property --angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes story-ring-rotate {
+  from {
+    --angle: 0deg;
+  }
+  to {
+    --angle: 360deg;
+  }
+}
+
+.story-ring-unseen {
+  background: conic-gradient(
+    from var(--angle),
+    hsl(var(--primary)),
+    hsl(var(--accent)),
+    hsl(var(--ranking-gold)),
+    hsl(var(--primary))
+  );
+  animation: story-ring-rotate 3s linear infinite;
+}
+
+/* Hide scrollbar for stories */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
