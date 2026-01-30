@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Users, Plus, ChevronRight } from "lucide-react";
 import StoryAvatar, { StoryUser } from "./community/StoryAvatar";
 import ActivityFeedItem, { ActivityItem } from "./community/ActivityFeedItem";
+import StoryAchievementsModal from "./community/StoryAchievementsModal";
 
 // Mock data for stories
 const mockStoryUsers: StoryUser[] = [
@@ -27,7 +28,7 @@ const mockActivities: ActivityItem[] = [
     description: "ganó",
     target: "Campaña Navidad",
     points: 500,
-    timestamp: new Date(Date.now() - 2 * 60 * 1000), // 2 min ago
+    timestamp: new Date(Date.now() - 2 * 60 * 1000),
   },
   {
     id: "a2",
@@ -37,7 +38,7 @@ const mockActivities: ActivityItem[] = [
     type: "ranking",
     description: "alcanzó el Top 10 en",
     target: "Rankings Globales",
-    timestamp: new Date(Date.now() - 5 * 60 * 1000), // 5 min ago
+    timestamp: new Date(Date.now() - 5 * 60 * 1000),
   },
   {
     id: "a3",
@@ -47,7 +48,7 @@ const mockActivities: ActivityItem[] = [
     type: "mission",
     description: "completó la misión",
     target: "Dragon Slayer",
-    timestamp: new Date(Date.now() - 10 * 60 * 1000), // 10 min ago
+    timestamp: new Date(Date.now() - 10 * 60 * 1000),
   },
   {
     id: "a4",
@@ -57,7 +58,7 @@ const mockActivities: ActivityItem[] = [
     type: "achievement",
     description: "desbloqueó el logro",
     target: "Primer Millón",
-    timestamp: new Date(Date.now() - 18 * 60 * 1000), // 18 min ago
+    timestamp: new Date(Date.now() - 18 * 60 * 1000),
   },
   {
     id: "a5",
@@ -67,20 +68,27 @@ const mockActivities: ActivityItem[] = [
     type: "game",
     description: "jugó 10 partidas en",
     target: "Trivia Champions",
-    timestamp: new Date(Date.now() - 32 * 60 * 1000), // 32 min ago
+    timestamp: new Date(Date.now() - 32 * 60 * 1000),
   },
 ];
 
 const CommunitySection = () => {
   const [storyUsers, setStoryUsers] = useState<StoryUser[]>(mockStoryUsers);
+  const [selectedUser, setSelectedUser] = useState<StoryUser | null>(null);
+  const [showAchievements, setShowAchievements] = useState(false);
 
   const handleStoryView = (userId: string) => {
-    setStoryUsers((prev) =>
-      prev.map((user) =>
-        user.id === userId ? { ...user, hasUnseenStory: false } : user
-      )
-    );
-    // In a real app, this would open a story modal/viewer
+    const user = storyUsers.find((u) => u.id === userId);
+    if (user) {
+      setSelectedUser(user);
+      setShowAchievements(true);
+      // Mark as seen
+      setStoryUsers((prev) =>
+        prev.map((u) =>
+          u.id === userId ? { ...u, hasUnseenStory: false } : u
+        )
+      );
+    }
   };
 
   return (
@@ -153,6 +161,13 @@ const CommunitySection = () => {
           </div>
         </div>
       </div>
+
+      {/* Achievements Modal */}
+      <StoryAchievementsModal
+        open={showAchievements}
+        onOpenChange={setShowAchievements}
+        user={selectedUser}
+      />
     </section>
   );
 };
