@@ -203,17 +203,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       username: "usuario_demo",
       email: "demo@legendaryum.com",
       avatar: "https://lh3.googleusercontent.com/a/default-user=s96-c",
-      hasAcceptedTerms: true,
-      hasCompletedProfile: true,
-      profile: {
-        firstName: "Usuario",
-        lastName: "Demo",
-        gender: "other",
-        birthDate: "1990-01-01",
-        phone: "+34600000000",
-        country: "España",
-        city: "Madrid",
-      },
+      hasAcceptedTerms: false,
+      hasCompletedProfile: false,
       subscription: { plan: "free" },
     };
 
