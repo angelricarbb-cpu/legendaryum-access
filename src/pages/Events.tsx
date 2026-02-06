@@ -421,6 +421,20 @@ const Events = () => {
   };
 
   const handleContinue = (campaignId: string) => {
+    // Check if user has accepted terms
+    if (!user?.hasAcceptedTerms) {
+      setPendingCampaignId(campaignId);
+      setTermsModalOpen(true);
+      return;
+    }
+
+    // Check if user has completed profile
+    if (!user?.hasCompletedProfile) {
+      setPendingCampaignId(campaignId);
+      setProfileModalOpen(true);
+      return;
+    }
+
     navigate(`/game/${campaignId}`);
   };
 
