@@ -7,7 +7,6 @@ export interface UserProfile {
   lastName: string;
   gender: string;
   birthDate: string;
-  phone: string;
   country: string;
   city: string;
   username?: string;
@@ -110,7 +109,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         lastName: profile.last_name || "",
         gender: profile.gender || "",
         birthDate: profile.birth_date || "",
-        phone: profile.phone || "",
+        
         country: profile.country || "",
         city: profile.city || "",
         username: profile.username || "",
@@ -238,7 +237,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       username: profile.username,
       gender: profile.gender,
       birth_date: profile.birthDate || null,
-      phone: profile.phone,
+      
       country: profile.country,
       city: profile.city,
       description: profile.description,
@@ -265,7 +264,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (profile.username !== undefined) updates.username = profile.username;
     if (profile.gender !== undefined) updates.gender = profile.gender;
     if (profile.birthDate !== undefined) updates.birth_date = profile.birthDate || null;
-    if (profile.phone !== undefined) updates.phone = profile.phone;
+    
     if (profile.country !== undefined) updates.country = profile.country;
     if (profile.city !== undefined) updates.city = profile.city;
     if (profile.description !== undefined) updates.description = profile.description;

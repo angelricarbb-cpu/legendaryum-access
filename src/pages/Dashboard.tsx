@@ -480,9 +480,10 @@ const Dashboard = () => {
         profileData={profileData} 
         onSave={setProfileData}
         onboardingData={{
+          firstName: authUser?.profile?.firstName || "",
+          lastName: authUser?.profile?.lastName || "",
           gender: authUser?.profile?.gender || "",
           birthDate: authUser?.profile?.birthDate || "",
-          phone: authUser?.profile?.phone || "",
           country: authUser?.profile?.country || "",
           city: authUser?.profile?.city || "",
         }}

@@ -34,9 +34,10 @@ interface ProfileData {
 }
 
 interface OnboardingData {
+  firstName: string;
+  lastName: string;
   gender: string;
   birthDate: string;
-  phone: string;
   country: string;
   city: string;
 }
@@ -213,13 +214,24 @@ export const ProfileEditModal = ({ open, onOpenChange, profileData, onSave, onbo
             {onboardingData && (
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
-                  <Lock className="h-4 w-4 text-muted-foreground" />
-                  <Label className="text-muted-foreground">Datos de registro (no editables)</Label>
+                  <Lock className="h-4 w-4 text-primary" />
+                  <Label className="text-sm font-semibold">Datos personales</Label>
                 </div>
-                <div className="space-y-2 rounded-lg border border-border bg-muted/30 p-4">
+                <div className="rounded-xl border border-primary/20 bg-gradient-to-br from-primary/5 to-accent/5 p-4 space-y-3">
                   <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <p className="text-xs text-muted-foreground">Género</p>
+                    <div className="space-y-1">
+                      <p className="text-[11px] uppercase tracking-wider text-muted-foreground">Nombre</p>
+                      <p className="text-sm font-medium">{onboardingData.firstName || "—"}</p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-[11px] uppercase tracking-wider text-muted-foreground">Apellidos</p>
+                      <p className="text-sm font-medium">{onboardingData.lastName || "—"}</p>
+                    </div>
+                  </div>
+                  <div className="h-px bg-border/50" />
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <p className="text-[11px] uppercase tracking-wider text-muted-foreground">Género</p>
                       <p className="text-sm font-medium">
                         {onboardingData.gender === "male" ? "Masculino" : 
                          onboardingData.gender === "female" ? "Femenino" : 
@@ -228,25 +240,25 @@ export const ProfileEditModal = ({ open, onOpenChange, profileData, onSave, onbo
                          onboardingData.gender || "—"}
                       </p>
                     </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground">Fecha de nacimiento</p>
+                    <div className="space-y-1">
+                      <p className="text-[11px] uppercase tracking-wider text-muted-foreground">Fecha de nacimiento</p>
                       <p className="text-sm font-medium">{onboardingData.birthDate || "—"}</p>
                     </div>
                   </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground">Teléfono</p>
-                    <p className="text-sm font-medium">{onboardingData.phone || "—"}</p>
-                  </div>
+                  <div className="h-px bg-border/50" />
                   <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <p className="text-xs text-muted-foreground">País</p>
+                    <div className="space-y-1">
+                      <p className="text-[11px] uppercase tracking-wider text-muted-foreground">País</p>
                       <p className="text-sm font-medium">{onboardingData.country || "—"}</p>
                     </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground">Ciudad</p>
+                    <div className="space-y-1">
+                      <p className="text-[11px] uppercase tracking-wider text-muted-foreground">Ciudad</p>
                       <p className="text-sm font-medium">{onboardingData.city || "—"}</p>
                     </div>
                   </div>
+                  <p className="text-[10px] text-muted-foreground/60 flex items-center gap-1 pt-1">
+                    <Lock className="h-3 w-3" /> Estos datos se establecieron durante el registro
+                  </p>
                 </div>
               </div>
             )}
