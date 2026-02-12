@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Camera, Facebook, Linkedin, Instagram, Globe } from "lucide-react";
+import { Camera, Facebook, Linkedin, Instagram, Globe, Lock } from "lucide-react";
 
 const TOPICS = [
   "Juegos", "Deportes", "Moda", "Cine", "Fotografía", 
@@ -33,14 +33,23 @@ interface ProfileData {
   };
 }
 
+interface OnboardingData {
+  gender: string;
+  birthDate: string;
+  phone: string;
+  country: string;
+  city: string;
+}
+
 interface ProfileEditModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   profileData: ProfileData;
   onSave: (data: ProfileData) => void;
+  onboardingData?: OnboardingData;
 }
 
-export const ProfileEditModal = ({ open, onOpenChange, profileData, onSave }: ProfileEditModalProps) => {
+export const ProfileEditModal = ({ open, onOpenChange, profileData, onSave, onboardingData }: ProfileEditModalProps) => {
   const [formData, setFormData] = useState<ProfileData>(profileData);
 
   const handleTopicToggle = (topic: string) => {
@@ -198,8 +207,52 @@ export const ProfileEditModal = ({ open, onOpenChange, profileData, onSave }: Pr
             </div>
           </div>
 
-          {/* Right Column - Social Media */}
-          <div className="space-y-4">
+          {/* Right Column - Social Media + Onboarding Data */}
+          <div className="space-y-6">
+            {/* Read-only onboarding data */}
+            {onboardingData && (
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <Lock className="h-4 w-4 text-muted-foreground" />
+                  <Label className="text-muted-foreground">Datos de registro (no editables)</Label>
+                </div>
+                <div className="space-y-2 rounded-lg border border-border bg-muted/30 p-4">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <p className="text-xs text-muted-foreground">Género</p>
+                      <p className="text-sm font-medium">
+                        {onboardingData.gender === "male" ? "Masculino" : 
+                         onboardingData.gender === "female" ? "Femenino" : 
+                         onboardingData.gender === "non-binary" ? "No binario" : 
+                         onboardingData.gender === "prefer-not-say" ? "Prefiero no decirlo" : 
+                         onboardingData.gender || "—"}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Fecha de nacimiento</p>
+                      <p className="text-sm font-medium">{onboardingData.birthDate || "—"}</p>
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Teléfono</p>
+                    <p className="text-sm font-medium">{onboardingData.phone || "—"}</p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <p className="text-xs text-muted-foreground">País</p>
+                      <p className="text-sm font-medium">{onboardingData.country || "—"}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Ciudad</p>
+                      <p className="text-sm font-medium">{onboardingData.city || "—"}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Social Media */}
+            <div className="space-y-4">
             <Label>Social media</Label>
             
             <div className="space-y-3">
@@ -266,6 +319,7 @@ export const ProfileEditModal = ({ open, onOpenChange, profileData, onSave }: Pr
                   className="bg-background/50"
                 />
               </div>
+            </div>
             </div>
           </div>
         </div>
