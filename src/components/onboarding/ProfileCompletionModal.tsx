@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
-import { User, Calendar, MapPin, Phone } from "lucide-react";
+import { User, Calendar, MapPin } from "lucide-react";
 import { UserProfile } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
@@ -20,7 +20,6 @@ const ProfileCompletionModal = ({ isOpen, onClose, onComplete }: ProfileCompleti
     lastName: "",
     gender: "",
     birthDate: "",
-    phone: "",
     country: "",
     city: "",
   });
@@ -59,11 +58,7 @@ const ProfileCompletionModal = ({ isOpen, onClose, onComplete }: ProfileCompleti
       }
     }
 
-    if (!formData.phone.trim()) {
-      newErrors.phone = "El teléfono es obligatorio";
-    } else if (!/^[+]?[\d\s-]{9,20}$/.test(formData.phone)) {
-      newErrors.phone = "Formato de teléfono inválido";
-    }
+
 
     if (!formData.country.trim()) {
       newErrors.country = "El país es obligatorio";
@@ -187,25 +182,7 @@ const ProfileCompletionModal = ({ isOpen, onClose, onComplete }: ProfileCompleti
             )}
           </div>
 
-          {/* Phone */}
-          <div className="space-y-2">
-            <Label htmlFor="phone" className="flex items-center gap-2">
-              <Phone className="h-4 w-4 text-muted-foreground" />
-              Teléfono <span className="text-destructive">*</span>
-            </Label>
-            <Input
-              id="phone"
-              type="tel"
-              placeholder="+34 612 345 678"
-              value={formData.phone}
-              onChange={(e) => handleChange("phone", e.target.value)}
-              className={errors.phone ? "border-destructive" : ""}
-              maxLength={20}
-            />
-            {errors.phone && (
-              <p className="text-xs text-destructive">{errors.phone}</p>
-            )}
-          </div>
+
 
           {/* Location Fields */}
           <div className="grid grid-cols-2 gap-4">
