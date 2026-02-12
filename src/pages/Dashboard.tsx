@@ -474,7 +474,19 @@ const Dashboard = () => {
       </main>
 
       {/* Modals */}
-      <ProfileEditModal open={showProfileModal} onOpenChange={setShowProfileModal} profileData={profileData} onSave={setProfileData} />
+      <ProfileEditModal 
+        open={showProfileModal} 
+        onOpenChange={setShowProfileModal} 
+        profileData={profileData} 
+        onSave={setProfileData}
+        onboardingData={{
+          gender: authUser?.profile?.gender || "",
+          birthDate: authUser?.profile?.birthDate || "",
+          phone: authUser?.profile?.phone || "",
+          country: authUser?.profile?.country || "",
+          city: authUser?.profile?.city || "",
+        }}
+      />
       
       <AccessPassModal open={showAccessPass} onOpenChange={setShowAccessPass} />
       <AchievementsModal open={showAchievements} onOpenChange={setShowAchievements} />
