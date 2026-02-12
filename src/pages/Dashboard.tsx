@@ -61,6 +61,9 @@ const Dashboard = () => {
     description: "Jugador apasionado",
     avatarUrl: "",
     topics: ["Juegos", "Deportes"],
+    company: "",
+    activity: "",
+    observations: "",
     socialMedia: { facebook: "", linkedin: "", instagram: "", twitter: "", tiktok: "", website: "" },
   });
 

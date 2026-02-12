@@ -23,7 +23,7 @@ const contactSchema = z.object({
   linkedin: z.string().trim().max(255).optional().or(z.literal("")),
   twitter: z.string().trim().max(255).optional().or(z.literal("")),
   instagram: z.string().trim().max(255).optional().or(z.literal("")),
-  phone: z.string().trim().min(1, "Please enter your phone number.").max(30),
+  
   observations: z.string().trim().min(1, "Please enter any observations.").max(1000),
 });
 
@@ -42,7 +42,7 @@ const ContactForm = () => {
       linkedin: "",
       twitter: "",
       instagram: "",
-      phone: "",
+      
       observations: "",
     },
   });
@@ -164,19 +164,8 @@ const ContactForm = () => {
             )}
           />
 
-          <FormField
-            control={form.control}
-            name="phone"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Phone number *</FormLabel>
-                <FormControl>
-                  <Input type="tel" placeholder="" {...field} className="bg-card border-border" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+
+
         </div>
 
         <FormField
