@@ -20,6 +20,9 @@ interface ProfileData {
   description: string;
   avatarUrl: string;
   topics: string[];
+  company: string;
+  activity: string;
+  observations: string;
   socialMedia: {
     facebook: string;
     linkedin: string;
@@ -136,6 +139,44 @@ export const ProfileEditModal = ({ open, onOpenChange, profileData, onSave }: Pr
                 className="bg-background/50 resize-none"
                 rows={2}
                 maxLength={160}
+              />
+            </div>
+
+            {/* Company & Activity */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="company">Company</Label>
+                <Input
+                  id="company"
+                  value={formData.company}
+                  onChange={(e) => setFormData(prev => ({ ...prev, company: e.target.value }))}
+                  className="bg-background/50"
+                  placeholder="Your company..."
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="activity">Activity</Label>
+                <Input
+                  id="activity"
+                  value={formData.activity}
+                  onChange={(e) => setFormData(prev => ({ ...prev, activity: e.target.value }))}
+                  className="bg-background/50"
+                  placeholder="Your activity..."
+                />
+              </div>
+            </div>
+
+            {/* Observations */}
+            <div className="space-y-2">
+              <Label htmlFor="observations">Observations</Label>
+              <Textarea
+                id="observations"
+                value={formData.observations}
+                onChange={(e) => setFormData(prev => ({ ...prev, observations: e.target.value }))}
+                className="bg-background/50 resize-none"
+                rows={2}
+                maxLength={1000}
+                placeholder="Any additional notes..."
               />
             </div>
 
