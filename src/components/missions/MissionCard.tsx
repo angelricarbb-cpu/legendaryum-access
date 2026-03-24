@@ -172,11 +172,6 @@ const MissionCard = ({
         {/* Badges overlay */}
         <div className="absolute top-2 left-2 right-2 flex justify-between items-start">
           <div className="flex gap-1.5">
-            {mission.hasCode && (
-              <Badge variant="destructive" className="text-[10px] px-2 py-0.5">
-                CODE
-              </Badge>
-            )}
             {mission.requiredPlan === "premium" && (
               <Badge className="text-[10px] px-2 py-0.5 bg-amber-500 hover:bg-amber-500 text-black">
                 <Crown className="h-2.5 w-2.5 mr-1" />
@@ -244,15 +239,6 @@ const MissionCard = ({
           </div>
         )}
 
-        {/* Reward Display */}
-        {mission.reward && (
-          <div className="mb-3 flex items-center justify-center gap-2">
-            <span className="text-xs text-muted-foreground">WIN</span>
-            <Badge variant="destructive" className="text-[10px] px-2 py-0.5">
-              {mission.rewardType?.toUpperCase() || "REWARD"}
-            </Badge>
-          </div>
-        )}
 
         {/* Action Button */}
         {mission.status === "available" && (
