@@ -202,11 +202,6 @@ const RankingCampaignCard = ({
         {/* Badges overlay */}
         <div className="absolute top-2 left-2 right-2 flex justify-between items-start">
           <div className="flex gap-1.5">
-            {campaign.hasCode && (
-              <Badge variant="destructive" className="text-[10px] px-2 py-0.5">
-                CODE
-              </Badge>
-            )}
             {campaign.requiredPlan === "premium" && (
               <Badge className="text-[10px] px-2 py-0.5 bg-amber-500 hover:bg-amber-500 text-black">
                 <Crown className="h-2.5 w-2.5 mr-1" />
