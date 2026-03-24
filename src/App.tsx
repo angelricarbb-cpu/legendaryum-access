@@ -13,6 +13,7 @@ import Events from "./pages/Events";
 import Missions from "./pages/Missions";
 import Games from "./pages/Games";
 import GameDetail from "./pages/GameDetail";
+import Community from "./pages/Community";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
