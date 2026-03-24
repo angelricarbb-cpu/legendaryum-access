@@ -244,15 +244,6 @@ const MissionCard = ({
           </div>
         )}
 
-        {/* Reward Display */}
-        {mission.reward && (
-          <div className="mb-3 flex items-center justify-center gap-2">
-            <span className="text-xs text-muted-foreground">WIN</span>
-            <Badge variant="destructive" className="text-[10px] px-2 py-0.5">
-              {mission.rewardType?.toUpperCase() || "REWARD"}
-            </Badge>
-          </div>
-        )}
 
         {/* Action Button */}
         {mission.status === "available" && (
