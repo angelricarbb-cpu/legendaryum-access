@@ -193,7 +193,7 @@ const GameDetail = () => {
   const [skipCountdown, setSkipCountdown] = useState(5);
   const [isLiked, setIsLiked] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
-  const skipTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const skipTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const game = id ? mockGameData[id] : null;
 
