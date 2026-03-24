@@ -35,6 +35,7 @@ const App = () => (
             <Route path="/missions" element={<Missions />} />
             <Route path="/games" element={<Games />} />
             <Route path="/game/:id" element={<GameDetail />} />
+            <Route path="/community" element={<Community />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

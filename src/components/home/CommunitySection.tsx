@@ -1,94 +1,81 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Users, Plus, ChevronRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import StoryAvatar, { StoryUser } from "./community/StoryAvatar";
 import ActivityFeedItem, { ActivityItem } from "./community/ActivityFeedItem";
 import StoryAchievementsModal from "./community/StoryAchievementsModal";
 
-// Mock data for stories
+// Mock data for stories - mix of followed and suggested users
 const mockStoryUsers: StoryUser[] = [
-  { id: "1", username: "gamer_pro", avatar: "", hasUnseenStory: true, plan: "scale" },
-  { id: "2", username: "playbay", avatar: "", hasUnseenStory: true, plan: "growth" },
-  { id: "3", username: "galaxia_x", avatar: "", hasUnseenStory: true, plan: "premium" },
-  { id: "4", username: "gift_master", avatar: "", hasUnseenStory: false, plan: "free" },
-  { id: "5", username: "crypto_win", avatar: "", hasUnseenStory: true, plan: "growth" },
-  { id: "6", username: "lucky_star", avatar: "", hasUnseenStory: false, plan: "free" },
-  { id: "7", username: "top_gamer", avatar: "", hasUnseenStory: true, plan: "scale" },
-  { id: "8", username: "ninja_play", avatar: "", hasUnseenStory: true, plan: "premium" },
+  { id: "1", username: "gamer_pro", avatar: "", hasUnseenStory: true, plan: "scale", isFollowed: true },
+  { id: "2", username: "playbay", avatar: "", hasUnseenStory: true, plan: "growth", isFollowed: true },
+  { id: "3", username: "galaxia_x", avatar: "", hasUnseenStory: true, plan: "premium", isFollowed: false },
+  { id: "4", username: "gift_master", avatar: "", hasUnseenStory: false, plan: "free", isFollowed: true },
+  { id: "5", username: "crypto_win", avatar: "", hasUnseenStory: true, plan: "growth", isFollowed: false },
+  { id: "6", username: "lucky_star", avatar: "", hasUnseenStory: false, plan: "free", isFollowed: false },
+  { id: "7", username: "top_gamer", avatar: "", hasUnseenStory: true, plan: "scale", isFollowed: true },
+  { id: "8", username: "ninja_play", avatar: "", hasUnseenStory: true, plan: "premium", isFollowed: false },
 ];
 
 // Mock data for activity feed
 const mockActivities: ActivityItem[] = [
   {
-    id: "a1",
-    userId: "1",
-    username: "gamer_pro",
-    avatar: "",
-    type: "points",
-    description: "ganó",
-    target: "Campaña Navidad",
-    points: 500,
+    id: "a1", userId: "1", username: "gamer_pro", avatar: "", type: "points",
+    description: "ganó", target: "Campaña Navidad", points: 500,
     timestamp: new Date(Date.now() - 2 * 60 * 1000),
   },
   {
-    id: "a2",
-    userId: "2",
-    username: "playbay",
-    avatar: "",
-    type: "ranking",
-    description: "alcanzó el Top 10 en",
-    target: "Rankings Globales",
+    id: "a2", userId: "2", username: "playbay", avatar: "", type: "ranking",
+    description: "alcanzó el Top 10 en", target: "Rankings Globales",
     timestamp: new Date(Date.now() - 5 * 60 * 1000),
   },
   {
-    id: "a3",
-    userId: "3",
-    username: "galaxia_x",
-    avatar: "",
-    type: "mission",
-    description: "completó la misión",
-    target: "Dragon Slayer",
+    id: "a3", userId: "3", username: "galaxia_x", avatar: "", type: "mission",
+    description: "completó la misión", target: "Dragon Slayer",
     timestamp: new Date(Date.now() - 10 * 60 * 1000),
   },
   {
-    id: "a4",
-    userId: "5",
-    username: "crypto_win",
-    avatar: "",
-    type: "achievement",
-    description: "desbloqueó el logro",
-    target: "Primer Millón",
+    id: "a4", userId: "5", username: "crypto_win", avatar: "", type: "achievement",
+    description: "desbloqueó el logro", target: "Primer Millón",
     timestamp: new Date(Date.now() - 18 * 60 * 1000),
   },
   {
-    id: "a5",
-    userId: "7",
-    username: "top_gamer",
-    avatar: "",
-    type: "game",
-    description: "jugó 10 partidas en",
-    target: "Trivia Champions",
+    id: "a5", userId: "7", username: "top_gamer", avatar: "", type: "game",
+    description: "jugó 10 partidas en", target: "Trivia Champions",
     timestamp: new Date(Date.now() - 32 * 60 * 1000),
   },
 ];
 
 const CommunitySection = () => {
+  const navigate = useNavigate();
   const [storyUsers, setStoryUsers] = useState<StoryUser[]>(mockStoryUsers);
   const [selectedUser, setSelectedUser] = useState<StoryUser | null>(null);
   const [showAchievements, setShowAchievements] = useState(false);
+  const [followedIds, setFollowedIds] = useState<Set<string>>(
+    new Set(mockStoryUsers.filter(u => u.isFollowed).map(u => u.id))
+  );
 
   const handleStoryView = (userId: string) => {
     const user = storyUsers.find((u) => u.id === userId);
     if (user) {
       setSelectedUser(user);
       setShowAchievements(true);
-      // Mark as seen
       setStoryUsers((prev) =>
         prev.map((u) =>
           u.id === userId ? { ...u, hasUnseenStory: false } : u
         )
       );
     }
+  };
+
+  const handleToggleFollow = (userId: string) => {
+    setFollowedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(userId)) next.delete(userId);
+      else next.add(userId);
+      return next;
+    });
   };
 
   return (
@@ -126,6 +113,7 @@ const CommunitySection = () => {
                 variant="outline"
                 size="icon"
                 className="h-14 w-14 rounded-full border-dashed border-muted-foreground/50 hover:border-primary hover:bg-primary/10"
+                onClick={() => navigate("/community")}
               >
                 <Plus className="h-6 w-6 text-muted-foreground" />
               </Button>
@@ -136,18 +124,10 @@ const CommunitySection = () => {
 
         {/* Activity Feed */}
         <div>
-          <div className="flex items-center justify-between mb-4">
+          <div className="mb-4">
             <h3 className="text-sm font-medium text-foreground">
               Actividad Reciente
             </h3>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-xs text-muted-foreground hover:text-primary"
-            >
-              Ver todo
-              <ChevronRight className="h-3 w-3 ml-1" />
-            </Button>
           </div>
 
           <div className="space-y-2">
@@ -167,6 +147,8 @@ const CommunitySection = () => {
         open={showAchievements}
         onOpenChange={setShowAchievements}
         user={selectedUser}
+        isFollowing={selectedUser ? followedIds.has(selectedUser.id) : false}
+        onToggleFollow={handleToggleFollow}
       />
     </section>
   );

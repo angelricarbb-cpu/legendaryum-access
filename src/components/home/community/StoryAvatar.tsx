@@ -8,6 +8,7 @@ export interface StoryUser {
   avatar?: string;
   hasUnseenStory: boolean;
   plan: "free" | "premium" | "growth" | "scale";
+  isFollowed?: boolean;
 }
 
 interface StoryAvatarProps {
@@ -28,16 +29,12 @@ const StoryAvatar = ({ user, onView }: StoryAvatarProps) => {
       onClick={handleClick}
       className="flex flex-col items-center gap-2 min-w-[72px] group"
     >
-      {/* Story ring container */}
       <div
         className={cn(
           "relative p-[3px] rounded-full transition-transform duration-200 group-hover:scale-110",
-          hasViewed
-            ? "bg-muted"
-            : "story-ring-unseen"
+          hasViewed ? "bg-muted" : "story-ring-unseen"
         )}
       >
-        {/* Inner white/dark border */}
         <div className="p-[2px] rounded-full bg-background">
           <Avatar className="h-14 w-14">
             <AvatarImage src={user.avatar} alt={user.username} />
@@ -47,7 +44,6 @@ const StoryAvatar = ({ user, onView }: StoryAvatarProps) => {
           </Avatar>
         </div>
         
-        {/* Plan badge */}
         {user.plan !== "free" && (
           <span
             className={cn(
@@ -62,7 +58,6 @@ const StoryAvatar = ({ user, onView }: StoryAvatarProps) => {
         )}
       </div>
 
-      {/* Username */}
       <span className="text-xs text-muted-foreground text-center truncate w-full max-w-[72px] group-hover:text-foreground transition-colors">
         {user.username}
       </span>
