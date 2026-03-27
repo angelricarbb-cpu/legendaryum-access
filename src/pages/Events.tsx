@@ -85,6 +85,40 @@ const mockEvents: EventCampaign[] = [
     ticketPrice: 0,
     hasTicket: true, // Free event, no ticket needed
   },
+  // Available event - ticket not purchased during coming soon phase
+  {
+    id: "e1c",
+    title: "Retro Arcade Challenge",
+    logo: "",
+    brandName: "CLASSIC GAMING",
+    topPlayers: [
+      { position: 1, username: "@RetroKing", points: 95000 },
+      { position: 2, username: "@ArcadePro", points: 82000 },
+      { position: 3, username: "@PixelMaster", points: 71000 },
+    ],
+    myPosition: null,
+    myPoints: 0,
+    totalPlayers: 420,
+    maxPlayers: 2000,
+    hasPlayed: false,
+    startDate: new Date(),
+    endDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
+    status: "available",
+    hasCode: false,
+    requiredPlan: "all",
+    bonusLevel: {
+      gamesRequired: 4,
+      reward: "20% Retro Store Discount",
+      rewardType: "code",
+    },
+    specialReward: {
+      gamesRequired: 12,
+      reward: "$50 Gaming Credit",
+      rewardType: "item",
+    },
+    ticketPrice: 4.99,
+    hasTicket: false, // Didn't buy during coming_soon, can still buy in available
+  },
   {
     id: "e2",
     title: "VIP Exclusive Night",
