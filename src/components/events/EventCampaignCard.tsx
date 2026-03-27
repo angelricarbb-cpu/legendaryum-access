@@ -370,15 +370,19 @@ const EventCampaignCard = ({
         
         {campaign.status === "coming_soon" && (
           <>
-            {isPlanLocked ? (
-              <Button 
-                onClick={onUpgrade}
-                className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-lg"
-                size="sm"
-              >
-                <Crown className="h-3.5 w-3.5 mr-1.5" />
-                Upgrade to Premium
-              </Button>
+            {isFull && !campaign.hasTicket ? (
+              <div className="space-y-2">
+                <CountdownButton targetDate={campaign.startDate} />
+                <Button 
+                  disabled
+                  variant="outline"
+                  className="w-full rounded-lg cursor-not-allowed"
+                  size="sm"
+                >
+                  <Lock className="h-3.5 w-3.5 mr-1.5" />
+                  Sold Out
+                </Button>
+              </div>
             ) : campaign.hasTicket ? (
               <div className="space-y-2">
                 <CountdownButton targetDate={campaign.startDate} />
