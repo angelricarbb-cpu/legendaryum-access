@@ -137,7 +137,7 @@ const mockEvents: EventCampaign[] = [
     endDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
     status: "available",
     hasCode: false,
-    requiredPlan: "premium",
+    requiredPlan: "all",
     bonusLevel: {
       gamesRequired: 3,
       reward: "25% VIP Discount",
