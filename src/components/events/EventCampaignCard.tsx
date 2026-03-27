@@ -164,9 +164,10 @@ const EventCampaignCard = ({
   const isFull = campaign.totalPlayers >= campaign.maxPlayers;
   const isPlanLocked = campaign.requiredPlan === "premium" && !canAccessPremium(userPlan);
   const canJoin = !isFull && !isPlanLocked && campaign.status === "available" && campaign.hasTicket;
+  const isPremium = campaign.requiredPlan === "premium";
 
   return (
-    <div className={`bg-card rounded-xl border border-border hover:border-primary/40 transition-all duration-200 overflow-hidden group ${isPlanLocked ? 'opacity-80' : ''}`}>
+    <div className={`bg-card rounded-xl border-2 transition-all duration-200 overflow-hidden group ${isPlanLocked ? 'opacity-80' : ''} ${isPremium ? 'border-amber-500/40 hover:border-amber-500/70' : 'border-primary/30 hover:border-primary/60'}`}>
       {/* Game Image Header */}
       <div className="relative aspect-[4/3] bg-gradient-to-br from-primary/20 to-accent/20 overflow-hidden">
         {campaign.gameImage ? (
