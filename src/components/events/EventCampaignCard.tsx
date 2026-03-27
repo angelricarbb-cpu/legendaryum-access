@@ -320,16 +320,7 @@ const EventCampaignCard = ({
         {/* Action Button */}
         {campaign.status === "available" && (
           <>
-            {isPlanLocked ? (
-              <Button 
-                onClick={onUpgrade}
-                className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-lg"
-                size="sm"
-              >
-                <Crown className="h-3.5 w-3.5 mr-1.5" />
-                Upgrade to Premium
-              </Button>
-            ) : isFull ? (
+            {isFull ? (
               <Button 
                 disabled
                 variant="outline"
@@ -359,7 +350,7 @@ const EventCampaignCard = ({
             ) : (
               <Button 
                 onClick={() => onJoin(campaign.id)}
-                className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-lg"
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg"
                 size="sm"
               >
                 Join now
