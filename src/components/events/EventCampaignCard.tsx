@@ -340,13 +340,12 @@ const EventCampaignCard = ({
               </Button>
             ) : !campaign.hasTicket ? (
               <Button 
-                disabled
-                variant="outline"
-                className="w-full rounded-lg cursor-not-allowed"
+                onClick={() => onBuyTicket(campaign.id)}
+                className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-lg"
                 size="sm"
               >
                 <Ticket className="h-3.5 w-3.5 mr-1.5" />
-                No Ticket
+                Buy Ticket - ${campaign.ticketPrice}
               </Button>
             ) : campaign.hasPlayed ? (
               <Button 
