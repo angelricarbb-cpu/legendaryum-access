@@ -14,6 +14,7 @@ import Missions from "./pages/Missions";
 import Games from "./pages/Games";
 import GameDetail from "./pages/GameDetail";
 import Community from "./pages/Community";
+import CreatorProgram from "./pages/CreatorProgram";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,6 +37,7 @@ const App = () => (
             <Route path="/games" element={<Games />} />
             <Route path="/game/:id" element={<GameDetail />} />
             <Route path="/community" element={<Community />} />
+            <Route path="/creator-program" element={<CreatorProgram />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
