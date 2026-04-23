@@ -9,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Search, LayoutDashboard, CreditCard, AlertTriangle, LogOut } from "lucide-react";
+import { Search, LayoutDashboard, CreditCard, AlertTriangle, LogOut, Sparkles } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
 interface HeaderProps {
@@ -99,6 +99,10 @@ const Header = ({ isLoggedIn = false, user }: HeaderProps) => {
                   <DropdownMenuItem onClick={() => navigate("/dashboard")}>
                     <LayoutDashboard className="mr-2 h-4 w-4" />
                     Dashboard
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate("/creator-program")}>
+                    <Sparkles className="mr-2 h-4 w-4 text-amber-500" />
+                    Creator Program
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => navigate("/pricing")}>
                     <CreditCard className="mr-2 h-4 w-4" />

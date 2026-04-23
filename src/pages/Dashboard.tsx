@@ -400,7 +400,7 @@ const Dashboard = () => {
           <Card className="md:col-span-2 lg:col-span-3">
             <CardHeader><CardTitle>Acciones Rápidas</CardTitle></CardHeader>
             <CardContent>
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
                 <Button variant="outline" className="h-auto py-4 flex-col gap-2" onClick={() => setShowProfileModal(true)}>
                   <User className="h-5 w-5" /><span>Editar Perfil</span>
                 </Button>
@@ -412,6 +412,9 @@ const Dashboard = () => {
                 </Button>
                 <Button variant="outline" className="h-auto py-4 flex-col gap-2" onClick={() => setShowAchievements(true)}>
                   <Trophy className="h-5 w-5" /><span>Logros</span>
+                </Button>
+                <Button variant="outline" className="h-auto py-4 flex-col gap-2 border-amber-500/40 hover:border-amber-500" onClick={() => navigate("/creator-program")}>
+                  <Rocket className="h-5 w-5 text-amber-500" /><span>Creator Program</span>
                 </Button>
               </div>
             </CardContent>
