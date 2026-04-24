@@ -657,30 +657,38 @@ const CreatorProgram = () => {
         <Header isLoggedIn={isLoggedIn} user={user ? { name: user.name, username: `@${user.username}`, avatar: user.avatar } : undefined} />
         <main className="container py-12">
           <div className="max-w-2xl mx-auto text-center">
-            <div className="h-20 w-20 rounded-full bg-gradient-to-br from-amber-500 to-orange-500 mx-auto flex items-center justify-center mb-6">
+            <div className="h-20 w-20 rounded-full bg-gradient-to-br from-amber-500 to-orange-500 mx-auto flex items-center justify-center mb-6 animate-pulse">
               <Clock className="h-10 w-10 text-white" />
             </div>
-            <h1 className="text-3xl md:text-4xl font-bold mb-3">Solicitud recibida!</h1>
+            <Badge className="mb-4 bg-amber-500/10 text-amber-600 border-amber-500/30 dark:text-amber-400">
+              Estado: En revision
+            </Badge>
+            <h1 className="text-3xl md:text-4xl font-bold mb-3">Solicitud enviada con exito!</h1>
             <p className="text-lg text-muted-foreground mb-8">
-              Estamos revisando tu perfil. Te enviaremos la respuesta a <strong>{form.email}</strong> en menos de 48h.
+              Hemos recibido tu solicitud, <strong>{form.fullName}</strong>. Nuestro equipo la esta revisando y te enviaremos la respuesta a <strong>{form.email}</strong> en menos de 48h.
             </p>
 
             <Card className="text-left mb-6">
               <CardHeader>
-                <CardTitle className="text-base">Que pasa ahora?</CardTitle>
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Info className="h-4 w-4 text-primary" /> Que pasa ahora?
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 {[
-                  { icon: Mail, title: "Revisamos tu perfil", desc: "Analizamos tu contenido, redes y encaje con la plataforma." },
-                  { icon: CheckCircle2, title: "Decision en 48h", desc: "Recibiras un email con el resultado y los siguientes pasos." },
-                  { icon: Rocket, title: "Activamos tu cuenta", desc: "Si eres aprobado, recibes tu link de partner y acceso al dashboard." },
+                  { icon: Mail, title: "Revisamos tu perfil", desc: "Analizamos tu contenido, redes y encaje con la plataforma.", done: true },
+                  { icon: CheckCircle2, title: "Decision en 48h", desc: "Recibiras un email con el resultado y los siguientes pasos.", done: false },
+                  { icon: Rocket, title: "Activamos tu cuenta", desc: "Si eres aprobado, recibes tu link de partner y acceso al dashboard.", done: false },
                 ].map((s, i) => (
                   <div key={i} className="flex gap-3">
-                    <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                      <s.icon className="h-4 w-4 text-primary" />
+                    <div className={`h-8 w-8 rounded-full flex items-center justify-center shrink-0 ${s.done ? "bg-green-500/10" : "bg-primary/10"}`}>
+                      <s.icon className={`h-4 w-4 ${s.done ? "text-green-500" : "text-primary"}`} />
                     </div>
-                    <div>
-                      <p className="font-semibold text-sm">{s.title}</p>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <p className="font-semibold text-sm">{s.title}</p>
+                        {s.done && <Badge variant="outline" className="text-xs h-5 border-green-500/30 text-green-600 dark:text-green-400">Hecho</Badge>}
+                      </div>
                       <p className="text-sm text-muted-foreground">{s.desc}</p>
                     </div>
                   </div>
@@ -688,10 +696,21 @@ const CreatorProgram = () => {
               </CardContent>
             </Card>
 
+            <Card className="mb-6 border-dashed border-amber-500/40 bg-amber-500/5">
+              <CardContent className="pt-6 text-left">
+                <p className="text-sm font-semibold mb-1 flex items-center gap-2">
+                  <Sparkles className="h-4 w-4 text-amber-500" /> Modo demo
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Para probar el flujo completo, simula la aprobacion del equipo y entra directamente al dashboard de Creator Partner.
+                </p>
+              </CardContent>
+            </Card>
+
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Button variant="outline" onClick={() => setStatus("intro")}>Volver al inicio</Button>
-              <Button onClick={simulateApproval} className="gap-2">
-                <Sparkles className="h-4 w-4" /> Simular aprobacion (demo)
+              <Button onClick={simulateApproval} className="gap-2 bg-gradient-to-r from-green-500 to-emerald-500 hover:opacity-90 text-white">
+                <CheckCircle2 className="h-4 w-4" /> Simular aprobacion del equipo
               </Button>
             </div>
           </div>
