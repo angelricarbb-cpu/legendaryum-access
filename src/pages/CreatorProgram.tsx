@@ -639,7 +639,7 @@ const CreatorProgram = () => {
                   Siguiente <ArrowRight className="h-4 w-4" />
                 </Button>
               ) : (
-                <Button onClick={submitApplication} disabled={!canAdvance} className="gap-2">
+                <Button onClick={submitApplication} className="gap-2">
                   <Rocket className="h-4 w-4" /> Enviar solicitud
                 </Button>
               )}
