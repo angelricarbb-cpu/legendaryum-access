@@ -19,7 +19,7 @@ import {
   Link2, Gift, Rocket, Star, ArrowUpRight, Wallet, Calendar, Trophy,
   Facebook, Twitter, Send, MessageCircle, Building2, Ticket, UserPlus,
   CheckCircle2, Target, Zap, Info, Instagram, Youtube, Globe, Clock,
-  ArrowRight, ArrowLeft, PlayCircle, HelpCircle, Mail, ShieldCheck
+  ArrowRight, ArrowLeft, PlayCircle, HelpCircle, Mail, ShieldCheck, XCircle, X, Flame
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
@@ -212,10 +212,10 @@ const CreatorProgram = () => {
                 <Sparkles className="h-3 w-3 mr-1" /> Legendaryum Creators Program
               </Badge>
               <h1 className="text-4xl md:text-6xl font-bold mb-4 bg-gradient-to-br from-foreground to-foreground/60 bg-clip-text text-transparent">
-                Convierte tu comunidad en ingresos recurrentes
+                Gana dinero con tu comunidad promoviendo premios reales
               </h1>
               <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
-                100% basado en resultados, sin inversion y sin riesgo. Tu audiencia obtiene 20% de descuento, tu ganas 20% recurrente durante 12 meses.
+                Sin inversion. Sin riesgo. Tu audiencia accede a descuentos exclusivos. Tu ganas dinero con cada conversion durante 12 meses.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <Button size="lg" className="gap-2" onClick={() => setStatus("applying")}>
@@ -304,6 +304,46 @@ const CreatorProgram = () => {
               </CardContent>
             </Card>
 
+            {/* Bonos por volumen - Bloque dedicado */}
+            <div className="mb-16 relative overflow-hidden rounded-2xl border-2 border-amber-500/30 bg-gradient-to-br from-amber-500/10 via-orange-500/10 to-red-500/10 p-8 md:p-12">
+              <div className="absolute top-0 right-0 h-64 w-64 bg-amber-500/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+              <div className="absolute bottom-0 left-0 h-64 w-64 bg-orange-500/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
+              <div className="relative text-center max-w-4xl mx-auto">
+                <Badge className="mb-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0">
+                  <Flame className="h-3 w-3 mr-1" /> Bonos extra
+                </Badge>
+                <h2 className="text-3xl md:text-5xl font-bold mb-3 bg-gradient-to-br from-amber-500 via-orange-500 to-red-500 bg-clip-text text-transparent">
+                  Gana hasta USD 40.000 en bonos adicionales
+                </h2>
+                <p className="text-lg text-muted-foreground mb-8">
+                  Ademas de tus comisiones recurrentes, desbloquea bonos por volumen a medida que escalas.
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                  <div className="bg-background/80 backdrop-blur rounded-xl p-6 border border-blue-500/30">
+                    <Crown className="h-7 w-7 text-blue-500 mx-auto mb-2" />
+                    <p className="text-xs text-muted-foreground mb-1">Premium B2C</p>
+                    <p className="text-3xl font-bold text-blue-500">$8.850</p>
+                    <p className="text-xs text-muted-foreground mt-1">al alcanzar 100k suscripciones</p>
+                  </div>
+                  <div className="bg-background/80 backdrop-blur rounded-xl p-6 border border-purple-500/30">
+                    <Building2 className="h-7 w-7 text-purple-500 mx-auto mb-2" />
+                    <p className="text-xs text-muted-foreground mb-1">Marcas B2B</p>
+                    <p className="text-3xl font-bold text-purple-500">$6.500</p>
+                    <p className="text-xs text-muted-foreground mt-1">al alcanzar 500 marcas</p>
+                  </div>
+                  <div className="bg-background/80 backdrop-blur rounded-xl p-6 border border-orange-500/30">
+                    <Ticket className="h-7 w-7 text-orange-500 mx-auto mb-2" />
+                    <p className="text-xs text-muted-foreground mb-1">Eventos</p>
+                    <p className="text-3xl font-bold text-orange-500">$8.850</p>
+                    <p className="text-xs text-muted-foreground mt-1">al alcanzar 100k tickets</p>
+                  </div>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Sumando todas las vias y sub-creadores puedes acumular <strong className="text-foreground">hasta USD 40.000 extra</strong> en bonos.
+                </p>
+              </div>
+            </div>
+
             {/* Como funciona */}
             <div id="how-it-works" className="mb-16">
               <div className="text-center mb-10">
@@ -315,7 +355,7 @@ const CreatorProgram = () => {
                   { n: 1, icon: UserPlus, title: "Aplica", desc: "Cuentanos sobre ti y tus redes. Aprobacion en menos de 48h." },
                   { n: 2, icon: Link2, title: "Comparte tu link", desc: "Recibes un link unico para todas tus redes y bio." },
                   { n: 3, icon: TrendingUp, title: "Tu comunidad gana", desc: "Tus seguidores acceden con 20% de descuento." },
-                  { n: 4, icon: Wallet, title: "Cobra", desc: "20% recurrente durante 12 meses. Pago desde $100." },
+                  { n: 4, icon: Wallet, title: "Cobra", desc: "20% recurrente durante 12 meses." },
                 ].map((s) => (
                   <div key={s.n} className="relative">
                     <div className="h-12 w-12 rounded-full bg-gradient-to-br from-primary to-amber-500 text-white flex items-center justify-center font-bold mb-4">{s.n}</div>
@@ -341,22 +381,21 @@ const CreatorProgram = () => {
                     <li className="flex gap-2"><Check className="h-4 w-4 text-green-500 shrink-0 mt-0.5" /> Tienes una comunidad activa (desde 1k seguidores)</li>
                     <li className="flex gap-2"><Check className="h-4 w-4 text-green-500 shrink-0 mt-0.5" /> Quieres monetizar sin depender de algoritmos</li>
                     <li className="flex gap-2"><Check className="h-4 w-4 text-green-500 shrink-0 mt-0.5" /> Buscas ingresos recurrentes, no pagos puntuales</li>
-                    <li className="flex gap-2"><Check className="h-4 w-4 text-green-500 shrink-0 mt-0.5" /> Te interesan experiencias gamificadas y premios reales</li>
                   </ul>
                 </CardContent>
               </Card>
-              <Card className="border-muted bg-muted/30">
+              <Card className="border-red-500/40 bg-red-500/10">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-muted-foreground">
-                    <Info className="h-5 w-5" /> No es para ti si...
+                  <CardTitle className="flex items-center gap-2 text-red-600 dark:text-red-400">
+                    <XCircle className="h-5 w-5" /> No es para ti si...
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <ul className="space-y-2 text-sm text-muted-foreground">
-                    <li>• Buscas un sponsor de pago unico</li>
-                    <li>• No quieres compartir contenido en tus redes</li>
-                    <li>• Esperas comisiones sin actividad real</li>
-                    <li>• Tu audiencia no encaja con experiencias interactivas</li>
+                  <ul className="space-y-2 text-sm">
+                    <li className="flex gap-2"><X className="h-4 w-4 text-red-500 shrink-0 mt-0.5" /> Buscas un sponsor de pago unico</li>
+                    <li className="flex gap-2"><X className="h-4 w-4 text-red-500 shrink-0 mt-0.5" /> No quieres compartir contenido en tus redes</li>
+                    <li className="flex gap-2"><X className="h-4 w-4 text-red-500 shrink-0 mt-0.5" /> Esperas comisiones sin actividad real</li>
+                    <li className="flex gap-2"><X className="h-4 w-4 text-red-500 shrink-0 mt-0.5" /> Tu audiencia no encaja con experiencias interactivas</li>
                   </ul>
                 </CardContent>
               </Card>
@@ -370,7 +409,7 @@ const CreatorProgram = () => {
                 { icon: Zap, title: "Sin limites de ingresos", desc: "Cuanto mas volumen, mas bonos desbloqueas." },
                 { icon: UserPlus, title: "5% sub-creadores", desc: "Invita a otros creadores y gana sobre sus ingresos." },
                 { icon: Gift, title: "Recursos exclusivos", desc: "Banners, copys y casos de exito listos para usar." },
-                { icon: Trophy, title: "Bonos por volumen", desc: "Hasta $8.850 extra al alcanzar hitos." },
+                { icon: Trophy, title: "Bonos por volumen", desc: "Hasta USD 40.000 extra al alcanzar hitos." },
               ].map((b, i) => (
                 <div key={i} className="flex gap-3 p-4 rounded-lg border bg-card">
                   <b.icon className="h-5 w-5 text-primary shrink-0 mt-0.5" />
