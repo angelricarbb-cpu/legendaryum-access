@@ -211,6 +211,11 @@ const RankingCampaignCard = ({
                 PREMIUM
               </Badge>
             )}
+            {campaign.isApp && (
+              <Badge className="text-[10px] px-2 py-0.5 bg-blue-500 hover:bg-blue-500 text-white">
+                APP
+              </Badge>
+            )}
           </div>
           <button 
             onClick={() => onViewInfo(campaign.id)}
