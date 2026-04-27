@@ -19,7 +19,7 @@ import {
   Link2, Gift, Rocket, Star, ArrowUpRight, Wallet, Calendar, Trophy,
   Facebook, Twitter, Send, MessageCircle, Building2, Ticket, UserPlus,
   CheckCircle2, Target, Zap, Info, Instagram, Youtube, Globe, Clock,
-  ArrowRight, ArrowLeft, PlayCircle, HelpCircle, Mail, ShieldCheck
+  ArrowRight, ArrowLeft, PlayCircle, HelpCircle, Mail, ShieldCheck, XCircle, X, Flame
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
