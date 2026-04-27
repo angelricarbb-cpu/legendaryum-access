@@ -8,6 +8,7 @@ import CampaignInfoModal from "@/components/rankings/CampaignInfoModal";
 import TermsModal from "@/components/onboarding/TermsModal";
 import ProfileCompletionModal from "@/components/onboarding/ProfileCompletionModal";
 import UpgradeModal from "@/components/upgrade/UpgradeModal";
+import AppDownloadModal from "@/components/rankings/AppDownloadModal";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import useRequireAuth from "@/hooks/useRequireAuth";
