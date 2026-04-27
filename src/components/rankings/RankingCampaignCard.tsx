@@ -50,6 +50,9 @@ export interface RankingCampaign {
   requiredPlan?: PlanType;
   bonusLevel?: BonusLevel;
   specialReward?: SpecialReward;
+  isApp?: boolean;
+  iosUrl?: string;
+  androidUrl?: string;
 }
 
 interface RankingCampaignCardProps {
