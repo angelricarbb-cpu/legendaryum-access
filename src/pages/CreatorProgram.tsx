@@ -212,10 +212,10 @@ const CreatorProgram = () => {
                 <Sparkles className="h-3 w-3 mr-1" /> Legendaryum Creators Program
               </Badge>
               <h1 className="text-4xl md:text-6xl font-bold mb-4 bg-gradient-to-br from-foreground to-foreground/60 bg-clip-text text-transparent">
-                Convierte tu comunidad en ingresos recurrentes
+                Gana dinero con tu comunidad promoviendo premios reales
               </h1>
               <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
-                100% basado en resultados, sin inversion y sin riesgo. Tu audiencia obtiene 20% de descuento, tu ganas 20% recurrente durante 12 meses.
+                Sin inversion. Sin riesgo. Tu audiencia accede a descuentos exclusivos. Tu ganas dinero con cada conversion durante 12 meses.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <Button size="lg" className="gap-2" onClick={() => setStatus("applying")}>
