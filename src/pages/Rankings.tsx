@@ -495,6 +495,13 @@ const Rankings = () => {
       return;
     }
 
+    // App-based ranking: open download modal instead of navigating
+    if (campaign?.isApp) {
+      setAppCampaign(campaign);
+      setAppDownloadModalOpen(true);
+      return;
+    }
+
     // All checks passed, navigate to game
     navigate(`/game/${campaignId}`);
   };
