@@ -269,7 +269,11 @@ const CreatorProgram = () => {
                   </div>
                   <h3 className="font-semibold mb-2">Eventos exclusivos</h3>
                   <p className="text-3xl font-bold mb-1">20%</p>
-                  <p className="text-sm text-muted-foreground">Por cada ticket vendido para eventos pay-to-enter (viajes, finales, VIP).</p>
+                  <p className="text-sm font-medium mb-2">Comisión por cada ticket vendido</p>
+                  <ul className="text-sm text-muted-foreground space-y-1">
+                    <li>• Para eventos Pay to Enter.</li>
+                    <li>• Tu audiencia accede a descuentos exclusivos.</li>
+                  </ul>
                 </CardContent>
               </Card>
             </div>
