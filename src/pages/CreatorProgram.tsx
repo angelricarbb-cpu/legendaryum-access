@@ -241,7 +241,11 @@ const CreatorProgram = () => {
                   </div>
                   <h3 className="font-semibold mb-2">Premium B2C</h3>
                   <p className="text-3xl font-bold mb-1">20%</p>
-                  <p className="text-sm text-muted-foreground">Comision recurrente 12 meses por cada suscripcion Premium. Tu audiencia obtiene 20% de descuento.</p>
+                  <p className="text-sm font-medium mb-2">Comisión recurrente durante 12 meses</p>
+                  <ul className="text-sm text-muted-foreground space-y-1">
+                    <li>• Por cada suscripción Premium que generes.</li>
+                    <li>• Tu audiencia accede a un 20% de descuento.</li>
+                  </ul>
                 </CardContent>
               </Card>
               <Card className="border-2 border-purple-500/20 hover:border-purple-500/50 transition-colors">
@@ -251,7 +255,11 @@ const CreatorProgram = () => {
                   </div>
                   <h3 className="font-semibold mb-2">Marcas B2B</h3>
                   <p className="text-3xl font-bold mb-1">20%</p>
-                  <p className="text-sm text-muted-foreground">Recurrente 12 meses por cada marca que se suscriba a Growth o Scale.</p>
+                  <p className="text-sm font-medium mb-2">Comisión recurrente durante 12 meses</p>
+                  <ul className="text-sm text-muted-foreground space-y-1">
+                    <li>• Por cada marca que se suscriba a Growth o Scale.</li>
+                    <li>• Tu audiencia accede a un 20% de descuento.</li>
+                  </ul>
                 </CardContent>
               </Card>
               <Card className="border-2 border-orange-500/20 hover:border-orange-500/50 transition-colors">
@@ -261,7 +269,11 @@ const CreatorProgram = () => {
                   </div>
                   <h3 className="font-semibold mb-2">Eventos exclusivos</h3>
                   <p className="text-3xl font-bold mb-1">20%</p>
-                  <p className="text-sm text-muted-foreground">Por cada ticket vendido para eventos pay-to-enter (viajes, finales, VIP).</p>
+                  <p className="text-sm font-medium mb-2">Comisión por cada ticket vendido</p>
+                  <ul className="text-sm text-muted-foreground space-y-1">
+                    <li>• Para eventos Pay to Enter.</li>
+                    <li>• Tu audiencia accede a descuentos exclusivos.</li>
+                  </ul>
                 </CardContent>
               </Card>
             </div>
