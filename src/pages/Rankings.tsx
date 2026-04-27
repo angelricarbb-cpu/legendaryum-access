@@ -448,6 +448,10 @@ const Rankings = () => {
   // Upgrade modal state
   const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
 
+  // App download modal state
+  const [appDownloadModalOpen, setAppDownloadModalOpen] = useState(false);
+  const [appCampaign, setAppCampaign] = useState<RankingCampaign | null>(null);
+
   const filteredCampaigns = mockCampaigns.filter((c) => c.status === activeFilter);
 
   const handleUpgradeSuccess = () => {
