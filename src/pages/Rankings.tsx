@@ -475,6 +475,13 @@ const Rankings = () => {
       return;
     }
 
+    // App-based ranking: open download modal directly (no profile/terms needed)
+    if (campaign?.isApp) {
+      setAppCampaign(campaign);
+      setAppDownloadModalOpen(true);
+      return;
+    }
+
     // Check plan requirements - show upgrade modal instead of redirecting
     if (campaign?.requiredPlan === "premium" && !canAccessPlan("premium")) {
       setUpgradeModalOpen(true);
@@ -492,13 +499,6 @@ const Rankings = () => {
     if (!user?.hasCompletedProfile) {
       setPendingCampaignId(campaignId);
       setProfileModalOpen(true);
-      return;
-    }
-
-    // App-based ranking: open download modal instead of navigating
-    if (campaign?.isApp) {
-      setAppCampaign(campaign);
-      setAppDownloadModalOpen(true);
       return;
     }
 
