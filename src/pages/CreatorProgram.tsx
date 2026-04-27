@@ -304,6 +304,46 @@ const CreatorProgram = () => {
               </CardContent>
             </Card>
 
+            {/* Bonos por volumen - Bloque dedicado */}
+            <div className="mb-16 relative overflow-hidden rounded-2xl border-2 border-amber-500/30 bg-gradient-to-br from-amber-500/10 via-orange-500/10 to-red-500/10 p-8 md:p-12">
+              <div className="absolute top-0 right-0 h-64 w-64 bg-amber-500/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+              <div className="absolute bottom-0 left-0 h-64 w-64 bg-orange-500/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
+              <div className="relative text-center max-w-4xl mx-auto">
+                <Badge className="mb-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0">
+                  <Flame className="h-3 w-3 mr-1" /> Bonos extra
+                </Badge>
+                <h2 className="text-3xl md:text-5xl font-bold mb-3 bg-gradient-to-br from-amber-500 via-orange-500 to-red-500 bg-clip-text text-transparent">
+                  Gana hasta USD 40.000 en bonos adicionales
+                </h2>
+                <p className="text-lg text-muted-foreground mb-8">
+                  Ademas de tus comisiones recurrentes, desbloquea bonos por volumen a medida que escalas.
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                  <div className="bg-background/80 backdrop-blur rounded-xl p-6 border border-blue-500/30">
+                    <Crown className="h-7 w-7 text-blue-500 mx-auto mb-2" />
+                    <p className="text-xs text-muted-foreground mb-1">Premium B2C</p>
+                    <p className="text-3xl font-bold text-blue-500">$8.850</p>
+                    <p className="text-xs text-muted-foreground mt-1">al alcanzar 100k suscripciones</p>
+                  </div>
+                  <div className="bg-background/80 backdrop-blur rounded-xl p-6 border border-purple-500/30">
+                    <Building2 className="h-7 w-7 text-purple-500 mx-auto mb-2" />
+                    <p className="text-xs text-muted-foreground mb-1">Marcas B2B</p>
+                    <p className="text-3xl font-bold text-purple-500">$6.500</p>
+                    <p className="text-xs text-muted-foreground mt-1">al alcanzar 500 marcas</p>
+                  </div>
+                  <div className="bg-background/80 backdrop-blur rounded-xl p-6 border border-orange-500/30">
+                    <Ticket className="h-7 w-7 text-orange-500 mx-auto mb-2" />
+                    <p className="text-xs text-muted-foreground mb-1">Eventos</p>
+                    <p className="text-3xl font-bold text-orange-500">$8.850</p>
+                    <p className="text-xs text-muted-foreground mt-1">al alcanzar 100k tickets</p>
+                  </div>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Sumando todas las vias y sub-creadores puedes acumular <strong className="text-foreground">hasta USD 40.000 extra</strong> en bonos.
+                </p>
+              </div>
+            </div>
+
             {/* Como funciona */}
             <div id="how-it-works" className="mb-16">
               <div className="text-center mb-10">
