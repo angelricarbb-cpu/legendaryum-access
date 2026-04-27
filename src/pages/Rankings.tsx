@@ -728,6 +728,15 @@ const Rankings = () => {
         onUpgradeSuccess={handleUpgradeSuccess}
         targetPlan="premium"
       />
+
+      {/* App Download Modal */}
+      <AppDownloadModal
+        isOpen={appDownloadModalOpen}
+        onClose={() => setAppDownloadModalOpen(false)}
+        campaignTitle={appCampaign?.title}
+        iosUrl={appCampaign?.iosUrl}
+        androidUrl={appCampaign?.androidUrl}
+      />
     </div>
   );
 };
