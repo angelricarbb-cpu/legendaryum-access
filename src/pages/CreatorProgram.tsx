@@ -381,22 +381,21 @@ const CreatorProgram = () => {
                     <li className="flex gap-2"><Check className="h-4 w-4 text-green-500 shrink-0 mt-0.5" /> Tienes una comunidad activa (desde 1k seguidores)</li>
                     <li className="flex gap-2"><Check className="h-4 w-4 text-green-500 shrink-0 mt-0.5" /> Quieres monetizar sin depender de algoritmos</li>
                     <li className="flex gap-2"><Check className="h-4 w-4 text-green-500 shrink-0 mt-0.5" /> Buscas ingresos recurrentes, no pagos puntuales</li>
-                    <li className="flex gap-2"><Check className="h-4 w-4 text-green-500 shrink-0 mt-0.5" /> Te interesan experiencias gamificadas y premios reales</li>
                   </ul>
                 </CardContent>
               </Card>
-              <Card className="border-muted bg-muted/30">
+              <Card className="border-red-500/40 bg-red-500/10">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-muted-foreground">
-                    <Info className="h-5 w-5" /> No es para ti si...
+                  <CardTitle className="flex items-center gap-2 text-red-600 dark:text-red-400">
+                    <XCircle className="h-5 w-5" /> No es para ti si...
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <ul className="space-y-2 text-sm text-muted-foreground">
-                    <li>• Buscas un sponsor de pago unico</li>
-                    <li>• No quieres compartir contenido en tus redes</li>
-                    <li>• Esperas comisiones sin actividad real</li>
-                    <li>• Tu audiencia no encaja con experiencias interactivas</li>
+                  <ul className="space-y-2 text-sm">
+                    <li className="flex gap-2"><X className="h-4 w-4 text-red-500 shrink-0 mt-0.5" /> Buscas un sponsor de pago unico</li>
+                    <li className="flex gap-2"><X className="h-4 w-4 text-red-500 shrink-0 mt-0.5" /> No quieres compartir contenido en tus redes</li>
+                    <li className="flex gap-2"><X className="h-4 w-4 text-red-500 shrink-0 mt-0.5" /> Esperas comisiones sin actividad real</li>
+                    <li className="flex gap-2"><X className="h-4 w-4 text-red-500 shrink-0 mt-0.5" /> Tu audiencia no encaja con experiencias interactivas</li>
                   </ul>
                 </CardContent>
               </Card>
