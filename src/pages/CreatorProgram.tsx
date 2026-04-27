@@ -409,7 +409,7 @@ const CreatorProgram = () => {
                 { icon: Zap, title: "Sin limites de ingresos", desc: "Cuanto mas volumen, mas bonos desbloqueas." },
                 { icon: UserPlus, title: "5% sub-creadores", desc: "Invita a otros creadores y gana sobre sus ingresos." },
                 { icon: Gift, title: "Recursos exclusivos", desc: "Banners, copys y casos de exito listos para usar." },
-                { icon: Trophy, title: "Bonos por volumen", desc: "Hasta $8.850 extra al alcanzar hitos." },
+                { icon: Trophy, title: "Bonos por volumen", desc: "Hasta USD 40.000 extra al alcanzar hitos." },
               ].map((b, i) => (
                 <div key={i} className="flex gap-3 p-4 rounded-lg border bg-card">
                   <b.icon className="h-5 w-5 text-primary shrink-0 mt-0.5" />
