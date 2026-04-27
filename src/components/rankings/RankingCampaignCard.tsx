@@ -50,6 +50,9 @@ export interface RankingCampaign {
   requiredPlan?: PlanType;
   bonusLevel?: BonusLevel;
   specialReward?: SpecialReward;
+  isApp?: boolean;
+  iosUrl?: string;
+  androidUrl?: string;
 }
 
 interface RankingCampaignCardProps {
@@ -206,6 +209,11 @@ const RankingCampaignCard = ({
               <Badge className="text-[10px] px-2 py-0.5 bg-amber-500 hover:bg-amber-500 text-black">
                 <Crown className="h-2.5 w-2.5 mr-1" />
                 PREMIUM
+              </Badge>
+            )}
+            {campaign.isApp && (
+              <Badge className="text-[10px] px-2 py-0.5 bg-blue-500 hover:bg-blue-500 text-white">
+                APP
               </Badge>
             )}
           </div>

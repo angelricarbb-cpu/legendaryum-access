@@ -8,6 +8,7 @@ import CampaignInfoModal from "@/components/rankings/CampaignInfoModal";
 import TermsModal from "@/components/onboarding/TermsModal";
 import ProfileCompletionModal from "@/components/onboarding/ProfileCompletionModal";
 import UpgradeModal from "@/components/upgrade/UpgradeModal";
+import AppDownloadModal from "@/components/rankings/AppDownloadModal";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import useRequireAuth from "@/hooks/useRequireAuth";
@@ -170,6 +171,41 @@ const mockCampaigns: RankingCampaign[] = [
     specialReward: {
       gamesRequired: 8,
       reward: "$25 Steam Gift Card",
+      rewardType: "item",
+    },
+  },
+  // APP-based ranking - opens download modal on Join
+  {
+    id: "2f",
+    title: "Mobile Strikers League",
+    logo: "",
+    brandName: "PIXEL ARENA",
+    topPlayers: [
+      { position: 1, username: "@MobileKing", points: 412000 },
+      { position: 2, username: "@TapMaster", points: 388000 },
+      { position: 3, username: "@SwipePro", points: 305000 },
+    ],
+    myPosition: null,
+    myPoints: 0,
+    totalPlayers: 1820,
+    maxPlayers: 25000,
+    hasPlayed: false,
+    startDate: new Date(),
+    endDate: new Date(Date.now() + 12 * 24 * 60 * 60 * 1000),
+    status: "available",
+    hasCode: true,
+    requiredPlan: "all",
+    isApp: true,
+    iosUrl: "https://apps.apple.com",
+    androidUrl: "https://play.google.com",
+    bonusLevel: {
+      gamesRequired: 5,
+      reward: "15% In-App Discount",
+      rewardType: "code",
+    },
+    specialReward: {
+      gamesRequired: 15,
+      reward: "$50 App Store Gift Card",
       rewardType: "item",
     },
   },
@@ -412,6 +448,10 @@ const Rankings = () => {
   // Upgrade modal state
   const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
 
+  // App download modal state
+  const [appDownloadModalOpen, setAppDownloadModalOpen] = useState(false);
+  const [appCampaign, setAppCampaign] = useState<RankingCampaign | null>(null);
+
   const filteredCampaigns = mockCampaigns.filter((c) => c.status === activeFilter);
 
   const handleUpgradeSuccess = () => {
@@ -452,6 +492,13 @@ const Rankings = () => {
     if (!user?.hasCompletedProfile) {
       setPendingCampaignId(campaignId);
       setProfileModalOpen(true);
+      return;
+    }
+
+    // App-based ranking: open download modal instead of navigating
+    if (campaign?.isApp) {
+      setAppCampaign(campaign);
+      setAppDownloadModalOpen(true);
       return;
     }
 
@@ -680,6 +727,15 @@ const Rankings = () => {
         onClose={() => setUpgradeModalOpen(false)}
         onUpgradeSuccess={handleUpgradeSuccess}
         targetPlan="premium"
+      />
+
+      {/* App Download Modal */}
+      <AppDownloadModal
+        isOpen={appDownloadModalOpen}
+        onClose={() => setAppDownloadModalOpen(false)}
+        campaignTitle={appCampaign?.title}
+        iosUrl={appCampaign?.iosUrl}
+        androidUrl={appCampaign?.androidUrl}
       />
     </div>
   );
