@@ -355,7 +355,7 @@ const CreatorProgram = () => {
                   { n: 1, icon: UserPlus, title: "Aplica", desc: "Cuentanos sobre ti y tus redes. Aprobacion en menos de 48h." },
                   { n: 2, icon: Link2, title: "Comparte tu link", desc: "Recibes un link unico para todas tus redes y bio." },
                   { n: 3, icon: TrendingUp, title: "Tu comunidad gana", desc: "Tus seguidores acceden con 20% de descuento." },
-                  { n: 4, icon: Wallet, title: "Cobra", desc: "20% recurrente durante 12 meses. Pago desde $100." },
+                  { n: 4, icon: Wallet, title: "Cobra", desc: "20% recurrente durante 12 meses." },
                 ].map((s) => (
                   <div key={s.n} className="relative">
                     <div className="h-12 w-12 rounded-full bg-gradient-to-br from-primary to-amber-500 text-white flex items-center justify-center font-bold mb-4">{s.n}</div>
