@@ -334,19 +334,19 @@ const CreatorProgram = () => {
                   <div className="bg-background/80 backdrop-blur rounded-xl p-6 border border-blue-500/30">
                     <Crown className="h-7 w-7 text-blue-500 mx-auto mb-2" />
                     <p className="text-xs text-muted-foreground mb-1">Premium B2C</p>
-                    <p className="text-3xl font-bold text-blue-500">$8.850</p>
+                    <p className="text-3xl font-bold text-blue-500">$15.000</p>
                     <p className="text-xs text-muted-foreground mt-1">al alcanzar 100k suscripciones</p>
                   </div>
                   <div className="bg-background/80 backdrop-blur rounded-xl p-6 border border-purple-500/30">
                     <Building2 className="h-7 w-7 text-purple-500 mx-auto mb-2" />
                     <p className="text-xs text-muted-foreground mb-1">Marcas B2B</p>
-                    <p className="text-3xl font-bold text-purple-500">$6.500</p>
+                    <p className="text-3xl font-bold text-purple-500">$10.000</p>
                     <p className="text-xs text-muted-foreground mt-1">al alcanzar 500 marcas</p>
                   </div>
                   <div className="bg-background/80 backdrop-blur rounded-xl p-6 border border-orange-500/30">
                     <Ticket className="h-7 w-7 text-orange-500 mx-auto mb-2" />
                     <p className="text-xs text-muted-foreground mb-1">Eventos</p>
-                    <p className="text-3xl font-bold text-orange-500">$8.850</p>
+                    <p className="text-3xl font-bold text-orange-500">$15.000</p>
                     <p className="text-xs text-muted-foreground mt-1">al alcanzar 100k tickets</p>
                   </div>
                 </div>
