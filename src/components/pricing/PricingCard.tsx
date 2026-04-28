@@ -11,6 +11,7 @@ interface PricingCardProps {
   features: string[];
   buttonText: string;
   popular?: boolean;
+  popularLabel?: string;
   colorClass: string;
   onSelect: () => void;
   disabled?: boolean;
@@ -24,6 +25,7 @@ const PricingCard = ({
   features,
   buttonText,
   popular = false,
+  popularLabel = "Más Popular",
   colorClass,
   onSelect,
   disabled = false,
@@ -34,9 +36,9 @@ const PricingCard = ({
       popular && "border-2 border-primary shadow-lg shadow-primary/10 scale-105"
     )}>
       {popular && (
-        <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+        <div className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap">
           <span className="bg-primary text-primary-foreground text-xs font-semibold px-3 py-1 rounded-full">
-            Más Popular
+            {popularLabel}
           </span>
         </div>
       )}
