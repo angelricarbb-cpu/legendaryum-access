@@ -180,25 +180,71 @@ const Pricing = () => {
             )}
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 max-w-7xl mx-auto">
-            {plans.map((plan) => (
-              <PricingCard
-                key={plan.name}
-                {...plan}
-                buttonText={
-                  isCurrentPlan(plan.name) 
-                    ? "Plan Actual" 
-                    : isUpgrade(plan.name) 
-                      ? "Upgrade" 
-                      : isDowngrade(plan.name)
-                        ? "Downgrade"
-                        : plan.buttonText
-                }
-                onSelect={() => handleSelectPlan(plan)}
-                disabled={isCurrentPlan(plan.name)}
-              />
-            ))}
-          </div>
+          {/* Sección Usuarios */}
+          <section className="mb-16">
+            <div className="flex items-center gap-4 mb-8 max-w-3xl mx-auto">
+              <div className="h-px flex-1 bg-border" />
+              <div className="text-center">
+                <h2 className="text-2xl md:text-3xl font-bold">Para usuarios</h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Juega, gana y desbloquea ventajas exclusivas
+                </p>
+              </div>
+              <div className="h-px flex-1 bg-border" />
+            </div>
+            <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto pt-4">
+              {plans.filter(p => p.name === "FREE" || p.name === "PREMIUM").map((plan) => (
+                <PricingCard
+                  key={plan.name}
+                  {...plan}
+                  buttonText={
+                    isCurrentPlan(plan.name)
+                      ? "Plan Actual"
+                      : isUpgrade(plan.name)
+                        ? "Upgrade"
+                        : isDowngrade(plan.name)
+                          ? "Downgrade"
+                          : plan.buttonText
+                  }
+                  onSelect={() => handleSelectPlan(plan)}
+                  disabled={isCurrentPlan(plan.name)}
+                />
+              ))}
+            </div>
+          </section>
+
+          {/* Sección Marcas */}
+          <section>
+            <div className="flex items-center gap-4 mb-8 max-w-5xl mx-auto">
+              <div className="h-px flex-1 bg-border" />
+              <div className="text-center">
+                <h2 className="text-2xl md:text-3xl font-bold">Para marcas</h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Crea campañas gamificadas y conecta con tu audiencia
+                </p>
+              </div>
+              <div className="h-px flex-1 bg-border" />
+            </div>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto pt-4">
+              {plans.filter(p => p.name === "GROWTH" || p.name === "SCALE" || p.name === "ENTERPRISE").map((plan) => (
+                <PricingCard
+                  key={plan.name}
+                  {...plan}
+                  buttonText={
+                    isCurrentPlan(plan.name)
+                      ? "Plan Actual"
+                      : isUpgrade(plan.name)
+                        ? "Upgrade"
+                        : isDowngrade(plan.name)
+                          ? "Downgrade"
+                          : plan.buttonText
+                  }
+                  onSelect={() => handleSelectPlan(plan)}
+                  disabled={isCurrentPlan(plan.name)}
+                />
+              ))}
+            </div>
+          </section>
         </div>
       </main>
 
