@@ -32,7 +32,7 @@ const PREMIUM_BONUSES = [
   { users: 5000, bonus: 500 },
   { users: 10000, bonus: 1000 },
   { users: 50000, bonus: 4500 },
-  { users: 100000, bonus: 8850 },
+  { users: 100000, bonus: 15000 },
 ];
 
 const B2B_BONUSES = [
@@ -40,7 +40,7 @@ const B2B_BONUSES = [
   { brands: 50, bonus: 400 },
   { brands: 150, bonus: 1000 },
   { brands: 300, bonus: 2000 },
-  { brands: 500, bonus: 6500 },
+  { brands: 500, bonus: 10000 },
 ];
 
 const EVENTS_BONUSES = [
@@ -49,7 +49,7 @@ const EVENTS_BONUSES = [
   { tickets: 5000, bonus: 500 },
   { tickets: 10000, bonus: 1000 },
   { tickets: 50000, bonus: 4500 },
-  { tickets: 100000, bonus: 8850 },
+  { tickets: 100000, bonus: 15000 },
 ];
 
 interface ApplicationForm {
@@ -291,14 +291,14 @@ const CreatorProgram = () => {
                     <Label>Tamano de tu comunidad</Label>
                     <span className="text-sm font-bold">{calcFollowers[0].toLocaleString()} seguidores</span>
                   </div>
-                  <Slider value={calcFollowers} onValueChange={setCalcFollowers} min={1000} max={500000} step={1000} />
+                  <Slider value={calcFollowers} onValueChange={setCalcFollowers} min={1000} max={2000000} step={1000} />
                 </div>
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <Label>Tasa de conversion estimada</Label>
                     <span className="text-sm font-bold">{calcConversion[0]}%</span>
                   </div>
-                  <Slider value={calcConversion} onValueChange={setCalcConversion} min={0.5} max={10} step={0.5} />
+                  <Slider value={calcConversion} onValueChange={setCalcConversion} min={0.5} max={50} step={0.5} />
                 </div>
                 <div className="grid grid-cols-2 gap-4 pt-4">
                   <div className="text-center p-4 rounded-lg bg-background border">
