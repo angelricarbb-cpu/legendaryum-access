@@ -32,7 +32,7 @@ const PREMIUM_BONUSES = [
   { users: 5000, bonus: 500 },
   { users: 10000, bonus: 1000 },
   { users: 50000, bonus: 4500 },
-  { users: 100000, bonus: 8850 },
+  { users: 100000, bonus: 15000 },
 ];
 
 const B2B_BONUSES = [
@@ -40,7 +40,7 @@ const B2B_BONUSES = [
   { brands: 50, bonus: 400 },
   { brands: 150, bonus: 1000 },
   { brands: 300, bonus: 2000 },
-  { brands: 500, bonus: 6500 },
+  { brands: 500, bonus: 10000 },
 ];
 
 const EVENTS_BONUSES = [
@@ -49,7 +49,7 @@ const EVENTS_BONUSES = [
   { tickets: 5000, bonus: 500 },
   { tickets: 10000, bonus: 1000 },
   { tickets: 50000, bonus: 4500 },
-  { tickets: 100000, bonus: 8850 },
+  { tickets: 100000, bonus: 15000 },
 ];
 
 interface ApplicationForm {
