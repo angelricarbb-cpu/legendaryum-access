@@ -350,9 +350,6 @@ const CreatorProgram = () => {
                     <p className="text-xs text-muted-foreground mt-1">al alcanzar 100k tickets</p>
                   </div>
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  Sumando todas las vias y sub-creadores puedes acumular <strong className="text-foreground">hasta USD 40.000 extra</strong> en bonos.
-                </p>
               </div>
             </div>
 
