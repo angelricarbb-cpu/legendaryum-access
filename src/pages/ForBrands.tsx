@@ -1,6 +1,7 @@
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import B2BSection from "@/components/home/B2BSection";
+import BrandsServices from "@/components/brands/BrandsServices";
 import ContactForm from "@/components/ContactForm";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -16,6 +17,7 @@ const ForBrands = () => {
 
       <main className="flex-1">
         <B2BSection />
+        <BrandsServices />
 
         <section id="contact" className="py-16 bg-background">
           <div className="container px-4">
