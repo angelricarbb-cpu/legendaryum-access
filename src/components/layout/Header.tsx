@@ -69,6 +69,16 @@ const Header = ({ isLoggedIn = false, user }: HeaderProps) => {
         </nav>
 
         <div className="flex items-center gap-3">
+          <Button
+            asChild
+            size="sm"
+            className="hidden sm:inline-flex rounded-full bg-gradient-to-r from-amber-500 via-orange-500 to-pink-500 text-white hover:opacity-90 shadow-lg shadow-orange-500/30 font-semibold"
+          >
+            <Link to="/for-brands">
+              <Sparkles className="h-4 w-4" />
+              For Brands
+            </Link>
+          </Button>
           {isLoggedIn ? (
             <>
               <Button variant="ghost" size="icon" className="rounded-full">
