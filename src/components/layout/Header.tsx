@@ -76,7 +76,7 @@ const Header = ({ isLoggedIn = false, user }: HeaderProps) => {
           >
             <Link to="/for-brands">
               <Sparkles className="h-4 w-4" />
-              For Brands
+              ¿Eres Marca?
             </Link>
           </Button>
           {isLoggedIn ? (
