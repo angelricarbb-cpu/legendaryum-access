@@ -16,7 +16,7 @@ const ForBrands = () => {
       />
 
       <main className="flex-1">
-        <B2BSection />
+        <B2BSection showCta={false} />
         <BrandsServices />
 
         <section id="contact" className="py-16 bg-background">
