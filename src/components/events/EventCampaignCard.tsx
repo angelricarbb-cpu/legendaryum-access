@@ -196,9 +196,9 @@ const EventCampaignCard = ({
             ) : isFull ? (
               <div className="flex flex-col items-center gap-2 text-center px-4">
                 <div className="bg-destructive/20 rounded-full p-3">
-                  <Lock className="h-6 w-6 text-destructive" />
+                  <Ticket className="h-6 w-6 text-destructive" />
                 </div>
-                <span className="text-xs font-medium text-foreground">Capacity Full</span>
+                <span className="text-xs font-medium text-foreground">Sold Out</span>
               </div>
             ) : null}
           </div>
@@ -327,8 +327,8 @@ const EventCampaignCard = ({
                 className="w-full rounded-lg cursor-not-allowed"
                 size="sm"
               >
-                <Lock className="h-3.5 w-3.5 mr-1.5" />
-                Capacity Full
+                <Ticket className="h-3.5 w-3.5 mr-1.5" />
+                Sold Out
               </Button>
             ) : !campaign.hasTicket ? (
               <Button 
@@ -428,8 +428,8 @@ const EventCampaignCard = ({
                 className="w-full rounded-lg cursor-not-allowed"
                 size="sm"
               >
-                <Lock className="h-3.5 w-3.5 mr-1.5" />
-                Capacity Full
+                <Ticket className="h-3.5 w-3.5 mr-1.5" />
+                Sold Out
               </Button>
             ) : (
               <Button 
