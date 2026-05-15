@@ -195,8 +195,8 @@ const EventCampaignCard = ({
               </div>
             ) : isFull ? (
               <div className="flex flex-col items-center gap-2 text-center px-4">
-                <div className="bg-destructive/20 rounded-full p-3">
-                  <Ticket className="h-6 w-6 text-destructive" />
+                <div className="bg-orange-500/20 rounded-full p-3">
+                  <Ticket className="h-6 w-6 text-orange-500" />
                 </div>
                 <span className="text-xs font-medium text-foreground">Sold Out</span>
               </div>
@@ -223,9 +223,9 @@ const EventCampaignCard = ({
         </div>
 
         {/* Capacity badge */}
-        <div className={`absolute bottom-2 right-2 backdrop-blur-sm rounded-full px-2 py-1 flex items-center gap-1 ${isFull ? 'bg-destructive/80' : 'bg-background/80'}`}>
+        <div className={`absolute bottom-2 right-2 backdrop-blur-sm rounded-full px-2 py-1 flex items-center gap-1 ${isFull ? 'bg-orange-500/80' : 'bg-background/80'}`}>
           <Users className="h-3 w-3 text-muted-foreground" />
-          <span className={`text-[10px] font-medium ${isFull ? 'text-destructive-foreground' : 'text-foreground'}`}>
+          <span className={`text-[10px] font-medium ${isFull ? 'text-white' : 'text-foreground'}`}>
             {campaign.totalPlayers.toLocaleString()}/{campaign.maxPlayers.toLocaleString()}
           </span>
         </div>
@@ -324,7 +324,7 @@ const EventCampaignCard = ({
               <Button 
                 disabled
                 variant="outline"
-                className="w-full rounded-lg cursor-not-allowed"
+                className="w-full rounded-lg cursor-not-allowed border-orange-500/50 text-orange-500 bg-orange-500/10"
                 size="sm"
               >
                 <Ticket className="h-3.5 w-3.5 mr-1.5" />
@@ -367,10 +367,10 @@ const EventCampaignCard = ({
                 <Button 
                   disabled
                   variant="outline"
-                  className="w-full rounded-lg cursor-not-allowed"
+                  className="w-full rounded-lg cursor-not-allowed border-orange-500/50 text-orange-500 bg-orange-500/10"
                   size="sm"
                 >
-                  <Lock className="h-3.5 w-3.5 mr-1.5" />
+                  <Ticket className="h-3.5 w-3.5 mr-1.5" />
                   Sold Out
                 </Button>
               </div>
@@ -425,7 +425,7 @@ const EventCampaignCard = ({
               <Button 
                 disabled
                 variant="outline"
-                className="w-full rounded-lg cursor-not-allowed"
+                className="w-full rounded-lg cursor-not-allowed border-orange-500/50 text-orange-500 bg-orange-500/10"
                 size="sm"
               >
                 <Ticket className="h-3.5 w-3.5 mr-1.5" />
