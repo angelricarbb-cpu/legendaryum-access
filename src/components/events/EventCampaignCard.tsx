@@ -195,8 +195,8 @@ const EventCampaignCard = ({
               </div>
             ) : isFull ? (
               <div className="flex flex-col items-center gap-2 text-center px-4">
-                <div className="bg-destructive/20 rounded-full p-3">
-                  <Ticket className="h-6 w-6 text-destructive" />
+                <div className="bg-orange-500/20 rounded-full p-3">
+                  <Ticket className="h-6 w-6 text-orange-500" />
                 </div>
                 <span className="text-xs font-medium text-foreground">Sold Out</span>
               </div>
